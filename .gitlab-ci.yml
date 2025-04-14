@@ -1,16 +1,18 @@
 # File: .gitlab-ci.yml
-variables:
-  TF_STATE_BUCKET: "your-s3-bucket"
-  TF_KEY: "iac/${CI_ENVIRONMENT_NAME}/terraform.tfstate"
-
 include:
-  - remote: 'https://gitlab.nexdev.net/iac/core-ci/-/raw/main/templates/iac-pipeline.yml'
+  - remote: 'https://gitlab.nexdev.net/iac/core-ci/-/raw/main/templates/iac/terraform-pipeline.yml'
+  - remote: 'https://gitlab.nexdev.net/iac/core-ci/-/raw/main/templates/security/tfsec.yml'
+
+variables:
+  TF_STATE_PREFIX: "iac/${CI_ENVIRONMENT_NAME}"
+  TF_CLI_ARGS: "-no-color"
 
 stages:
   - validate
-  - deploy
-  - output
+  - plan
+  - apply
+  - outputs
 
 workflow:
   rules:
-    - if: $CI_PIPELINE_SOURCE == "trigger"
+    - if: $CI_PIPELINE_SOURCE == "pipeline" && $CI_COMMIT_REF_NAME =~ /^iac-/
