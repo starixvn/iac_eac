@@ -34,7 +34,7 @@ validate:
   extends: .iac_validate
   ##stage: validate
   script:
-    - cd $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
+    - cd ./vault/
     - bash scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
 
 # .plan:
