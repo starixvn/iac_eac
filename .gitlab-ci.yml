@@ -35,7 +35,7 @@ validate:
   variables:
     APP: "vault"
   script:
-    - cd ${APP}/vault
+    - cd ${APP}
     - /scripts/tf-helpers/validate.sh
   artifacts:
     paths:
