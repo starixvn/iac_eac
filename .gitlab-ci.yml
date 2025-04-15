@@ -38,7 +38,7 @@ validate:
     #- cd ${APP}
     - ls
     - ls ${TF_DATA_DIR}
-    - sh ./scripts/tf-helpers/validate.sh
+    - sh scripts/tf-helpers/validate.sh
   artifacts:
     paths:
       - ${APP}/.terraform/
