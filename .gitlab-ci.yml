@@ -1,4 +1,10 @@
 # File: templates.yml
+stages:
+  - validate
+  - plan
+  - deploy
+  - notify
+
 include:
   - project: 'iac/core-ci'
     file: '/templates/iac-base.yml'
@@ -23,12 +29,6 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG
   
-stages:
-  - validate
-  - plan
-  - deploy
-  - notify
-
 validate:
   extends: .iac_validate
   #stage: validate
