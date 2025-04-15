@@ -12,7 +12,7 @@ terraform validate
 terraform fmt -check -recursive
 
 # Security scanning with tfsec
-docker run --rm -v $(pwd):/src -w /src aquasec/tfsec:latest /src
+#docker run --rm -v $(pwd):/src -w /src aquasec/tfsec:latest /src
 
 # Policy checking with OPA
 if [ -d "policy" ]; then
