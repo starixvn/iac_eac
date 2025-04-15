@@ -54,7 +54,7 @@ plan:
 
 deploy:
   extends: .iac_apply
-  needs: ["vault-plan"]
+  needs: ["plan"]
   variables:
     APP: "vault"
 
