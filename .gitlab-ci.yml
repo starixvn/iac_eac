@@ -23,10 +23,10 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG
   
-# stages:
-#   - validate
-#   - plan
-#   - apply
+stages:
+  - validate
+  - plan
+  - apply
 
 validate:
   extends: .iac_validate
