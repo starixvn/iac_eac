@@ -36,7 +36,9 @@ validate:
     APP: "vault"
   script:
     - cd ${APP}
-    - /scripts/tf-helpers/validate.sh
+    - ls
+    - ls scripts/tf-helpers
+    - sh scripts/tf-helpers/validate.sh
   artifacts:
     paths:
       - ${APP}/.terraform/
