@@ -6,28 +6,47 @@ include:
   - project: 'iac/core-ci'
     file: '/templates/notify.yml'
     ref: main
+  - project: 'iac/core-ci'
+    file: '/includes/common-vars.yml'
+    ref: main
+  - project: 'iac/core-ci'
+    file: '/includes/secrets.yml'
+    ref: main
   
 variables:
   TF_CLI_ARGS: "-no-color"
   TF_VAR_ENVIRONMENT: $CI_ENVIRONMENT_NAME
 
-stages:
-  - validate
-  - plan
-  - apply
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+  
+# stages:
+#   - validate
+#   - plan
+#   - apply
 
-.validate:
-  extends: .iac_template
-  stage: validate
+validate:
+  extends: .iac_validate
+  #stage: validate
   script:
-    - bash templates/scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
+    - cd $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
+    - bash scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
 
-.plan:
-  stage: plan
-  script:
-    - terraform plan -var-file=environments/$CI_ENVIRONMENT_NAME/${CI_PROJECT_NAME}.tfvars -out=tfplan
+# .plan:
+#   stage: plan
+#   script:
+#     - terraform plan -var-file=environments/$CI_ENVIRONMENT_NAME/${CI_PROJECT_NAME}.tfvars -out=tfplan
 
-.apply:
-  stage: apply
+deploy:
+  extends: .iac_deploy
   script:
-    - bash templates/scripts/tf-helpers/deploy.sh $CI_PROJECT_NAME $CI_ENVIRONMENT_NAME
+    - cd $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
+    - bash scripts/tf-helpers/deploy.sh $CI_PROJECT_NAME $CI_ENVIRONMENT_NAME
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+notify-failure:
+  extends: .notify_slack
