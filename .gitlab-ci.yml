@@ -1,7 +1,7 @@
 # File: templates.yml
 stages:
   - validate
-  - plan
+  - test
   - deploy
   - notify
 
@@ -31,26 +31,32 @@ workflow:
     - if: $CI_COMMIT_TAG
   
 validate:
-  extends: .iac_validate
-  ##stage: validate
+  extends: .iac_fmt
+  variables:
+    APP: "vault"
   script:
-    - cd ./vault/
-    - ls
+    - cd ${TF_ROOT}/vault
+    - /.gitlab-ci/scripts/tf-helpers/validate.sh
+  artifacts:
+    paths:
+      - ${TF_ROOT}/vault/.terraform/
+    expire_in: 1 week
     #- bash scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
 
-# .plan:
-#   stage: plan
-#   script:
-#     - terraform plan -var-file=environments/$CI_ENVIRONMENT_NAME/${CI_PROJECT_NAME}.tfvars -out=tfplan
+plan:
+  extends: .iac_plan
+  needs: ["vault"]
+  variables:
+    APP: "vault"
+  script:
+    - cd ${TF_ROOT}/vault
+    - /.gitlab-ci/scripts/tf-helpers/validate.sh
 
 deploy:
-  extends: .iac_deploy
-  script:
-    #- cd $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
-    - echo "[IaC] Deploy"
-    #- bash scripts/tf-helpers/deploy.sh $CI_PROJECT_NAME $CI_ENVIRONMENT_NAME
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  extends: .iac_apply
+  needs: ["vault-plan"]
+  variables:
+    APP: "vault"
 
-notify-failure:
+notify:
   extends: .notify_slack
