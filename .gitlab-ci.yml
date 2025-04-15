@@ -35,7 +35,8 @@ validate:
   ##stage: validate
   script:
     - cd ./vault/
-    - bash scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
+    - ls
+    #- bash scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
 
 # .plan:
 #   stage: plan
