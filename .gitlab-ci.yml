@@ -46,8 +46,9 @@ validate:
 deploy:
   extends: .iac_deploy
   script:
-    - cd $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
-    - bash scripts/tf-helpers/deploy.sh $CI_PROJECT_NAME $CI_ENVIRONMENT_NAME
+    #- cd $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
+    - echo "[IaC] Deploy"
+    #- bash scripts/tf-helpers/deploy.sh $CI_PROJECT_NAME $CI_ENVIRONMENT_NAME
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
