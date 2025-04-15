@@ -45,14 +45,14 @@ validate:
 
 plan:
   extends: .iac_plan
-  #needs: ["validate"]
+  needs: ["validate"]
   variables:
     APP: "vault"
   script:
     - cd ${TF_ROOT}/vault
     - /.gitlab-ci/scripts/tf-helpers/validate.sh
 
-deploy:
+apply:
   extends: .iac_apply
   needs: ["plan"]
   variables:
