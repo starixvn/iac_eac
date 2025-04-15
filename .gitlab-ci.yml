@@ -12,6 +12,10 @@ include:
   - project: 'iac/core-ci'
     file: '/includes/secrets.yml'
     ref: main
+  
+  - project: 'iac/core-ci'
+    file: '/includes/tag-vars.yml'
+    ref: main
 
 stages:
   - validate
@@ -60,6 +64,15 @@ apply:
   needs: ["plan"]
   variables:
     APP: "vault"
+
+# Add tag-based deployment jobs
+deploy-by-tag:
+  extends: .iac_tag_deploy
+  variables:
+    TF_ROOT: "${CI_PROJECT_DIR}/applications"
+  environment:
+    name: $ENV
+    action: start
 
 notify:
   extends: .notify_slack
