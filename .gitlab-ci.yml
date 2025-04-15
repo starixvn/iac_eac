@@ -45,7 +45,7 @@ validate:
 
 plan:
   extends: .iac_plan
-  needs: ["validate"]
+  #needs: ["validate"]
   variables:
     APP: "vault"
   script:
@@ -54,7 +54,7 @@ plan:
 
 deploy:
   extends: .iac_apply
-  needs: ["plan"]
+  #needs: ["plan"]
   variables:
     APP: "vault"
 
