@@ -1,18 +1,32 @@
 # File: .gitlab-ci.yml
 include:
-  - remote: 'https://gitlab.nexdev.net/iac/core-ci/-/raw/main/templates/iac/terraform-pipeline.yml'
-  - remote: 'https://gitlab.nexdev.net/iac/core-ci/-/raw/main/templates/security/tfsec.yml'
-
+  - project: 'iac/core-ci'
+    file: '/templates/iac-base.yml'
+    ref: main
+  - project: 'iac/core-ci'
+    file: '/templates/notify.yml'
+    ref: main
+  
 variables:
-  TF_STATE_PREFIX: "iac/${CI_ENVIRONMENT_NAME}"
   TF_CLI_ARGS: "-no-color"
+  TF_VAR_ENVIRONMENT: $CI_ENVIRONMENT_NAME
 
 stages:
   - validate
   - plan
   - apply
-  - outputs
 
-workflow:
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "pipeline" && $CI_COMMIT_REF_NAME =~ /^iac-/
+.validate:
+  stage: validate
+  script:
+    - bash .gitlab-ci/scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
+
+.plan:
+  stage: plan
+  script:
+    - terraform plan -var-file=environments/$CI_ENVIRONMENT_NAME/${CI_PROJECT_NAME}.tfvars -out=tfplan
+
+.apply:
+  stage: apply
+  script:
+    - bash .gitlab-ci/scripts/tf-helpers/deploy.sh $CI_PROJECT_NAME $CI_ENVIRONMENT_NAME
