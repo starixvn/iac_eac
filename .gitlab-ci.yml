@@ -1,9 +1,4 @@
 # File: templates.yml
-image:
-  name: $DOCKER_REG_LOCAL_URL/base/hashicorp/terraform:1.4.5-vault
-  entrypoint:
-      - "/usr/bin/env"
-      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 stages:
   - validate
   - plan
