@@ -32,7 +32,7 @@ workflow:
   
 validate:
   extends: .iac_validate
-  #stage: validate
+  ##stage: validate
   script:
     - cd $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
     - bash scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
