@@ -26,7 +26,7 @@ workflow:
 stages:
   - validate
   - plan
-  - apply
+  - deploy
 
 validate:
   extends: .iac_validate
