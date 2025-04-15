@@ -51,7 +51,8 @@ plan:
   variables:
     APP: "vault"
   script:
-    - cd ${APP}
+    #- cd ${APP}
+    - ls
     - sh scripts/tf-helpers/validate.sh
 
 apply:
