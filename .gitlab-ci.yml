@@ -70,9 +70,9 @@ deploy-by-tag:
   extends: .iac_tag_deploy
   variables:
     TF_ROOT: "${CI_PROJECT_DIR}/applications"
-  environment:
-    name: $ENV
-    action: start
+  #environment:
+  #  name: $ENV
+  #  action: start
 
 notify:
   extends: .notify_slack
