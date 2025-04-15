@@ -37,7 +37,7 @@ validate:
   script:
     - cd ${APP}
     - ls
-    - ls ./scripts/tf-helpers
+    - ls ./scripts
     - sh ./scripts/tf-helpers/validate.sh
   artifacts:
     paths:
