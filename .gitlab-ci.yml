@@ -54,7 +54,7 @@ plan:
 
 apply:
   extends: .iac_apply
-  needs: ["iac_plan"]
+  needs: ["plan"]
   variables:
     APP: "vault"
 
