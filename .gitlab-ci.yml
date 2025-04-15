@@ -1,10 +1,4 @@
 # File: templates.yml
-stages:
-  - validate
-  - test
-  - deploy
-  - notify
-
 include:
   - project: 'iac/core-ci'
     file: '/templates/iac-base.yml'
@@ -18,6 +12,12 @@ include:
   - project: 'iac/core-ci'
     file: '/includes/secrets.yml'
     ref: main
+
+stages:
+  - validate
+  - test
+  - deploy
+  - notify
   
 variables:
   TF_CLI_ARGS: "-no-color"
