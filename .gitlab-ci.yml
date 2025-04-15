@@ -35,11 +35,11 @@ validate:
   variables:
     APP: "vault"
   script:
-    - cd ${TF_ROOT}/vault
-    - /.gitlab-ci/scripts/tf-helpers/validate.sh
+    - cd ${APP}/vault
+    - /scripts/tf-helpers/validate.sh
   artifacts:
     paths:
-      - ${TF_ROOT}/vault/.terraform/
+      - ${APP}/.terraform/
     expire_in: 1 week
     #- bash scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
 
