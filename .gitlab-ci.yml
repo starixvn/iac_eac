@@ -51,8 +51,8 @@ plan:
   variables:
     APP: "vault"
   script:
-    - cd ${TF_ROOT}/vault
-    - /.gitlab-ci/scripts/tf-helpers/validate.sh
+    - cd ${APP}
+    - sh scripts/tf-helpers/validate.sh
 
 apply:
   extends: .iac_apply
