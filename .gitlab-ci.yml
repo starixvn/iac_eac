@@ -54,8 +54,10 @@ deploy:
   #environment:
   #  name: ${ENV}
   #  url: https://vault-${ENV}.example.com
-  after_script:
-    - !reference [.cleanup_tag, script]
+  #after_script:
+  #  - !reference [.cleanup_tag, script]
 
 notify:
   extends: .notify_slack
+  after_script:
+    - !reference [.cleanup_tag, script]
