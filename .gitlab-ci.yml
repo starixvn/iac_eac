@@ -41,6 +41,7 @@ detect-changes:
     - echo "Checking for changes between $CI_COMMIT_BEFORE_SHA and $CI_COMMIT_SHA"
     - echo "Modified files:"
     - git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA || true
+    - git diff --name-only HEAD~1 | grep -E 'applications/([^/]+)/'
     - eval "$DETECT_APP_SCRIPT"
     - if [ -f app.env ]; then cat app.env; else echo "No app.env created"; fi
   artifacts:
