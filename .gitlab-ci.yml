@@ -37,7 +37,7 @@ detect-changes:
   image: alpine:latest
   script:
     - apk add --no-cache git bash
-    - source < $(echo "$DETECT_CHANGES_SCRIPT")
+    - source < (echo "$DETECT_CHANGES_SCRIPT")
     - export APP=$(detect_changed_app)
     - echo "Detected APP ${APP}"
     - echo "APP=${APP}" > app.env
