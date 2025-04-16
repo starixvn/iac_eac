@@ -51,9 +51,9 @@ deploy:
   extends: .iac_deploy
   variables:
     APP: "vault"
-  environment:
-    name: ${ENV}
-    url: https://vault-${ENV}.example.com
+  #environment:
+  #  name: ${ENV}
+  #  url: https://vault-${ENV}.example.com
 
 notify:
   extends: .notify_slack
