@@ -38,7 +38,8 @@ detect-changes:
   before_script:
     - apk add --no-cache git bash
   script:
-    - APP= $(eval "$DETECT_SCRIPT")
+    #- APP= $(eval "$DETECT_SCRIPT")
+    - APP=$(/scripts/detect-changes.sh)
     - echo "Detected APP ${APP}"
     - echo "APP=${APP}" > app.env
   artifacts:
