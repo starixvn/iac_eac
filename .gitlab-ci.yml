@@ -55,5 +55,5 @@ deploy:
   #  name: ${ENV}
   #  url: https://vault-${ENV}.example.com
 
-notify:
-  extends: .notify_slack
+# notify:
+#   extends: .notify_slack
