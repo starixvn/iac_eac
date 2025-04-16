@@ -19,6 +19,7 @@ include:
 
 stages:
   - validate
+  - security
   - test
   - deploy
   - notify
