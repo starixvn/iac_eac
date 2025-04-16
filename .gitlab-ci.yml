@@ -26,7 +26,7 @@ stages:
   
 variables:
   TF_CLI_ARGS: "-no-color"
-  TF_ROOT: "${CI_PROJECT_DIR}/applications"
+  #TF_ROOT: "${CI_PROJECT_DIR}/applications"
 
 workflow:
   rules:
