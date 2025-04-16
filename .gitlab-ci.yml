@@ -36,19 +36,18 @@ detect-changes:
   stage: detect
   image: alpine:latest
   before_script:
-    - apk add --no-cache git bash
+    - apk add --no-cache git grep coreutils
   script:
-    #- APP= $(eval "$DETECT_SCRIPT")
-    - chmod +x scripts/*.sh
-    - APP=$(sh scripts/detect-changes.sh)
-    - echo "Detected APP ${APP}"
-    - echo "APP=${APP}" > app.env
+    - echo "Running detection script..."
+    - eval "$DETECT_APP_SCRIPT"
+    - cat app.env
   artifacts:
     reports:
       dotenv: app.env
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ $DEPLOY_TAG_PATTERN
 
 validate:
   extends: .iac_validate
