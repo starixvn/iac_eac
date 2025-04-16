@@ -14,7 +14,7 @@ include:
     ref: main
   
   - project: 'iac/core-ci'
-    file: '/includes/tag-vars.yml'
+    file: '/includes/tag-trigger.yml'
     ref: main
 
 stages:
@@ -25,8 +25,7 @@ stages:
   
 variables:
   TF_CLI_ARGS: "-no-color"
-  TF_VAR_ENVIRONMENT: $CI_ENVIRONMENT_NAME
-  TF_VERSION: "1.5.7"
+  TF_ROOT: "${CI_PROJECT_DIR}/applications"
 
 workflow:
   rules:
@@ -35,44 +34,25 @@ workflow:
     - if: $CI_COMMIT_TAG
   
 validate:
-  extends: .iac_fmt
+  extends: .iac_validate
   variables:
     APP: "vault"
-  script:
-    #- cd ${APP}
-    - ls
-    - ls ${TF_DATA_DIR}
-    - sh scripts/tf-helpers/validate.sh
-  artifacts:
-    paths:
-      - ${APP}/.terraform/
-    expire_in: 1 week
-    #- bash scripts/tf-helpers/validate.sh $CI_PROJECT_DIR/applications/$CI_PROJECT_NAME
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
-plan:
-  extends: .iac_plan
-  needs: ["validate"]
-  variables:
-    APP: "vault"
-  script:
-    #- cd ${APP}
-    - ls
-    - sh scripts/tf-helpers/validate.sh
-
-apply:
-  extends: .iac_apply
-  needs: ["plan"]
+security:
+  extends: .iac_security
   variables:
     APP: "vault"
 
-# Add tag-based deployment jobs
-deploy-by-tag:
-  extends: .iac_tag_deploy
+deploy:
+  extends: .iac_deploy
   variables:
-    TF_ROOT: "${CI_PROJECT_DIR}/applications"
-  #environment:
-  #  name: $ENV
-  #  action: start
+    APP: "vault"
+  environment:
+    name: ${ENV}
+    url: https://vault-${ENV}.example.com
 
 notify:
   extends: .notify_slack

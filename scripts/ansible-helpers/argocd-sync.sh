@@ -1,16 +1,16 @@
 #!/bin/bash
 set -eo pipefail
 
-echo "🔄 Syncing ArgoCD applications"
-cd ${CI_PROJECT_DIR}/argocd
+argocd login ${ARGOCD_SERVER} --grpc-web --insecure --username admin --password ${ARGOCD_TOKEN}
 
-# Login to ArgoCD
-argocd login ${ARGOCD_SERVER} ${ARGOCD_OPTS} --username admin --password ${ARGOCD_TOKEN}
-
-# Sync each application
-for app in $(ls apps); do
-  echo "Syncing $app..."
-  argocd app sync $app ${ARGOCD_OPTS}
-  argocd app wait $app ${ARGOCD_OPTS} --health
-  argocd app get $app ${ARGOCD_OPTS}
-done
+if [[ -n "$APP" ]]; then
+  # Single app sync
+  argocd app sync ${APP}-${ENV} --grpc-web --insecure
+  argocd app wait ${APP}-${ENV} --grpc-web --insecure --health
+else
+  # Full sync
+  for app in $(ls argocd/apps); do
+    argocd app sync ${app}-${ENV} --grpc-web --insecure
+    argocd app wait ${app}-${ENV} --grpc-web --insecure --health
+  done
+fi
