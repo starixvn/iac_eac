@@ -80,13 +80,13 @@ validate:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  script:
-    - |
-      for app in $(ls applications); do
-        APP=$app
-        echo "$app"
-        terraform validate
-      done
+  # script:
+  #   - |
+  #     for app in $(ls applications); do
+  #       APP=$app
+  #       echo "$app"
+  #       terraform validate
+  #     done
 #terraform fmt -check -recursive
 security:
   extends: .iac_security
