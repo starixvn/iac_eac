@@ -34,9 +34,9 @@ variables:
 
 detect-app:
   stage: detect
-  image: alpine:latest
-  before_script:
-    - apk add --no-cache git grep coreutils
+  image: hub.nexdev.net/base/alpine:git-3.21
+  #before_script:
+  #  - apk add --no-cache git grep coreutils
   script:
     - echo "Checking for changes between $CI_COMMIT_BEFORE_SHA and $CI_COMMIT_SHA"
     - echo "Modified files:"
@@ -74,7 +74,7 @@ validate:
  
 security:
   extends: .iac_security
-  needs: ["validate"]
+  needs: ["detect-app"]
   
 
 # Run on deploy tags
