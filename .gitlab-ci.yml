@@ -9,13 +9,13 @@ include:
   - project: 'iac/core-ci'
     file: '/includes/detect-app.yml'
     ref: main
-  
-  #- project: 'iac/core-ci'
-  #  file: '/includes/tag-trigger.yml'
-  #  ref: main
+  - project: 'iac/core-ci'
+    file: '/includes/tag-vars.yml'
+    ref: main
 
 stages:
   - detect
+  - extract
   - validate
   - security
   - plan
@@ -38,6 +38,9 @@ variables:
 detect-app:
   extends: .iac_detect_app
 
+extract_tag_vars:
+  extends: .extract_tag_vars
+
 validate:
   extends: 
   - .predefined_id_tokens
@@ -53,6 +56,10 @@ plan:
   extends: 
   - .predefined_id_tokens
   - .iac_plan
+  needs: ["extract_tag_vars"]
+  variables:
+    APP: "$APP"  # From tag_vars.env
+    ENV: "$ENV"  # From tag_vars.env
  
 deploy:
   extends: .iac_deploy
