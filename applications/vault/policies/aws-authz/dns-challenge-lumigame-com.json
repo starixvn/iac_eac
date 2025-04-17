@@ -1,0 +1,15 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "route53:ChangeResourceRecordSets",
+      "Resource": "arn:aws:route53:::hostedzone/Z10169222Q6V6IPOEWWTI",
+      "Condition": {
+        "ForAllValues:StringEquals":{
+           "route53:ChangeResourceRecordSetsNormalizedRecordNames": ["_acme-challenge.lumigame.com","_acme-challenge.luminetsoft.com"]
+        }
+      }
+    }
+  ]
+}

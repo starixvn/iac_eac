@@ -28,93 +28,91 @@ stages:
   - deploy
   - notify
 
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^deploy-.+-.+/
+
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}/applications"
   TF_CLI_ARGS: "-no-color"
 
-detect-changes:
-  stage: detect
-  image: alpine:latest
-  before_script:
-    - apk add --no-cache git grep coreutils
-  script:
-    - echo "Checking for changes between $CI_COMMIT_BEFORE_SHA and $CI_COMMIT_SHA"
-    - echo "Modified files:"
-    - git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA || true
-    - |
-      # For merge requests or branch pushes
-      if [ $CI_PROJECT_ID == "3061" ]; then
-        # IaC repo - look for changes in applications directory
-        changed=$(git diff --name-only HEAD~1 | grep -E 'applications/([^/]+)/' | cut -d'/' -f2 | sort | uniq)
-      elif [ $CI_PROJECT_ID == "3062" ]; then
-        # EaC repo - look for changes in argocd/apps directory
-        changed=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep -E '^argocd/apps/([^/]+)/' | cut -d'/' -f3 | sort | uniq)
-      fi
+# detect-changes:
+#   stage: detect
+#   image: alpine:latest
+#   before_script:
+#     - apk add --no-cache git grep coreutils
+#   script:
+#     - echo "Checking for changes between $CI_COMMIT_BEFORE_SHA and $CI_COMMIT_SHA"
+#     - echo "Modified files:"
+#     - git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA || true
+#     - |
+#       # For merge requests or branch pushes
+#       if [ $CI_PROJECT_ID == "3061" ]; then
+#         # IaC repo - look for changes in applications directory
+#         changed=$(git diff --name-only HEAD~1 | grep -E 'applications/([^/]+)/' | cut -d'/' -f2 | sort | uniq)
+#       elif [ $CI_PROJECT_ID == "3062" ]; then
+#         # EaC repo - look for changes in argocd/apps directory
+#         changed=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep -E '^argocd/apps/([^/]+)/' | cut -d'/' -f3 | sort | uniq)
+#       fi
       
-      if [ -z "$changed" ]; then
-        echo "No application changes detected in paths: applications/ or argocd/apps/"
-      else
-        echo "Detected changed APP(s): $changed"
-        # Take first app if multiple changed (or modify as needed)
-        APP=$(echo "$changed" | head -n1)
-        echo "APP=$APP" >> app.env
-      fi
-    - if [ -f app.env ]; then cat app.env; else echo "No app.env created"; fi
-  artifacts:
-    reports:
-      dotenv: app.env
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG =~ $DEPLOY_TAG_PATTERN
+#       if [ -z "$changed" ]; then
+#         echo "No application changes detected in paths: applications/ or argocd/apps/"
+#       else
+#         echo "Detected changed APP(s): $changed"
+#         # Take first app if multiple changed (or modify as needed)
+#         APP=$(echo "$changed" | head -n1)
+#         echo "APP=$APP" >> app.env
+#       fi
+#     - if [ -f app.env ]; then cat app.env; else echo "No app.env created"; fi
+#   artifacts:
+#     reports:
+#       dotenv: app.env
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#     - if: $CI_COMMIT_TAG =~ $DEPLOY_TAG_PATTERN
 
+# Run on code changes
 validate:
   extends: .iac_validate
-  needs: ["detect-changes"]
-  variables:
-    APP: "$APP"  # Inherited from detect-changes
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
-plan:
-  extends: .iac_init
-  stage: plan
-  needs: ["validate"]
   script:
     - |
-      cd applications/${APP}
-      terraform plan -var-file="environments/${ENV:-dev}/${APP}.tfvars" -out=tfplan
-      terraform show -json tfplan > tfplan.json
-  artifacts:
-    paths:
-      - applications/${APP}/tfplan
-      - applications/${APP}/tfplan.json
-    expire_in: 1 week
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      for app in $(ls applications); do
+        APP=$app
+        terraform validate
+        terraform fmt -check -recursive
+      done
 
 security:
   extends: .iac_security
   needs: ["validate"]
-  variables:
-    APP: "$APP"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+# Run on deploy tags
+plan:
+  extends: .iac_plan
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^deploy-(.+)-(.+)$/
+  variables:
+    APP: "${CI_COMMIT_TAG#deploy-}"
+    ENV: "${CI_COMMIT_TAG##*-}"
+
 deploy:
   extends: .iac_deploy
-  stage: deploy
   needs: ["plan"]
-  script:
-    - |
-      cd applications/${APP}
-      terraform apply tfplan
   rules:
-    - if: $CI_COMMIT_TAG =~ $DEPLOY_TAG_PATTERN
+    - if: $CI_COMMIT_TAG =~ /^deploy-(.+)-(.+)$/
       when: manual
+  variables:
+    APP: "${CI_COMMIT_TAG#deploy-}"
+    ENV: "${CI_COMMIT_TAG##*-}"
 
 notify:
   extends: .notify_slack
