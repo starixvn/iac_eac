@@ -21,6 +21,7 @@ stages:
   - plan
   - deploy
   - notify
+  - cleanup_tag
 
 workflow:
   rules:
@@ -49,7 +50,9 @@ security:
 
 ## Run on deploy tags
 plan:
-  extends: .iac_plan
+  extends: 
+  - .predefined_id_tokens
+  - .iac_plan
  
 deploy:
   extends: .iac_deploy
@@ -57,3 +60,6 @@ deploy:
  
 notify:
   extends: .notify_slack
+
+cleanup_tag:
+  extends: .cleanup_tag
