@@ -31,6 +31,7 @@ workflow:
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}/applications"
   TF_CLI_ARGS: "-no-color"
+  ENV: "dev"  # Default environment for validation
 
 detect-app:
   extends: .iac_detect_app
@@ -38,6 +39,9 @@ detect-app:
 validate:
   extends: .iac_validate
   needs: ["detect-app"]
+  variables:
+    APP: "$APP"
+    ENV: "$ENV"
  
 security:
   extends: .iac_security
