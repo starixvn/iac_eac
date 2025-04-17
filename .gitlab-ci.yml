@@ -84,6 +84,7 @@ validate:
     - |
       for app in $(ls applications); do
         APP=$app
+        echo "$app"
         terraform validate
         terraform fmt -check -recursive
       done
