@@ -47,7 +47,7 @@ security:
   extends: .iac_security
   needs: ["detect-app"] 
 
-# Run on deploy tags
+## Run on deploy tags
 plan:
   extends: .iac_plan
  
