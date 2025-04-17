@@ -38,7 +38,9 @@ detect-app:
   extends: .iac_detect_app
 
 validate:
-  extends: .iac_validate
+  extends: 
+  - .iac_validate
+  - .predefined_id_tokens
   needs: ["detect-app"]
  
 security:
