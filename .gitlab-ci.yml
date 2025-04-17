@@ -34,7 +34,7 @@ variables:
 
 detect-app:
   stage: detect
-  image: hub.nexdev.net/base/alpine:git-3.21
+  image: alpine:latest
   before_script:
     - apk add --no-cache git grep coreutils
   script:
@@ -74,6 +74,9 @@ validate:
 security:
   extends: .iac_security
   needs: ["detect-app"]
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache git grep coreutils
   
 
 # Run on deploy tags
