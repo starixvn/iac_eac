@@ -73,11 +73,7 @@ validate:
  
 security:
   extends: .iac_security
-  needs: ["detect-app"]
-  image: alpine:latest
-  before_script:
-    - apk add --no-cache git grep coreutils
-  
+  needs: ["detect-app"] 
 
 # Run on deploy tags
 plan:
