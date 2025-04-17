@@ -9,9 +9,6 @@ include:
   - project: 'iac/core-ci'
     file: '/includes/detect-app.yml'
     ref: main
-  # - project: 'iac/core-ci'
-  #   file: '/includes/tag-vars.yml'
-  #   ref: main
 
 stages:
   - detect
@@ -27,7 +24,6 @@ workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    #- if: '$CI_COMMIT_TAG =~ $TAG_REGEX'
     - if: $CI_COMMIT_TAG =~ /^deploy-.+-.+/
 
 variables:
