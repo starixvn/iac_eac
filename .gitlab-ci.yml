@@ -7,13 +7,7 @@ include:
     file: '/templates/notify.yml'
     ref: main
   - project: 'iac/core-ci'
-    file: '/includes/common-vars.yml'
-    ref: main
-  - project: 'iac/core-ci'
-    file: '/includes/dynamic-vars.yml'
-    ref: main
-  - project: 'iac/core-ci'
-    file: '/includes/secrets.yml'
+    file: '/includes/detect-app.yml'
     ref: main
   
   - project: 'iac/core-ci'
@@ -74,23 +68,41 @@ variables:
 #     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 #     - if: $CI_COMMIT_TAG =~ $DEPLOY_TAG_PATTERN
 
-# Run on code changes
-validate:
-  extends: .iac_validate
+detect-app:
+  stage: detect
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache git
+  script:
+    - APP=$(eval "$DETECT_APP_SCRIPT")
+    - echo "Detected APP ${APP}"
+    - echo "APP=${APP}" > app.env
+  artifacts:
+    reports:
+      dotenv: app.env
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  # script:
-  #   - |
-  #     for app in $(ls applications); do
-  #       APP=$app
-  #       echo "$app"
-  #       terraform validate
-  #     done
-#terraform fmt -check -recursive
+    - if: $CI_COMMIT_TAG =~ ^deploy-.+-.+$
+# Run on code changes
+validate:
+  extends: .iac_validate
+  needs: ["detect-app"]
+  variables:
+    APP: "$APP"
+  script:
+    - cd applications/${APP}
+    - terraform validate
+    - terraform fmt -check -recursive
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 security:
   extends: .iac_security
   needs: ["validate"]
+  variables:
+    APP: "$APP"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -98,21 +110,25 @@ security:
 # Run on deploy tags
 plan:
   extends: .iac_plan
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^deploy-(.+)-(.+)$/
   variables:
     APP: "${CI_COMMIT_TAG#deploy-}"
     ENV: "${CI_COMMIT_TAG##*-}"
+  artifacts:
+    paths:
+      - applications/${APP}/tfplan
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_TAG =~ ^deploy-.+-.+$
 
 deploy:
   extends: .iac_deploy
   needs: ["plan"]
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^deploy-(.+)-(.+)$/
-      when: manual
   variables:
     APP: "${CI_COMMIT_TAG#deploy-}"
     ENV: "${CI_COMMIT_TAG##*-}"
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^deploy-(.+)-(.+)$/
+      when: manual
 
 notify:
   extends: .notify_slack
