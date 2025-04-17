@@ -64,6 +64,9 @@ plan:
 deploy:
   extends: .iac_deploy
   needs: ["plan"]
+  variables:
+    APP: "$APP"  # From tag_vars.env
+    ENV: "$ENV"  # From tag_vars.env
  
 notify:
   extends: .notify_slack
