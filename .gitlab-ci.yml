@@ -32,7 +32,7 @@ variables:
   TF_ROOT: "${CI_PROJECT_DIR}/applications"
   TF_CLI_ARGS: "-no-color"
   TF_CLI_CONFIG_FILE: $CI_PROJECT_DIR/.terraformrc
-  ENV: ${ENV:-local}  # Default environment for validation
+  #ENV: ${ENV:-local}  # Default environment for validation
 
 detect-app:
   extends: .iac_detect_app
@@ -40,9 +40,8 @@ detect-app:
 validate:
   extends: .iac_validate
   needs: ["detect-app"]
-  # variables:
-  #   APP: "$APP"
-  #   ENV: ${ENV:-local}
+  variables:
+    ENV: ${ENV:-local}
  
 security:
   extends: .iac_security
