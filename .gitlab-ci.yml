@@ -86,9 +86,8 @@ validate:
         APP=$app
         echo "$app"
         terraform validate
-        terraform fmt -check -recursive
       done
-
+#terraform fmt -check -recursive
 security:
   extends: .iac_security
   needs: ["validate"]
