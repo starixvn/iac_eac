@@ -40,8 +40,6 @@ detect-app:
 validate:
   extends: .iac_validate
   needs: ["detect-app"]
-  variables:
-    ENV: ${ENV:-local}
  
 security:
   extends: .iac_security
