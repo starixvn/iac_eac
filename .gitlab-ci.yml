@@ -21,7 +21,7 @@ stages:
   - plan
   - deploy
   - notify
-  - cleanup_tag
+  - cleanup
 
 workflow:
   rules:
