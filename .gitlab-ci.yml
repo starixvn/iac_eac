@@ -43,10 +43,6 @@ detect-app:
 extract_tag_vars:
   extends: .extract_tag_vars
 
-validate:
-  extends: 
-  - .predefined_id_tokens
-  - .iac_validate
   needs: ["detect-app"]
  
 security:
