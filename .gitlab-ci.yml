@@ -7,6 +7,9 @@ include:
     file: '/templates/common-base.yml'
     ref: main
   - project: 'iac/core-ci'
+    file: '/includes/common-vars.yml'
+    ref: main
+  - project: 'iac/core-ci'
     file: '/templates/notify.yml'
     ref: main
 
