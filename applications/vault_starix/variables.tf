@@ -13,9 +13,19 @@ variable "gitlab_domain" {
   default     = "https://gitlab.nexdev.net"
 }
 
-variable "gitlab_project_id" {
+variable "bound_gitlab_project_id" {
   description = "The pipeline ID to authorize to auth with Vault"
   default     = "2660"
+}
+
+variable "bound_gitlab_ref" {
+  description = "The pipeline Ref to authorize to auth with Vault"
+  default     = "main"
+}
+
+variable "bound_gitlab_ref_type" {
+  description = "The pipeline Ref Type to authorize to auth with Vault"
+  default     = "branch"
 }
 
 variable "gitlab_project_branch" {

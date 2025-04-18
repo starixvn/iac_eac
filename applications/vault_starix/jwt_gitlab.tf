@@ -27,9 +27,9 @@ resource "vault_jwt_auth_backend_role" "pipeline" {
   token_policies  = ["terraform"]
   bound_audiences = [var.gitlab_domain]
   bound_claims = {
-    project_id = var.gitlab_project_id
-    ref        = "main,testlab,dev,local,uat,prod,kldr,sit"
-    ref_type   = "branch"
+    project_id = var.bound_gitlab_project_id
+    ref        = var.bound_gitlab_ref
+    ref_type   = var.bound_gitlab_ref_type
   }
   user_claim             = "user_email"
   token_explicit_max_ttl = var.jwt_token_max_ttl
@@ -101,7 +101,7 @@ resource "vault_jwt_auth_backend_role" "jwt_auth_backend_pipeline_v1" {
   token_policies = ["default", vault_policy.pipeline.name]
 
   bound_claims = {
-    project_id = 2625
+    project_id = "2625"
     ref        = "main,testlab,local,uat"
     ref_type   = "branch"
   }
