@@ -48,7 +48,7 @@ validate:
  
 security:
   extends: .iac_security
-  needs: ["detect-app"] 
+  needs: ["detect-app","validate"] 
 
 ## Run on deploy tags
 plan:
