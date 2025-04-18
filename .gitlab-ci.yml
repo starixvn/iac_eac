@@ -33,9 +33,9 @@ cache:
   - key: ${APP}-$VAULT_ENV-terraform
     paths:
       - $CI_PROJECT_DIR/.terraform
-  - key: ${APP}-$VAULT_ENV-terraform.lock.hcl
-    paths:
-      - $CI_PROJECT_DIR/.terraform/${APP}-$VAULT_ENV-terraform.lock.hcl
+  # - key: ${APP}-$VAULT_ENV-terraform.lock.hcl
+  #   paths:
+  #     - $CI_PROJECT_DIR/.terraform/${APP}-$VAULT_ENV-terraform.lock.hcl
 
 detect-app:
   extends: .detect_app
