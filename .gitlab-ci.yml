@@ -4,10 +4,10 @@ include:
     file: '/templates/iac-base.yml'
     ref: main
   - project: 'iac/core-ci'
-    file: '/templates/notify.yml'
+    file: '/templates/common-base.yml'
     ref: main
   - project: 'iac/core-ci'
-    file: '/includes/detect-app.yml'
+    file: '/templates/notify.yml'
     ref: main
 
 stages:
@@ -32,7 +32,7 @@ variables:
   TF_CLI_CONFIG_FILE: $CI_PROJECT_DIR/.terraformrc
 
 detect-app:
-  extends: .iac_detect_app
+  extends: .detect_app
 
 extract_tag_vars:
   extends: .extract_tag_vars
