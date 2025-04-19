@@ -61,7 +61,9 @@ plan:
   needs: ["extract_tag_vars"]
  
 deploy:
-  extends: .iac_deploy
+  extends: 
+  - .predefined_id_tokens
+  - .iac_deploy
   needs: ["extract_tag_vars","plan"]
  
 notify:
