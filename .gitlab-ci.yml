@@ -50,7 +50,7 @@ validate:
   needs: ["detect-app"]
  
 security:
-  extends: .iac_security
+  extends: .iac_security_tf
   needs: ["detect-app","validate"] 
 
 ## Run on deploy tags
