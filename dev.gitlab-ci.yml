@@ -3,8 +3,8 @@ detect-app-dev:
   extends: .detect_app
   rules:
     - changes:
-        - environments/local/*/*
-        - environments/local/*/*/*
+        - environments/dev/*/*
+        - environments/dev/*/*/*
     - when: never
 
 validate-dev:
@@ -14,8 +14,8 @@ validate-dev:
   needs: ["detect-app-dev"]
   rules:
     - changes:
-        - environments/local/*/*
-        - environments/local/*/*/*
+        - environments/dev/*/*
+        - environments/dev/*/*/*
     - when: never
  
 security-dev:
@@ -29,8 +29,8 @@ plan-dev:
   needs: ["detect-app-dev","validate-dev","security-dev"]
   rules:
     - changes:
-        - environments/local/*/*
-        - environments/local/*/*/*
+        - environments/dev/*/*
+        - environments/dev/*/*/*
     - when: never
  
 deploy-dev:
@@ -38,3 +38,9 @@ deploy-dev:
   - .predefined_id_tokens
   - .iac_deploy
   needs: ["detect-app-dev","plan-dev"]
+  rules:
+    - changes:
+        - environments/dev/*/*
+        - environments/dev/*/*/*
+      when: manual
+    - when: never

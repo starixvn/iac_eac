@@ -38,3 +38,9 @@ deploy-local:
   - .predefined_id_tokens
   - .iac_deploy
   needs: ["detect-app-local","plan-local"]
+  rules:
+    - changes:
+        - environments/local/*/*
+        - environments/local/*/*/*
+      when: manual
+    - when: never
