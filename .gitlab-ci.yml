@@ -23,11 +23,11 @@ stages:
   - notify
   - cleanup
 
-# workflow:
-#   rules:
-#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-#     - if: $CI_COMMIT_TAG =~ /^deploy-.+-.+/
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^deploy-.+-.+/
 
 cache:
   - key: ${APP}-$VAULT_ENV-terraform
@@ -48,14 +48,10 @@ validate:
   - .predefined_id_tokens
   - .iac_validate
   needs: ["detect-app"]
-  rules:
-    - if: '$APPS_TOOL_CHANGED == "true" || $ENV_TOOL_CHANGED == "true"'
  
 security:
   extends: .iac_security_tf
   needs: ["detect-app","validate"] 
-  rules:
-    - if: '$APPS_TOOL_CHANGED == "true" || $ENV_TOOL_CHANGED == "true"'
 
 ## Run on deploy tags
 plan:
