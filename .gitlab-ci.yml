@@ -47,7 +47,7 @@ validate:
   extends: 
   - .predefined_id_tokens
   - .iac_validate
-  needs: ["detect-app"]
+  #needs: ["detect-app"]
  
 security:
   extends: .iac_security_tf
