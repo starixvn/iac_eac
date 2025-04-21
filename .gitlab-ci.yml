@@ -54,17 +54,17 @@ security:
   extends: .iac_security_tf
   needs: ["detect-app","validate"] 
 ## Run on change Env file
-iac-plan:
+iac_plan_env:
   extends: 
   - .predefined_id_tokens
-  - .iac_plan
+  - .iac_plan_env
   needs: ["detect-app"]
  
-iac-deploy:
+iac_deploy_env:
   extends: 
   - .predefined_id_tokens
-  - .iac_deploy
-  needs: ["detect-app","plan"]
+  - .iac_deploy_env
+  needs: ["detect-app","iac_plan_env"]
 ## Run on deploy tags
 plan:
   extends: 
