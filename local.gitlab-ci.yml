@@ -1,6 +1,9 @@
 # === LOCAL ENVIRONMENT ===
 detect-app-local:
   extends: .detect_env
+  variables:
+    ENV: local
+    VAULT_ADDR: https://vault.nexdev.net
   rules:
     - changes:
         - environments/local/*/*
