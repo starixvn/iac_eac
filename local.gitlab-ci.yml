@@ -1,0 +1,40 @@
+# === LOCAL ENVIRONMENT ===
+detect-app-local:
+  extends: .detect_app
+  rules:
+    - changes:
+        - environments/local/*/*
+        - environments/local/*/*/*
+    - when: never
+
+validate-local:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_validate
+  needs: ["detect-app-local"]
+  rules:
+    - changes:
+        - environments/local/*/*
+        - environments/local/*/*/*
+    - when: never
+ 
+security-local:
+  extends: .iac_security_tf
+  needs: ["detect-app-local","validate-local"] 
+
+plan-local:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_plan
+  needs: ["detect-app-local","validate-local","security-local"]
+  rules:
+    - changes:
+        - environments/local/*/*
+        - environments/local/*/*/*
+    - when: never
+ 
+deploy-local:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_deploy
+  needs: ["detect-local","plan-local"]

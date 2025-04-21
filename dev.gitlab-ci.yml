@@ -1,0 +1,40 @@
+# === DEV ENVIRONMENT ===
+detect-app-dev:
+  extends: .detect_app
+  rules:
+    - changes:
+        - environments/local/*/*
+        - environments/local/*/*/*
+    - when: never
+
+validate-dev:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_validate
+  needs: ["detect-app-dev"]
+  rules:
+    - changes:
+        - environments/local/*/*
+        - environments/local/*/*/*
+    - when: never
+ 
+security-dev:
+  extends: .iac_security_tf
+  needs: ["detect-app-dev","validate-dev"] 
+
+plan-dev:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_plan
+  needs: ["detect-app-dev","validate-dev","security-dev"]
+  rules:
+    - changes:
+        - environments/local/*/*
+        - environments/local/*/*/*
+    - when: never
+ 
+deploy-dev:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_deploy
+  needs: ["detect-dev","plan-dev"]

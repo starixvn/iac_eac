@@ -12,6 +12,8 @@ include:
   - project: 'iac/core-ci'
     file: '/templates/notify.yml'
     ref: main
+  - local: 'dev.gitlab-ci.yml'
+  - local: 'local.gitlab-ci.yml'
 
 stages:
   - detect
@@ -33,31 +35,31 @@ cache:
 
 detect-app:
   extends: .detect_app
+  rules:
+    - changes:
+        - applications/*/*
+    - when: never
 
 extract_tag_vars:
   extends: .extract_tag_vars
-
+############################
 validate:
   extends: 
   - .predefined_id_tokens
   - .iac_validate
   needs: ["detect-app"]
+  rules:
+    - changes:
+        - applications/*/*
+    - when: never
  
 security:
   extends: .iac_security_tf
   needs: ["detect-app","validate"] 
-## Run on change Env file
-iac_plan_env:
-  extends: 
-  - .predefined_id_tokens
-  - .iac_plan_env
-  needs: ["detect-app","validate","security"]
- 
-iac_deploy_env:
-  extends: 
-  - .predefined_id_tokens
-  - .iac_deploy_env
-  needs: ["detect-app","iac_plan_env"]
+  rules:
+    - changes:
+        - applications/*/*
+    - when: never
 ## Run on deploy tags
 plan:
   extends: 
