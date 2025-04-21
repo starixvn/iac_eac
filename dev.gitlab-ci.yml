@@ -1,6 +1,6 @@
 # === DEV ENVIRONMENT ===
 detect-app-dev:
-  extends: .detect_app
+  extends: .detect_env
   rules:
     - changes:
         - environments/dev/*/*

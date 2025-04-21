@@ -1,6 +1,6 @@
 # === LOCAL ENVIRONMENT ===
 detect-app-local:
-  extends: .detect_app
+  extends: .detect_env
   rules:
     - changes:
         - environments/local/*/*
