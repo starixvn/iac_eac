@@ -48,10 +48,14 @@ validate:
   - .predefined_id_tokens
   - .iac_validate
   needs: ["detect-app"]
+  rules:
+    - if: '$APPS_TOOL_CHANGED == "true" || $ENV_TOOL_CHANGED == "true"'
  
 security:
   extends: .iac_security_tf
   needs: ["detect-app","validate"] 
+  rules:
+    - if: '$APPS_TOOL_CHANGED == "true" || $ENV_TOOL_CHANGED == "true"'
 
 ## Run on deploy tags
 plan:
