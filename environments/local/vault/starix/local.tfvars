@@ -1,5 +1,5 @@
 ################ CONSTANT VARIABLE ################
-## gitlab_domain               = "gitlab.nexdev.net"
+# gitlab_domain               = "gitlab.nexdev.net"
 env           = "local"
 vault_address = "https://vault.nexdev.net"
 
