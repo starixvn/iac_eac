@@ -23,8 +23,8 @@ security-local:
   needs: ["detect-app-local","validate-local"] 
   rules:
     - changes:
-        - environments/dev/*/*
-        - environments/dev/*/*/*
+        - environments/local/*/*
+        - environments/local/*/*/*
     - when: never
 
 plan-local:
