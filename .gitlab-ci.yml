@@ -51,7 +51,7 @@ iac_plan_env:
   extends: 
   - .predefined_id_tokens
   - .iac_plan_env
-  needs: ["detect-app"]
+  needs: ["detect-app","validate","security"]
  
 iac_deploy_env:
   extends: 
