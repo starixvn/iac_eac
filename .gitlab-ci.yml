@@ -44,18 +44,14 @@ validate:
   - .predefined_id_tokens
   - .iac_validate
   needs: ["detect-app"]
-  rules:
-    - changes:
-        - applications/*/*
-        - applications/*/*/*
+  # rules:
+  #   - changes:
+  #       - applications/*/*
+  #       - applications/*/*/*
  
 security:
   extends: .iac_security_tf
   needs: ["detect-app","validate"] 
-  rules:
-    - changes:
-        - applications/*/*
-        - applications/*/*/*
 
 ## Run on deploy tags
 plan:
