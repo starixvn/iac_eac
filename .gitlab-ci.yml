@@ -27,7 +27,7 @@ workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: '$APPS_TOOL_CHANGED == "true" || $ENV_TOOL_CHANGED == "true"'
+    #- if: '$APPS_TOOL_CHANGED == "true" || $ENV_TOOL_CHANGED == "true"'
     - if: $CI_COMMIT_TAG =~ /^deploy-.+-.+/
 
 cache:
@@ -53,19 +53,30 @@ validate:
 security:
   extends: .iac_security_tf
   needs: ["detect-app","validate"] 
-
+## Run on change Env file
+iac-plan:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_plan
+  needs: ["detect-app"]
+ 
+iac-deploy:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_deploy
+  needs: ["detect-app","plan"]
 ## Run on deploy tags
 plan:
   extends: 
   - .predefined_id_tokens
   - .iac_plan
-  needs: ["detect-app","extract_tag_vars"]
+  needs: ["extract_tag_vars"]
  
 deploy:
   extends: 
   - .predefined_id_tokens
   - .iac_deploy
-  needs: ["detect-app","extract_tag_vars","plan"]
+  needs: ["extract_tag_vars","plan"]
  
 notify:
   extends: .notify_slack
