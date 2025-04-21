@@ -37,4 +37,4 @@ deploy-local:
   extends: 
   - .predefined_id_tokens
   - .iac_deploy
-  needs: ["detect-local","plan-local"]
+  needs: ["detect-app-local","plan-local"]

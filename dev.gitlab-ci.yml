@@ -37,4 +37,4 @@ deploy-dev:
   extends: 
   - .predefined_id_tokens
   - .iac_deploy
-  needs: ["detect-dev","plan-dev"]
+  needs: ["detect-app-dev","plan-dev"]
