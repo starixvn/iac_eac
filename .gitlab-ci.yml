@@ -12,8 +12,8 @@ include:
   - project: 'iac/core-ci'
     file: '/templates/notify.yml'
     ref: main
-  - local: 'dev.gitlab-ci.yml'
-  - local: 'local.gitlab-ci.yml'
+  #- local: 'dev.gitlab-ci.yml'
+  #- local: 'local.gitlab-ci.yml'
 
 stages:
   - detect
