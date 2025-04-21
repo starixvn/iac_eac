@@ -59,16 +59,13 @@ plan:
   extends: 
   - .predefined_id_tokens
   - .iac_plan
-  needs: ["extract_tag_vars"]
-  rules:
-    - if: '$ENV_TOOL_CHANGED == "true"'
-      when: manual
+  needs: ["detect-app","extract_tag_vars"]
  
 deploy:
   extends: 
   - .predefined_id_tokens
   - .iac_deploy
-  needs: ["extract_tag_vars","plan"]
+  needs: ["detect-app","extract_tag_vars","plan"]
  
 notify:
   extends: .notify_slack
