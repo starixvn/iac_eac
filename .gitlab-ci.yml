@@ -38,6 +38,7 @@ detect-app:
   rules:
     - changes:
         - applications/*/*
+        - applications/*/*/*
     - when: never
 
 extract_tag_vars:

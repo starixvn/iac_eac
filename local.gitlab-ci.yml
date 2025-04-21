@@ -21,6 +21,11 @@ validate-local:
 security-local:
   extends: .iac_security_tf
   needs: ["detect-app-local","validate-local"] 
+  rules:
+    - changes:
+        - environments/dev/*/*
+        - environments/dev/*/*/*
+    - when: never
 
 plan-local:
   extends: 

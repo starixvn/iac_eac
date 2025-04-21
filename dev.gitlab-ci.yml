@@ -20,7 +20,12 @@ validate-dev:
  
 security-dev:
   extends: .iac_security_tf
-  needs: ["detect-app-dev","validate-dev"] 
+  needs: ["detect-app-dev","validate-dev"]
+  rules:
+    - changes:
+        - environments/dev/*/*
+        - environments/dev/*/*/*
+    - when: never
 
 plan-dev:
   extends: 
