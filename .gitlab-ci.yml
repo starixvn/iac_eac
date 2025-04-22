@@ -70,7 +70,7 @@ generate_dynamic_jobs:
         script:
           - echo "No changes detected in any module"
         rules:
-          - if: $CI_PIPELINE_SOURCE == "push"
+          - if: '$CI_PIPELINE_SOURCE == "push"'
             when: never
           - when: on_success
       EOF
