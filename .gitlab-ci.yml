@@ -109,7 +109,7 @@ generate_jobs:
         needs: ["${TOOL}_${MODULE}_validate"]
         rules:
           - if: '\$${TOOL}_${MODULE}_CHANGED' == 'true'
-        EOF
+      EOF
           fi
         done < changed_vars.env
       else
