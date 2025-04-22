@@ -112,7 +112,7 @@ trigger_dynamic:
   trigger:
     include:
       - artifact: generated-jobs.yml
-        job: .generate_dynamic_jobs
+        job: generate_dynamic_jobs
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
