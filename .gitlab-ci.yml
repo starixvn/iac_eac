@@ -107,54 +107,6 @@ generate_dynamic_jobs:
           MODULE: "${MODULE}"
         needs: ["${TOOL}_${MODULE}_validate"]
         rules:
-          # Đếm số module thay đổi
-      CHANGED_MODULES=0
-
-      while IFS='=' read -r var_name _; do
-        if [[ "$var_name" =~ ^(.*)_CHANGED$ ]]; then
-          TOOL_MODULE="${BASH_REMATCH[1]}"
-          IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
-          ((CHANGED_MODULES++))
-
-          # Thêm jobs cho module thay đổi
-          cat >> generated-jobs.yml <<EOF
-
-      ${TOOL}_${MODULE}_init:
-        extends: .init
-        stage: init
-        script:
-          - cd "${TOOL}/${MODULE}"
-          - terraform init
-        variables:
-          TOOL: "${TOOL}"
-          MODULE: "${MODULE}"
-        rules:
-          - if: '\$${var_name}'
-
-      ${TOOL}_${MODULE}_validate:
-        extends: .validate
-        stage: validate
-        script:
-          - cd "${TOOL}/${MODULE}"
-          - terraform validate
-        variables:
-          TOOL: "${TOOL}"
-          MODULE: "${MODULE}"
-        needs: ["${TOOL}_${MODULE}_init"]
-        rules:
-          - if: '\$${var_name}'
-
-      ${TOOL}_${MODULE}_deploy:
-        extends: .deploy
-        stage: deploy
-        script:
-          - cd "${TOOL}/${MODULE}"
-          - terraform apply -auto-approve
-        variables:
-          TOOL: "${TOOL}"
-          MODULE: "${MODULE}"
-        needs: ["${TOOL}_${MODULE}_validate"]
-        rules:
           - if: '\$${var_name}'
       EOF
         fi
@@ -166,16 +118,7 @@ generate_dynamic_jobs:
       fi
 
       echo "Generated ${CHANGED_MODULES} module jobs"
-      EOF
-        fi
-      done < changed_vars.env
-
-      # Nếu không có module nào thay đổi, disable job fallback
-      if [ $CHANGED_MODULES -gt 0 ]; then
-        sed -i '/no_changes:/,/when: on_success/d' generated-jobs.yml
-      fi
-
-      echo "Generated ${CHANGED_MODULES} module jobs"
+      
   artifacts:
     paths:
       - generated-jobs.yml
