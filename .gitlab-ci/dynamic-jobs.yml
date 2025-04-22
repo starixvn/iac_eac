@@ -3,11 +3,8 @@ generate_jobs:
   image: hub.nexdev.net/base/alpine:git-3.21
   script:
     - |
-      # Install required tools
-      apk add --no-cache jq findutils
-      
       # Find all TF modules and generate jobs
-      find repo -maxdepth 4 -mindepth 4 -type d -path '*/variable.d/*' | while read -r dir; do
+      find -maxdepth 4 -mindepth 4 -type d -path '*/variable.d/*' | while read -r dir; do
         tool=$(echo "$dir" | cut -d'/' -f2)
         module=$(echo "$dir" | cut -d'/' -f3)
         org=$(echo "$dir" | cut -d'/' -f5)
@@ -17,21 +14,21 @@ generate_jobs:
         init_${tool}_${module}:
           extends: .tf_init_template
           variables:
-            TF_ROOT: "repo/${tool}/${module}"
+            TF_ROOT: "${tool}/${module}"
           rules:
             - if: \$CI_COMMIT_BRANCH == "main"
               changes:
-                - "repo/${tool}/${module}/**/*"
+                - "${tool}/${module}/**/*"
               when: always
 
         validate_${tool}_${module}:
           extends: .tf_validate_template
           variables:
-            TF_ROOT: "repo/${tool}/${module}"
+            TF_ROOT: "${tool}/${module}"
           rules:
             - if: \$CI_COMMIT_BRANCH == "main"
               changes:
-                - "repo/${tool}/${module}/**/*"
+                - "${tool}/${module}/**/*"
               when: always
         EOF
 
@@ -45,22 +42,22 @@ generate_jobs:
         plan_${tool}_${module}_${env}:
           extends: .tf_plan_template
           variables:
-            TF_ROOT: "repo/${tool}/${module}"
-            TF_VARS_FILE: "repo/${tool}/${module}/variable.d/${org}/${env}/variable.tfvars"
+            TF_ROOT: "${tool}/${module}"
+            TF_VARS_FILE: "${tool}/${module}/variable.d/${org}/${env}/variable.tfvars"
           rules:
             - if: \$CI_COMMIT_BRANCH == "main"
               changes:
-                - "repo/${tool}/${module}/variable.d/${org}/${env}/**/*"
+                - "${tool}/${module}/variable.d/${org}/${env}/**/*"
               when: always
 
           apply_${tool}_${module}_${env}:
             extends: .tf_apply_template
             variables:
-              TF_ROOT: "repo/${tool}/${module}"
+              TF_ROOT: "${tool}/${module}"
             rules:
               - if: \$CI_COMMIT_BRANCH == "main"
                 changes:
-                  - "repo/${tool}/${module}/variable.d/${org}/${env}/**/*"
+                  - "${tool}/${module}/variable.d/${org}/${env}/**/*"
                 when: manual
           EOF
           fi
