@@ -110,7 +110,10 @@ generate_dynamic_jobs:
       else
         echo "No module changes detected."
       fi
-      
+      # Nếu không có module nào thay đổi, disable job fallback
+      if [ $CHANGED_MODULES -gt 0 ]; then
+        sed -i '/no_changes:/,/when: on_success/d' generated-jobs.yml
+      fi
       echo "Generated jobs.yml content:"
       cat generated-jobs.yml
   artifacts:
