@@ -1,9 +1,9 @@
-# File: .gitlab/ci/dynamic-templates.gitlab-ci.yml (fixed)
-.generate_jobs:
-  stage: .pre  # Sử dụng stage đặc biệt .pre để chạy đầu tiên
+# Job tạo dynamic pipeline
+generate_jobs:
+  stage: .pre
+  needs: ["detect_changes"]  # Rõ ràng phụ thuộc vào job detect
   script:
     - |
-      # Tạo file YAML header
       cat > generated-jobs.yml <<EOF
       stages:
         - init
@@ -11,58 +11,54 @@
         - deploy
       EOF
 
-      # Thêm jobs cho mỗi module thay đổi
-      for var in $(printenv | grep '_CHANGED=true$' | cut -d= -f1); do
-        TOOL_MODULE="${var%_CHANGED}"
-        IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
-        
-        cat >> generated-jobs.yml <<EOF
+      while IFS='=' read -r var_name _; do
+        if [[ "$var_name" == *_CHANGED ]]; then
+          TOOL_MODULE="${var_name%_CHANGED}"
+          IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
+          
+          cat >> generated-jobs.yml <<EOF
 
       ${TOOL}_${MODULE}_init:
         extends: .init
         stage: init
         variables:
-          TOOL: "${TOOL}"
-          MODULE: "${MODULE}"
-          ORG: "\${ORG:-lumi}"  # Có thể override khi cần
-          ENV: "\${ENV:-local}"
+          TOOL: "$TOOL"
+          MODULE: "$MODULE"
         rules:
-          - if: '\$$var' == 'true'
+          - if: '\$$var_name' == 'true'
 
       ${TOOL}_${MODULE}_validate:
         extends: .validate
         stage: validate
         variables:
-          TOOL: "${TOOL}"
-          MODULE: "${MODULE}"
-          ORG: "\${ORG:-lumi}"
-          ENV: "\${ENV:-local}"
+          TOOL: "$TOOL"
+          MODULE: "$MODULE"
         needs: ["${TOOL}_${MODULE}_init"]
         rules:
-          - if: '\$$var' == 'true'
+          - if: '\$$var_name' == 'true'
 
       ${TOOL}_${MODULE}_deploy:
         extends: .deploy
         stage: deploy
         variables:
-          TOOL: "${TOOL}"
-          MODULE: "${MODULE}"
-          ORG: "\${ORG:-lumi}"
-          ENV: "\${ENV:-local}"
+          TOOL: "$TOOL"
+          MODULE: "$MODULE"
         needs: ["${TOOL}_${MODULE}_validate"]
         rules:
-          - if: '\$$var' == 'true'
+          - if: '\$$var_name' == 'true'
       EOF
-      done
+        fi
+      done < changed_vars.env
   artifacts:
     paths:
       - generated-jobs.yml
     expire_in: 1 hour
 
-trigger_dynamic_jobs:
+# Trigger dynamic pipeline
+trigger_dynamic:
   stage: init
-  needs: [".generate_jobs"]  # Rõ ràng khai báo dependency
+  needs: ["generate_jobs"]  # Rõ ràng phụ thuộc vào generate_jobs
   trigger:
     include:
       - artifact: generated-jobs.yml
-        job: ".generate_jobs"
+        job: "generate_jobs"

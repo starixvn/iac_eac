@@ -1,7 +1,6 @@
 # File: .gitlab-ci.yml (fixed)
 stages:
-  - detect_changes
-  - pre
+  - .pre
   - init
   - validate
   - deploy
@@ -9,25 +8,26 @@ stages:
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}"
 
-# Stage 1: Dynamic detection
+# Job phát hiện thay đổi LUÔN chạy đầu tiên
 detect_changes:
-  stage: detect_changes
+  stage: .pre
   script:
     - |
-      CHANGED_PATHS=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA || echo "")
-      echo "Detecting changes in: ${CHANGED_PATHS}"
+      echo "Detecting changes between $CI_COMMIT_BEFORE_SHA and $CI_COMMIT_SHA"
+      mapfile -t CHANGED_FILES < <(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA || echo "")
       
-      declare -A MODULE_MAP
-      while IFS= read -r path; do
-        if [[ "$path" =~ ^([^/]+)/([^/]+)/ ]]; then
+      declare -A UNIQUE_MODULES
+      for file in "${CHANGED_FILES[@]}"; do
+        if [[ "$file" =~ ^([^/]+)/([^/]+)/ ]]; then
           TOOL="${BASH_REMATCH[1]}"
           MODULE="${BASH_REMATCH[2]}"
-          MODULE_MAP["${TOOL}_${MODULE}"]=1
+          UNIQUE_MODULES["${TOOL}_${MODULE}"]=1
         fi
-      done <<< "$CHANGED_PATHS"
-      
-      for key in "${!MODULE_MAP[@]}"; do
-        echo "${key}_CHANGED=true" >> changed_vars.env
+      done
+
+      for module in "${!UNIQUE_MODULES[@]}"; do
+        echo "${module}_CHANGED=true" >> changed_vars.env
+        echo "Detected changes in: $module"
       done
   artifacts:
     reports:
