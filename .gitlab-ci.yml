@@ -57,84 +57,102 @@ generate_jobs:
       artifacts: true  # Bắt buộc tải artifact
   script:
     - |
-      # Tạo file YAML đúng định dạng
-      cat > generated-jobs.yml <<EOF
-      include:
-        - local: '/.gitlab/ci/core.gitlab-ci.yml'
-
+      # File: .gitlab/ci/dynamic-templates.gitlab-ci.yml (fixed)
+.generate_jobs:
+  stage: .pre
+  needs: ["detect_changes"]
+  script:
+    - |
+      # Tạo file YAML với fallback khi không có thay đổi
+      cat > generated-jobs.yml <<'EOF'
       stages:
         - init
         - validate
         - deploy
+
+      # Job fallback khi không có thay đổi
+      no_changes:
+        stage: init
+        script:
+          - echo "No changes detected in any module"
+        rules:
+          - if: '$CI_PIPELINE_SOURCE == "push"'
+            when: never
+          - when: on_success
       EOF
 
-      # Thêm từng job với định dạng chuẩn
+      # Đếm số module thay đổi
+      CHANGED_MODULES=0
+
       while IFS='=' read -r var_name _; do
         if [[ "$var_name" =~ ^(.*)_CHANGED$ ]]; then
           TOOL_MODULE="${BASH_REMATCH[1]}"
           IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
+          ((CHANGED_MODULES++))
 
-          # Append jobs với định dạng đúng
+          # Thêm jobs cho module thay đổi
           cat >> generated-jobs.yml <<EOF
 
       ${TOOL}_${MODULE}_init:
+        extends: .init
         stage: init
         script:
-          - echo "Initializing vault/starix"
+          - cd "${TOOL}/${MODULE}"
+          - terraform init
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
         rules:
-          - if: '\$${var_name}'
+          - if: $${var_name}
 
       ${TOOL}_${MODULE}_validate:
+        extends: .validate
         stage: validate
         script:
-          - echo "validate vault/starix"
+          - cd "${TOOL}/${MODULE}"
+          - terraform validate
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
         needs: ["${TOOL}_${MODULE}_init"]
         rules:
-          - if: '\$${var_name}'
+          - if: $${var_name}
 
       ${TOOL}_${MODULE}_deploy:
+        extends: .deploy
         stage: deploy
         script:
-          - echo "deploy vault/starix"
+          - cd "${TOOL}/${MODULE}"
+          - terraform apply -auto-approve
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
         needs: ["${TOOL}_${MODULE}_validate"]
         rules:
-          - if: '\$${var_name}'
+          - if: $${var_name}
       EOF
         fi
       done < changed_vars.env
-      echo "Generated jobs file:"
-      cat generated-jobs.yml
-      # Kiểm tra YAML cơ bản
-      if ! grep -q 'stages:' generated-jobs.yml; then
-        echo "Error: Invalid YAML format!"
-        exit 1
+
+      # Nếu không có module nào thay đổi, disable job fallback
+      if [ $CHANGED_MODULES -gt 0 ]; then
+        sed -i '/no_changes:/,/when: on_success/d' generated-jobs.yml
       fi
+
+      echo "Generated ${CHANGED_MODULES} module jobs"
   artifacts:
     paths:
       - generated-jobs.yml
     expire_in: 1 hour
 
-
-# Job 3: Kích hoạt pipeline con
 trigger_dynamic:
   stage: init
   needs:
-    - job: generate_jobs
+    - job: .generate_jobs
       artifacts: true
   trigger:
     include:
       - artifact: generated-jobs.yml
-        job: "generate_jobs"
-      #- local: '/.gitlab/ci/core.gitlab-ci.yml'
+        job: .generate_jobs
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
