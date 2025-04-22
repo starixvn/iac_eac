@@ -14,26 +14,26 @@ generate_jobs:
         
         # Generate init/validate jobs for all modules
         cat <<EOF > ".gitlab-ci/jobs/${tool}_${module}_base.yml"
-init_${tool}_${module}:
-  extends: .tf_init_template
-  variables:
-    TF_ROOT: "repo/${tool}/${module}"
-  rules:
-    - if: \$CI_COMMIT_BRANCH == "main"
-      changes:
-        - "repo/${tool}/${module}/**/*"
-      when: always
+        init_${tool}_${module}:
+          extends: .tf_init_template
+          variables:
+            TF_ROOT: "repo/${tool}/${module}"
+          rules:
+            - if: \$CI_COMMIT_BRANCH == "main"
+              changes:
+                - "repo/${tool}/${module}/**/*"
+              when: always
 
-validate_${tool}_${module}:
-  extends: .tf_validate_template
-  variables:
-    TF_ROOT: "repo/${tool}/${module}"
-  rules:
-    - if: \$CI_COMMIT_BRANCH == "main"
-      changes:
-        - "repo/${tool}/${module}/**/*"
-      when: always
-EOF
+        validate_${tool}_${module}:
+          extends: .tf_validate_template
+          variables:
+            TF_ROOT: "repo/${tool}/${module}"
+          rules:
+            - if: \$CI_COMMIT_BRANCH == "main"
+              changes:
+                - "repo/${tool}/${module}/**/*"
+              when: always
+        EOF
 
         # Find all environments for this module
         find "$dir" -mindepth 1 -maxdepth 1 -type d | while read -r env_dir; do
@@ -42,27 +42,27 @@ EOF
           # Special handling for local environment
           if [ "$env" = "local" ]; then
             cat <<EOF > ".gitlab-ci/jobs/${tool}_${module}_${env}.yml"
-plan_${tool}_${module}_${env}:
-  extends: .tf_plan_template
-  variables:
-    TF_ROOT: "repo/${tool}/${module}"
-    TF_VARS_FILE: "repo/${tool}/${module}/variable.d/${org}/${env}/variable.tfvars"
-  rules:
-    - if: \$CI_COMMIT_BRANCH == "main"
-      changes:
-        - "repo/${tool}/${module}/variable.d/${org}/${env}/**/*"
-      when: always
+        plan_${tool}_${module}_${env}:
+          extends: .tf_plan_template
+          variables:
+            TF_ROOT: "repo/${tool}/${module}"
+            TF_VARS_FILE: "repo/${tool}/${module}/variable.d/${org}/${env}/variable.tfvars"
+          rules:
+            - if: \$CI_COMMIT_BRANCH == "main"
+              changes:
+                - "repo/${tool}/${module}/variable.d/${org}/${env}/**/*"
+              when: always
 
-apply_${tool}_${module}_${env}:
-  extends: .tf_apply_template
-  variables:
-    TF_ROOT: "repo/${tool}/${module}"
-  rules:
-    - if: \$CI_COMMIT_BRANCH == "main"
-      changes:
-        - "repo/${tool}/${module}/variable.d/${org}/${env}/**/*"
-      when: manual
-EOF
+          apply_${tool}_${module}_${env}:
+            extends: .tf_apply_template
+            variables:
+              TF_ROOT: "repo/${tool}/${module}"
+            rules:
+              - if: \$CI_COMMIT_BRANCH == "main"
+                changes:
+                  - "repo/${tool}/${module}/variable.d/${org}/${env}/**/*"
+                when: manual
+          EOF
           fi
         done
       done
