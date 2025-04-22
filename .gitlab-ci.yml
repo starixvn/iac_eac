@@ -137,7 +137,7 @@ generate_dynamic_jobs:
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_plan:
         stage: plan
-        extends:
+        extends: 
           - .iac_plan
           - .predefined_id_tokens
         needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_validate"]
