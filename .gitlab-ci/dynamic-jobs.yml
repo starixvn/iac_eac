@@ -1,71 +1,71 @@
 generate_jobs:
   stage: prepare
-  image: alpine
+  image: hub.nexdev.net/base/alpine:git-3.21
   script:
     - |
-        # Install required tools
-        apk add --no-cache jq findutils
+      # Install required tools
+      apk add --no-cache jq findutils
+      
+      # Find all TF modules and generate jobs
+      find repo -maxdepth 4 -mindepth 4 -type d -path '*/variable.d/*' | while read -r dir; do
+        tool=$(echo "$dir" | cut -d'/' -f2)
+        module=$(echo "$dir" | cut -d'/' -f3)
+        org=$(echo "$dir" | cut -d'/' -f5)
         
-        # Find all TF modules and generate jobs
-        find repo -maxdepth 4 -mindepth 4 -type d -path '*/variable.d/*' | while read -r dir; do
-          tool=$(echo "$dir" | cut -d'/' -f2)
-          module=$(echo "$dir" | cut -d'/' -f3)
-          org=$(echo "$dir" | cut -d'/' -f5)
+        # Generate init/validate jobs for all modules
+        cat <<EOF > ".gitlab-ci/jobs/${tool}_${module}_base.yml"
+        init_${tool}_${module}:
+          extends: .tf_init_template
+          variables:
+            TF_ROOT: "repo/${tool}/${module}"
+          rules:
+            - if: \$CI_COMMIT_BRANCH == "main"
+              changes:
+                - "repo/${tool}/${module}/**/*"
+              when: always
+
+        validate_${tool}_${module}:
+          extends: .tf_validate_template
+          variables:
+            TF_ROOT: "repo/${tool}/${module}"
+          rules:
+            - if: \$CI_COMMIT_BRANCH == "main"
+              changes:
+                - "repo/${tool}/${module}/**/*"
+              when: always
+        EOF
+
+        # Find all environments for this module
+        find "$dir" -mindepth 1 -maxdepth 1 -type d | while read -r env_dir; do
+          env=$(basename "$env_dir")
           
-          # Generate init/validate jobs for all modules
-          cat <<EOF > ".gitlab-ci/jobs/${tool}_${module}_base.yml"
-          init_${tool}_${module}:
-            extends: .tf_init_template
-            variables:
-              TF_ROOT: "repo/${tool}/${module}"
-            rules:
-              - if: \$CI_COMMIT_BRANCH == "main"
-                changes:
-                  - "repo/${tool}/${module}/**/*"
-                when: always
+          # Special handling for local environment
+          if [ "$env" = "local" ]; then
+            cat <<EOF > ".gitlab-ci/jobs/${tool}_${module}_${env}.yml"
+        plan_${tool}_${module}_${env}:
+          extends: .tf_plan_template
+          variables:
+            TF_ROOT: "repo/${tool}/${module}"
+            TF_VARS_FILE: "repo/${tool}/${module}/variable.d/${org}/${env}/variable.tfvars"
+          rules:
+            - if: \$CI_COMMIT_BRANCH == "main"
+              changes:
+                - "repo/${tool}/${module}/variable.d/${org}/${env}/**/*"
+              when: always
 
-          validate_${tool}_${module}:
-            extends: .tf_validate_template
+          apply_${tool}_${module}_${env}:
+            extends: .tf_apply_template
             variables:
               TF_ROOT: "repo/${tool}/${module}"
-            rules:
-              - if: \$CI_COMMIT_BRANCH == "main"
-                changes:
-                  - "repo/${tool}/${module}/**/*"
-                when: always
-          EOF
-
-          # Find all environments for this module
-          find "$dir" -mindepth 1 -maxdepth 1 -type d | while read -r env_dir; do
-            env=$(basename "$env_dir")
-            
-            # Special handling for local environment
-            if [ "$env" = "local" ]; then
-              cat <<EOF > ".gitlab-ci/jobs/${tool}_${module}_${env}.yml"
-          plan_${tool}_${module}_${env}:
-            extends: .tf_plan_template
-            variables:
-              TF_ROOT: "repo/${tool}/${module}"
-              TF_VARS_FILE: "repo/${tool}/${module}/variable.d/${org}/${env}/variable.tfvars"
             rules:
               - if: \$CI_COMMIT_BRANCH == "main"
                 changes:
                   - "repo/${tool}/${module}/variable.d/${org}/${env}/**/*"
-                when: always
-
-            apply_${tool}_${module}_${env}:
-              extends: .tf_apply_template
-              variables:
-                TF_ROOT: "repo/${tool}/${module}"
-              rules:
-                - if: \$CI_COMMIT_BRANCH == "main"
-                  changes:
-                    - "repo/${tool}/${module}/variable.d/${org}/${env}/**/*"
-                  when: manual
-            EOF
-            fi
-          done
+                when: manual
+          EOF
+          fi
         done
+      done
   artifacts:
     paths:
       - .gitlab-ci/jobs/*.yml
