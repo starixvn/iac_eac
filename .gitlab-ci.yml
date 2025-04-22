@@ -171,18 +171,17 @@ generate_dynamic_jobs:
 
         cat >> generated-jobs.yml <<EOF
 
-      ${TOOL}_${MODULE}_validate:
+      ${TOOL}_${MODULE}_unit_test:
         stage: validate
-        extends: [".iac_validate",".predefined_id_tokens"]
+        extends: [".unit_test"]
         variables:
           TOOL: ${TOOL}
           MODULE: ${MODULE}
-          ENV: "local"
 
       ${TOOL}_${MODULE}_scan:
         stage: security
         extends: [".iac_security_tf"]
-        needs: ["${TOOL}_${MODULE}_validate"]
+        needs: ["${TOOL}_${MODULE}_unit_test"]
         variables:
           TOOL: ${TOOL}
           MODULE: ${MODULE}
@@ -190,7 +189,7 @@ generate_dynamic_jobs:
       ${TOOL}_${MODULE}_notify:
         stage: notify
         extends: [".notify_slack"]
-        needs: ["${TOOL}_${MODULE}_validate"]
+        needs: ["${TOOL}_${MODULE}_unit_test"]
         variables:
           TOOL: ${TOOL}
           MODULE: ${MODULE}
