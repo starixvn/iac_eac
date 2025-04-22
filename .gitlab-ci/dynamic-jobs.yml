@@ -7,6 +7,7 @@ generate_jobs:
         tool=$(echo "$dir" | cut -d'/' -f2)
         module=$(echo "$dir" | cut -d'/' -f3)
         org=$(echo "$dir" | cut -d'/' -f5)
+        echo "$tool $module $org"
       done
   artifacts:
     paths:
