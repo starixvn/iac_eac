@@ -54,16 +54,7 @@ generate_jobs:
       artifacts: true  # Bắt buộc tải artifact
   script:
     - |
-      # Kiểm tra artifact
-      echo "Current directory: $(pwd)"
-      ls -la
-      
-      if [ ! -f changed_vars.env ]; then
-        echo "Warning: changed_vars.env not found! Creating empty file..."
-        touch changed_vars.env
-      fi
-
-      # Tạo file YAML cơ bản
+      # Tạo file YAML đúng định dạng
       cat > generated-jobs.yml <<EOF
       stages:
         - init
@@ -71,24 +62,23 @@ generate_jobs:
         - deploy
       EOF
 
-      # Thêm jobs nếu có thay đổi
-      if [ -s changed_vars.env ]; then
-        echo "Processing detected changes..."
-        while IFS= read -r line; do
-          if [[ "$line" == *_CHANGED=true ]]; then
-            IFS='_' read -r TOOL MODULE _ <<< "$line"
-            echo "Generating jobs for ${TOOL}_${MODULE}..."
-            
-            cat >> generated-jobs.yml <<EOF
+      # Thêm từng job với định dạng chuẩn
+      while IFS='=' read -r var_name _; do
+        if [[ "$var_name" =~ ^(.*)_CHANGED$ ]]; then
+          TOOL_MODULE="${BASH_REMATCH[1]}"
+          IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
 
-       ${TOOL}_${MODULE}_init:
+          # Append jobs với định dạng đúng
+          cat >> generated-jobs.yml <<EOF
+
+      ${TOOL}_${MODULE}_init:
         extends: .init
         stage: init
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
         rules:
-          - if: ${TOOL}_${MODULE}_CHANGED == "true"
+          - if: '\$${var_name}' == 'true'
 
       ${TOOL}_${MODULE}_validate:
         extends: .validate
@@ -98,7 +88,7 @@ generate_jobs:
           MODULE: "${MODULE}"
         needs: ["${TOOL}_${MODULE}_init"]
         rules:
-          - if: ${TOOL}_${MODULE}_CHANGED == "true"
+          - if: '\$${var_name}' == 'true'
 
       ${TOOL}_${MODULE}_deploy:
         extends: .deploy
@@ -108,16 +98,16 @@ generate_jobs:
           MODULE: "${MODULE}"
         needs: ["${TOOL}_${MODULE}_validate"]
         rules:
-          - if: ${TOOL}_${MODULE}_CHANGED == "true"
+          - if: '\$${var_name}' == 'true'
       EOF
-          fi
-        done < changed_vars.env
-      else
-        echo "No module changes detected."
+        fi
+      done < changed_vars.env
+
+      # Kiểm tra YAML cơ bản
+      if ! grep -q 'stages:' generated-jobs.yml; then
+        echo "Error: Invalid YAML format!"
+        exit 1
       fi
-      
-      echo "Generated jobs.yml:"
-      cat generated-jobs.yml
   artifacts:
     paths:
       - generated-jobs.yml
