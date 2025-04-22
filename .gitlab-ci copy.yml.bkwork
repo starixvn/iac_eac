@@ -28,7 +28,9 @@ detect_changes:
       fi
 
       declare -A UNIQUE_PATHS
+
       for file in "${CHANGED_FILES[@]}"; do
+        # Case 1: variable.d changes (tool/module/variable.d/org/env/...)
         if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/ ]]; then
           TOOL="${BASH_REMATCH[1]}"
           MODULE="${BASH_REMATCH[2]}"
@@ -36,6 +38,16 @@ detect_changes:
           ENV="${BASH_REMATCH[4]}"
           KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
           UNIQUE_PATHS["$KEY"]=1
+        # Case 2: general file changes inside tool/module but not under variable.d
+        elif [[ "$file" =~ ^([^/]+)/([^/]+)/([^/]+)? ]]; then
+          TOOL="${BASH_REMATCH[1]}"
+          MODULE="${BASH_REMATCH[2]}"
+          SUBPATH="${BASH_REMATCH[3]}"
+          # Skip variable.d paths in this check
+          if [[ "$SUBPATH" != "variable.d" ]]; then
+            KEY="${TOOL}_${MODULE}"
+            UNIQUE_PATHS["$KEY"]=1
+          fi
         fi
       done
 
@@ -50,6 +62,7 @@ detect_changes:
     paths:
       - changed_vars.env
     when: always
+
 
 # Job 2: Tạo dynamic jobs với cải tiến
 generate_dynamic_jobs:
