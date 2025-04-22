@@ -60,7 +60,7 @@ generate_dynamic_jobs:
           - cd "${TOOL}/${MODULE}"
           - terraform init
         rules:
-          - if: $${var_name}
+          - if: '\$${var_name}'
 
       ${TOOL}_${MODULE}_validate:
         stage: validate
@@ -69,7 +69,7 @@ generate_dynamic_jobs:
           - terraform validate
         needs: ["${TOOL}_${MODULE}_init"]
         rules:
-          - if: $${var_name}
+          - if: '\$${var_name}'
 
       ${TOOL}_${MODULE}_deploy:
         stage: deploy
@@ -78,7 +78,7 @@ generate_dynamic_jobs:
           - terraform apply -auto-approve
         needs: ["${TOOL}_${MODULE}_validate"]
         rules:
-          - if: $${var_name}
+          - if: '\$${var_name}'
       EOF
           fi
         done < changed_vars.env
