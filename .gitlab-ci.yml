@@ -91,6 +91,8 @@ generate_dynamic_jobs:
           MODULE: ${MODULE}
           ORG: ${ORG}
           ENV: ${ENV}
+        script:
+          - echo "${TOOL}_${MODULE}_${ORG}_${ENV}_init"
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_validate:
         stage: validate
@@ -101,6 +103,8 @@ generate_dynamic_jobs:
           MODULE: ${MODULE}
           ORG: ${ORG}
           ENV: ${ENV}
+        script:
+          - echo "${TOOL}_${MODULE}_${ORG}_${ENV}_validate"
       EOF
 
             CHANGED_MODULES=$((CHANGED_MODULES + 1))
