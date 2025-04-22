@@ -134,7 +134,7 @@ generate_dynamic_jobs:
           ORG: ${ORG}
           ENV: ${ENV}
         script:
-          - echo "${TOOL}_${MODULE}_${ORG}_${ENV}_security
+          - echo "${TOOL}_${MODULE}_${ORG}_${ENV}_security"
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_plan:
         stage: plan
@@ -145,8 +145,7 @@ generate_dynamic_jobs:
           MODULE: ${MODULE}
           ORG: ${ORG}
           ENV: ${ENV}
-        script:
-          - echo "${TOOL}_${MODULE}_${ORG}_${ENV}_plan"
+        
       EOF
 
             CHANGED_MODULES=$((CHANGED_MODULES + 1))
