@@ -13,10 +13,12 @@ detect_changes:
   stage: .pre
   script:
     - |
-      # Tạo file changed_vars.env rỗng nếu không có thay đổi
-      touch changed_vars.env
+      ## Luôn tạo file, kể cả khi không có thay đổi
+      mkdir -p "${CI_PROJECT_DIR}/tmp"
+      CHANGE_FILE="${CI_PROJECT_DIR}/tmp/changed_vars.env"
+      touch "${CHANGE_FILE}"
       
-      # Kiểm tra nếu có commit trước đó
+      # Chỉ kiểm tra thay đổi nếu có commit trước đó
       if [ "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
         echo "Detecting changes between ${CI_COMMIT_BEFORE_SHA:0:8}...${CI_COMMIT_SHA:0:8}"
         mapfile -t CHANGED_FILES < <(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA 2>/dev/null || echo "")
@@ -31,24 +33,25 @@ detect_changes:
         done
 
         for module in "${!UNIQUE_MODULES[@]}"; do
-          echo "${module}_CHANGED=true" >> changed_vars.env
-          echo "Detected changes in: $module"
+          echo "${module}_CHANGED=true" >> "${CHANGE_FILE}"
         done
-      else
-        echo "Initial commit, no previous version to compare"
       fi
       
-      # Log nội dung file env để debug
-      echo "Generated changed_vars.env content:"
+      # Di chuyển file vào thư mục artifact
+      mv "${CHANGE_FILE}" "${CI_PROJECT_DIR}/"
+      echo "Generated changed_vars.env:"
       cat changed_vars.env
   artifacts:
-    reports:
-      dotenv: changed_vars.env
+    paths:
+      - changed_vars.env
+    when: always  # Luôn tạo artifact dù có lỗi
 
 # Job 2: Tạo file CI config động
 generate_jobs:
   stage: .pre
-  needs: ["detect_changes"]
+  needs:
+    - job: detect_changes
+      artifacts: true  # Bắt buộc tải artifact
   script:
     - |
       # Đảm bảo file tồn tại
