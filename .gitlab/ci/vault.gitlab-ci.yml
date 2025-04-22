@@ -7,11 +7,11 @@ vault_local_init:
   extends: .init
   variables:
     ENV: "local"
-    ORG: "lumi"
+    ORG: "starix"
     MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | xargs -n 1 basename)"
   rules:
     - changes:
-        - "vault/*/variable.d/lumi/local/*"
+        - "vault/*/variable.d/starix/local/*"
       when: on_success
     - when: never
 
@@ -19,11 +19,11 @@ vault_local_validate:
   extends: .validate
   variables:
     ENV: "local"
-    ORG: "lumi"
+    ORG: "starix"
     MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | xargs -n 1 basename)"
   rules:
     - changes:
-        - "vault/*/variable.d/lumi/local/*"
+        - "vault/*/variable.d/starix/local/*"
       when: on_success
     - when: never
 
@@ -31,7 +31,7 @@ vault_local_deploy:
   extends: .deploy
   variables:
     ENV: "local"
-    ORG: "lumi"
+    ORG: "starix"
   rules:
     - changes:
         - "vault/**/variable.d/${ORG}/local/*"
@@ -42,7 +42,7 @@ vault_uat_init:
   extends: .init
   variables:
     ENV: "uat"
-    ORG: "lumi"
+    ORG: "starix"
   rules:
     - changes:
         - "vault/**/variable.d/${ORG}/uat/*"
