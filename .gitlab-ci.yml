@@ -108,9 +108,6 @@ detect_changes:
 # Job 3: Trigger pipeline con
 trigger_dynamic:
   stage: init
-  needs:
-    - job: .generate_jobs
-      artifacts: true
   trigger:
     include:
       - artifact: generated-jobs.yml
