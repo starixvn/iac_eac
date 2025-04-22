@@ -88,7 +88,7 @@ generate_jobs:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
         rules:
-          - if: $${TOOL}_${MODULE}_CHANGED == "true"
+          - if: ${TOOL}_${MODULE}_CHANGED == "true"
 
       ${TOOL}_${MODULE}_validate:
         extends: .validate
@@ -98,7 +98,7 @@ generate_jobs:
           MODULE: "${MODULE}"
         needs: ["${TOOL}_${MODULE}_init"]
         rules:
-          - if: $${TOOL}_${MODULE}_CHANGED == "true"
+          - if: ${TOOL}_${MODULE}_CHANGED == "true"
 
       ${TOOL}_${MODULE}_deploy:
         extends: .deploy
@@ -108,7 +108,7 @@ generate_jobs:
           MODULE: "${MODULE}"
         needs: ["${TOOL}_${MODULE}_validate"]
         rules:
-          - if: $${TOOL}_${MODULE}_CHANGED == "true"
+          - if: ${TOOL}_${MODULE}_CHANGED == "true"
       EOF
           fi
         done < changed_vars.env
