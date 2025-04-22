@@ -27,28 +27,31 @@ detect_changes:
         fi
       fi
 
-      declare -A UNIQUE_JOBS
+      declare -A UNIQUE_PATHS
         for file in "${CHANGED_FILES[@]}"; do
+        # Case 1: variable.d changes (tool/module/variable.d/org/env/...)
         if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/ ]]; then
           TOOL="${BASH_REMATCH[1]}"
           MODULE="${BASH_REMATCH[2]}"
           ORG="${BASH_REMATCH[3]}"
           ENV="${BASH_REMATCH[4]}"
-          JOB_KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
-          echo "Detected ENV CHANGE: $JOB_KEY"
-          echo "${JOB_KEY}_CHANGED=true" >> "${CHANGE_FILE}"
-          UNIQUE_JOBS["$JOB_KEY"]="env"
-        elif [[ "$file" =~ ^([^/]+)/([^/]+)/.*$ ]] && [[ ! "$file" =~ variable\.d/ ]]; then
+          KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
+          UNIQUE_PATHS["$KEY"]=1
+
+        # Case 2: General file changes inside tool/module/ but not in variable.d/
+        elif [[ "$file" =~ ^([^/]+)/([^/]+)/(.*)$ ]]; then
           TOOL="${BASH_REMATCH[1]}"
           MODULE="${BASH_REMATCH[2]}"
-          JOB_KEY="${TOOL}_${MODULE}"
-          echo "Detected MODULE CHANGE: $JOB_KEY"
-          echo "${JOB_KEY}_CHANGED=true" >> "${CHANGE_FILE}"
-          UNIQUE_JOBS["$JOB_KEY"]="module"
+          SUBPATH="${BASH_REMATCH[3]}"
+          
+          if [[ ! "$SUBPATH" =~ ^variable\.d/ ]]; then
+            KEY="${TOOL}_${MODULE}"
+            UNIQUE_PATHS["$KEY"]=1
+          fi
         fi
       done
 
-      for path in "${!UNIQUE_JOBS[@]}"; do
+      for path in "${!UNIQUE_PATHS[@]}"; do
         echo "${path}_CHANGED=true" >> "${CHANGE_FILE}"
       done
 
