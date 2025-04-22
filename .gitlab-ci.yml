@@ -59,7 +59,7 @@ generate_dynamic_jobs:
   script:
     - |
       # Tạo file YAML cơ bản
-      cat > generated-jobs.yml <<EOF
+      cat > generated-jobs.yml <<'EOF'
       stages:
         - init
         - validate
