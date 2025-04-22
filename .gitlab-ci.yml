@@ -89,6 +89,7 @@ generate_dynamic_jobs:
 
       ${TOOL}_${MODULE}_init:
         stage: init
+        extends: .init
         script:
           - echo "Running init for ${TOOL}/${MODULE}"
           - cd "${TOOL}/${MODULE}"
@@ -96,6 +97,7 @@ generate_dynamic_jobs:
 
       ${TOOL}_${MODULE}_validate:
         stage: validate
+        extends: .validate
         script:
           - echo "Running validate for ${TOOL}/${MODULE}"
           - cd "${TOOL}/${MODULE}"
@@ -128,9 +130,10 @@ trigger_dynamic:
     include:
       - artifact: generated-jobs.yml
         job: generate_dynamic_jobs
+      - local: '.gitlab/ci/core.gitlab-ci.yml'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # Include core templates
-include:
-  - local: '.gitlab/ci/core.gitlab-ci.yml'
+#include:
+#  - local: '.gitlab/ci/core.gitlab-ci.yml'
