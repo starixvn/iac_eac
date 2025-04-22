@@ -7,27 +7,6 @@ generate_jobs:
         tool=$(echo "$dir" | cut -d'/' -f2)
         module=$(echo "$dir" | cut -d'/' -f3)
         org=$(echo "$dir" | cut -d'/' -f5)
-        # Generate init/validate jobs for all modules
-        cat <<EOF > ".gitlab-ci/jobs/${tool}_${module}_base.yml"
-          init_${tool}_${module}:
-            extends: .tf_init_template
-            variables:
-              TF_ROOT: "${tool}/${module}"
-            rules:
-              - if: \$CI_COMMIT_BRANCH == "main"
-                changes:
-                  - "${tool}/${module}/**/*"
-                when: always
-          validate_${tool}_${module}:
-            extends: .tf_validate_template
-            variables:
-              TF_ROOT: "${tool}/${module}"
-            rules:
-              - if: \$CI_COMMIT_BRANCH == "main"
-                changes:
-                  - "${tool}/${module}/**/*"
-                when: always
-        EOF
       done
   artifacts:
     paths:
