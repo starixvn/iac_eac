@@ -34,7 +34,7 @@ detect_changes:
     when: always
 
 # Job 2: Tạo dynamic jobs
-.generate_jobs:
+generate_dynamic_jobs:
   stage: .pre
   needs: ["detect_changes"]  # Rõ ràng khai báo dependency
   script:
@@ -108,10 +108,11 @@ detect_changes:
 # Job 3: Trigger pipeline con
 trigger_dynamic:
   stage: init
+  needs: ["generate_dynamic_jobs"]  # Rõ ràng khai báo dependency
   trigger:
     include:
       - artifact: generated-jobs.yml
-        job: .generate_jobs
+        job: .generate_dynamic_jobs
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
