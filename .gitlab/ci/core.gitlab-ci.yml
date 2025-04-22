@@ -1,27 +1,17 @@
 # File: .gitlab/ci/core.gitlab-ci.yml
-.default_terraform: &default_terraform
-  image: hashicorp/terraform:latest
+.init: &iac_init
+  image:
+    name: $DOCKER_REG_LOCAL_URL/base/hashicorp/terraform:1.4.5-vault
+    entrypoint: ["/usr/bin/env"]
   before_script:
     - |
       echo "Debug: TOOL=${TOOL}, MODULE=${MODULE}, ORG=${ORG}, ENV=${ENV}"
       echo "Current path: $(pwd) | CI_PROJECT_DIR ${CI_PROJECT_DIR}"
     - |
-      if [ ! -d "${TOOL}/${MODULE}" ]; then
-        echo "ERROR: Module path ${TOOL}/${MODULE} không tồn tại!"
-        exit 1
-      fi
-      cd "${TOOL}/${MODULE}" || exit 1
       echo "terraform init"
 
-.init:
-  extends: .default_terraform
-  stage: init
-  script:
-    - echo "init ..."
-    #- terraform init -reconfigure
-
 .validate:
-  extends: .default_terraform
+  <<: *iac_init
   stage: validate
   script:
     - echo "validate ..."
@@ -29,7 +19,7 @@
     #- terraform plan -var-file="variable.d/${ORG}/${ENV}/variable.tfvars"
 
 .deploy:
-  extends: .default_terraform
+  <<: *iac_init
   stage: deploy
   script:
     - echo "deploy ..."

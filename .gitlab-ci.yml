@@ -8,6 +8,9 @@ stages:
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}"
 
+include:
+  - local: '/.gitlab/ci/core.gitlab-ci.yml'
+
 # Job 1: Phát hiện thay đổi và tạo file env
 detect_changes:
   stage: .pre
