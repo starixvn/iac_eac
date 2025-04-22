@@ -67,7 +67,7 @@ generate_dynamic_jobs:
       EOF
 
       # Thêm jobs nếu có thay đổi
-      if [ -f changed_vars.env ] && [ -s changed_vars.env ]; then
+      if [ -f changed_vars.env ]; then
         echo "Processing detected changes..."
         while IFS='=' read -r var_name _; do
           if [[ "$var_name" == *_CHANGED=true ]]; then
