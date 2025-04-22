@@ -90,18 +90,10 @@ generate_dynamic_jobs:
       ${TOOL}_${MODULE}_init:
         stage: init
         extends: .init
-        script:
-          - echo "Running init for ${TOOL}/${MODULE}"
-          - cd "${TOOL}/${MODULE}"
-          - terraform init
 
       ${TOOL}_${MODULE}_validate:
         stage: validate
         extends: .validate
-        script:
-          - echo "Running validate for ${TOOL}/${MODULE}"
-          - cd "${TOOL}/${MODULE}"
-          - terraform validate
         needs: ["${TOOL}_${MODULE}_init"]
       EOF
           fi
