@@ -1,6 +1,9 @@
 # File: .gitlab/ci/core.gitlab-ci.yml
 .default_before_script: &default_before_script
   - |
+    echo "Debug: TOOL=${TOOL}, MODULE=${MODULE}, ORG=${ORG}, ENV=${ENV}"
+    echo "Current path: $(pwd)"
+  - |
     if [ -z "${MODULE}" ]; then
       echo "Cannot determine MODULE from path changes"
       exit 1
