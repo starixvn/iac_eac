@@ -79,6 +79,8 @@ generate_jobs:
 
       ${TOOL}_${MODULE}_init:
         extends: .init
+        script:
+          - echo "Initializing vault/starix"
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
@@ -87,6 +89,8 @@ generate_jobs:
 
       ${TOOL}_${MODULE}_validate:
         extends: .validate
+        script:
+          - echo "validate vault/starix"
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
@@ -96,6 +100,8 @@ generate_jobs:
 
       ${TOOL}_${MODULE}_deploy:
         extends: .deploy
+        script:
+          - echo "deploy vault/starix"
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
