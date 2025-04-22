@@ -54,69 +54,57 @@ generate_jobs:
       artifacts: true  # Bắt buộc tải artifact
   script:
     - |
-      # Kiểm tra artifact
-      echo "Current directory: $(pwd)"
-      ls -la
-      
-      if [ ! -f changed_vars.env ]; then
-        echo "Warning: changed_vars.env not found! Creating empty file..."
-        touch changed_vars.env
-      fi
-
-      # Tạo file YAML cơ bản
-      cat > generated-jobs.yml <<EOF
-      stages:
-        - init
-        - validate
-        - deploy
-      EOF
-
-      # Thêm jobs nếu có thay đổi
-      if [ -s changed_vars.env ]; then
-        echo "Processing detected changes..."
-        while IFS= read -r line; do
-          if [[ "$line" == *_CHANGED=true ]]; then
-            IFS='_' read -r TOOL MODULE _ <<< "$line"
-            echo "Generating jobs for ${TOOL}_${MODULE}..."
+      # Tạo file YAML với format đúng
+      {
+        echo "stages:"
+        echo "  - init"
+        echo "  - validate"
+        echo "  - deploy"
+        echo ""
+        
+        while IFS='=' read -r var_name _; do
+          if [[ "$var_name" =~ ^(.*)_CHANGED$ ]]; then
+            TOOL_MODULE="${BASH_REMATCH[1]}"
+            IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
             
-            cat >> generated-jobs.yml <<EOF
-
-       ${TOOL}_${MODULE}_init:
-        extends: .init
-        stage: init
-        variables:
-          TOOL: "${TOOL}"
-          MODULE: "${MODULE}"
-        rules:
-          - if: ${TOOL}_${MODULE}_CHANGED == "true"
-
-      ${TOOL}_${MODULE}_validate:
-        extends: .validate
-        stage: validate
-        variables:
-          TOOL: "${TOOL}"
-          MODULE: "${MODULE}"
-        needs: ["${TOOL}_${MODULE}_init"]
-        rules:
-          - if: ${TOOL}_${MODULE}_CHANGED == "true"
-
-      ${TOOL}_${MODULE}_deploy:
-        extends: .deploy
-        stage: deploy
-        variables:
-          TOOL: "${TOOL}"
-          MODULE: "${MODULE}"
-        needs: ["${TOOL}_${MODULE}_validate"]
-        rules:
-          - if: ${TOOL}_${MODULE}_CHANGED == "true"
-      EOF
+            echo "${TOOL}_${MODULE}_init:"
+            echo "  extends: .init"
+            echo "  stage: init"
+            echo "  variables:"
+            echo "    TOOL: \"${TOOL}\""
+            echo "    MODULE: \"${MODULE}\""
+            echo "  rules:"
+            echo "    - if: \$vault_starix_CHANGED == \"true\""
+            echo ""
+            
+            echo "${TOOL}_${MODULE}_validate:"
+            echo "  extends: .validate"
+            echo "  stage: validate"
+            echo "  variables:"
+            echo "    TOOL: \"${TOOL}\""
+            echo "    MODULE: \"${MODULE}\""
+            echo "  needs: [\"${TOOL}_${MODULE}_init\"]"
+            echo "  rules:"
+            echo "    - if: \$vault_starix_CHANGED == \"true\""
+            echo ""
+            
+            echo "${TOOL}_${MODULE}_deploy:"
+            echo "  extends: .deploy"
+            echo "  stage: deploy"
+            echo "  variables:"
+            echo "    TOOL: \"${TOOL}\""
+            echo "    MODULE: \"${MODULE}\""
+            echo "  needs: [\"${TOOL}_${MODULE}_validate\"]"
+            echo "  rules:"
+            echo "    - if: \$vault_starix_CHANGED == \"true\""
+            echo ""
           fi
         done < changed_vars.env
-      else
-        echo "No module changes detected."
-      fi
+      } > generated-jobs.yml
       
-      echo "Generated jobs.yml:"
+      # Verify YAML syntax
+      yamllint generated-jobs.yml || exit 1
+      echo "Generated jobs file:"
       cat generated-jobs.yml
   artifacts:
     paths:

@@ -1,0 +1,138 @@
+# File: .gitlab-ci.yml
+stages:
+  - .pre
+  - init
+  - validate
+  - deploy
+
+variables:
+  TF_ROOT: "${CI_PROJECT_DIR}"
+
+# Job 1: Phát hiện thay đổi và tạo file env
+detect_changes:
+  stage: .pre
+  script:
+    - |
+      ## Luôn tạo file, kể cả khi không có thay đổi
+      mkdir -p "${CI_PROJECT_DIR}/tmp"
+      CHANGE_FILE="${CI_PROJECT_DIR}/tmp/changed_vars.env"
+      touch "${CHANGE_FILE}"
+      
+      # Chỉ kiểm tra thay đổi nếu có commit trước đó
+      if [ "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+        echo "Detecting changes between ${CI_COMMIT_BEFORE_SHA:0:8}...${CI_COMMIT_SHA:0:8}"
+        mapfile -t CHANGED_FILES < <(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA 2>/dev/null || echo "")
+        
+        declare -A UNIQUE_MODULES
+        for file in "${CHANGED_FILES[@]}"; do
+          if [[ "$file" =~ ^([^/]+)/([^/]+)/ ]]; then
+            TOOL="${BASH_REMATCH[1]}"
+            MODULE="${BASH_REMATCH[2]}"
+            UNIQUE_MODULES["${TOOL}_${MODULE}"]=1
+          fi
+        done
+
+        for module in "${!UNIQUE_MODULES[@]}"; do
+          echo "${module}_CHANGED=true" >> "${CHANGE_FILE}"
+        done
+      fi
+      
+      # Di chuyển file vào thư mục artifact
+      mv "${CHANGE_FILE}" "${CI_PROJECT_DIR}/"
+      echo "Generated changed_vars.env:"
+      cat changed_vars.env
+  artifacts:
+    paths:
+      - changed_vars.env
+    when: always  # Luôn tạo artifact dù có lỗi
+
+# Job 2: Tạo file CI config động
+generate_jobs:
+  stage: .pre
+  needs:
+    - job: detect_changes
+      artifacts: true  # Bắt buộc tải artifact
+  script:
+    - |
+      # Kiểm tra artifact
+      echo "Current directory: $(pwd)"
+      ls -la
+      
+      if [ ! -f changed_vars.env ]; then
+        echo "Warning: changed_vars.env not found! Creating empty file..."
+        touch changed_vars.env
+      fi
+
+      # Tạo file YAML cơ bản
+      cat > generated-jobs.yml <<EOF
+      stages:
+        - init
+        - validate
+        - deploy
+      EOF
+
+      # Thêm jobs nếu có thay đổi
+      if [ -s changed_vars.env ]; then
+        echo "Processing detected changes..."
+        while IFS= read -r line; do
+          if [[ "$line" == *_CHANGED=true ]]; then
+            IFS='_' read -r TOOL MODULE _ <<< "$line"
+            echo "Generating jobs for ${TOOL}_${MODULE}..."
+            
+            cat >> generated-jobs.yml <<EOF
+
+       ${TOOL}_${MODULE}_init:
+        extends: .init
+        stage: init
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
+        rules:
+          - if: ${TOOL}_${MODULE}_CHANGED == "true"
+
+      ${TOOL}_${MODULE}_validate:
+        extends: .validate
+        stage: validate
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
+        needs: ["${TOOL}_${MODULE}_init"]
+        rules:
+          - if: ${TOOL}_${MODULE}_CHANGED == "true"
+
+      ${TOOL}_${MODULE}_deploy:
+        extends: .deploy
+        stage: deploy
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
+        needs: ["${TOOL}_${MODULE}_validate"]
+        rules:
+          - if: ${TOOL}_${MODULE}_CHANGED == "true"
+      EOF
+          fi
+        done < changed_vars.env
+      else
+        echo "No module changes detected."
+      fi
+      
+      echo "Generated jobs.yml:"
+      cat generated-jobs.yml
+  artifacts:
+    paths:
+      - generated-jobs.yml
+    expire_in: 1 hour
+
+# Job 3: Kích hoạt pipeline con
+trigger_dynamic:
+  stage: init
+  needs:
+    - job: generate_jobs
+      artifacts: true
+  trigger:
+    include:
+      - artifact: generated-jobs.yml
+        job: "generate_jobs"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
