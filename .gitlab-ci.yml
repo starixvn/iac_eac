@@ -3,7 +3,11 @@ stages:
   - .pre
   - init
   - validate
+  - security
+  - plan
   - deploy
+  - notify
+  - cleanup
 
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}"
