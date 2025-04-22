@@ -1,6 +1,7 @@
 # File: .gitlab-ci.yml (fixed)
 stages:
   - detect_changes
+  - pre
   - init
   - validate
   - deploy
