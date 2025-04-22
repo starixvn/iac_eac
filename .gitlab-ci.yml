@@ -126,7 +126,9 @@ generate_jobs:
 # Job 3: Kích hoạt pipeline con
 trigger_dynamic:
   stage: init
-  needs: ["generate_jobs"]
+  needs:
+    - job: generate_jobs
+      artifacts: true
   trigger:
     include:
       - artifact: generated-jobs.yml
