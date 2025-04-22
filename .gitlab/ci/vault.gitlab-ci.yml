@@ -7,23 +7,25 @@ vault_local_init:
   extends: .init
   variables:
     ENV: "local"
-    ORG: "lumi" # hoặc starix tùy nhu cầu
+    ORG: "lumi"
+    MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | xargs -n 1 basename)"
   rules:
     - changes:
-        - "vault/*/variable.d/${ORG}/local/*"
-      variables:
-        MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | sed 's|.*/vault/\([^/]*\).*|\1|')"
+        - "vault/*/variable.d/lumi/local/*"
+      when: on_success
+    - when: never
 
 vault_local_validate:
   extends: .validate
   variables:
     ENV: "local"
     ORG: "lumi"
+    MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | xargs -n 1 basename)"
   rules:
     - changes:
-        - "vault/*/variable.d/${ORG}/local/*"
-      variables:
-        MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | sed 's|.*/vault/\([^/]*\).*|\1|')"
+        - "vault/*/variable.d/lumi/local/*"
+      when: on_success
+    - when: never
 
 vault_local_deploy:
   extends: .deploy

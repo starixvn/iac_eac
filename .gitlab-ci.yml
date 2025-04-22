@@ -13,17 +13,20 @@ include:
   - local: '/.gitlab/ci/vault.gitlab-ci.yml'
 
 
-# Sử dụng rules để extract module từ path
+# Sử dụng rules với cách viết đúng chuẩn YAML
 workflow:
   rules:
+    - if: $CI_COMMIT_MESSAGE =~ /skip-ci/
+      when: never
     - changes:
         - "vault/**/*"
       variables:
         TOOL: "vault"
-        MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | sed 's|.*/vault/\([^/]*\).*|\1|')"
+        MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | xargs -n 1 basename)"
     - changes:
         - "rancher/**/*"
       variables:
         TOOL: "rancher"
-        MODULE: "$(echo ${CI_PROJECT_DIR}/rancher/* | sed 's|.*/rancher/\([^/]*\).*|\1|')"
+        MODULE: "$(echo ${CI_PROJECT_DIR}/rancher/* | xargs -n 1 basename)"
     # Thêm các tool khác tương tự
+    - when: always
