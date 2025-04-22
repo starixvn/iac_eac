@@ -48,4 +48,3 @@ detect_changes:
     paths:
       - changed_vars.env
     when: always  # Luôn tạo artifact dù có lỗi
-
