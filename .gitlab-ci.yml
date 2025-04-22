@@ -1,4 +1,7 @@
-# File: .gitlab-ci.yml (fixed)
+# File: .gi# Include các file CI cụ thể
+include:
+  - local: '/.gitlab/ci/core.gitlab-ci.yml'
+
 stages:
   - .pre
   - init
