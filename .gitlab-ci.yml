@@ -99,21 +99,9 @@ generate_dynamic_jobs:
 
             cat >> generated-jobs.yml <<EOF
 
-      ${TOOL}_${MODULE}_${ORG}_${ENV}_init:
-        stage: init
-        extends: .iac_init
-        variables:
-          TOOL: ${TOOL}
-          MODULE: ${MODULE}
-          ORG: ${ORG}
-          ENV: ${ENV}
-        script:
-          - echo "${TOOL}_${MODULE}_${ORG}_${ENV}_init"
-
       ${TOOL}_${MODULE}_${ORG}_${ENV}_validate:
         stage: validate
-        extends: 
-          - .iac_validate
+        extends: [".iac_validate,".predefined_id_tokens"]
         needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_init"]
         variables:
           TOOL: ${TOOL}
@@ -125,8 +113,7 @@ generate_dynamic_jobs:
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_scan:
         stage: security
-        extends: 
-          - .iac_security_tf
+        extends: [".iac_security_tf"]
         needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_validate"]
         variables:
           TOOL: ${TOOL}
