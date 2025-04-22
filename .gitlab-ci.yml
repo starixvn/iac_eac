@@ -1,6 +1,6 @@
 # File: .gi# Include các file CI cụ thể
-include:
-  - local: '/.gitlab/ci/core.gitlab-ci.yml'
+#include:
+#  - local: '/.gitlab/ci/core.gitlab-ci.yml'
 
 stages:
   - .pre
@@ -116,6 +116,7 @@ trigger_dynamic:
     include:
       - artifact: generated-jobs.yml
         job: generate_dynamic_jobs
+      - local: '/.gitlab/ci/core.gitlab-ci.yml'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
