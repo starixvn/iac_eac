@@ -107,21 +107,18 @@ generate_dynamic_jobs:
           MODULE: ${MODULE}
           ORG: ${ORG}
           ENV: ${ENV}
-        script:
-          - echo "${TOOL}_${MODULE}_${ORG}_${ENV}_init"
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_validate:
         stage: validate
         extends: 
           - .iac_validate
+          - .predefined_id_tokens
         needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_init"]
         variables:
           TOOL: ${TOOL}
           MODULE: ${MODULE}
           ORG: ${ORG}
           ENV: ${ENV}
-        script:
-          - echo "${TOOL}_${MODULE}_${ORG}_${ENV}_validate"
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_scan:
         stage: security
@@ -133,12 +130,12 @@ generate_dynamic_jobs:
           MODULE: ${MODULE}
           ORG: ${ORG}
           ENV: ${ENV}
-        script:
-          - echo "${TOOL}_${MODULE}_${ORG}_${ENV}_security"
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_plan:
         stage: plan
-        extends: .iac_plan
+        extends:
+          - .iac_plan
+          - .predefined_id_tokens
         needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_validate"]
         variables:
           TOOL: ${TOOL}
