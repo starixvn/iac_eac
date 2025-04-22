@@ -1,0 +1,182 @@
+# File: .gitlab-ci.yml
+stages:
+  - .pre
+  - init
+  - validate
+  - deploy
+
+variables:
+  TF_ROOT: "${CI_PROJECT_DIR}"
+
+# Job 1: Phát hiện thay đổi với cải tiến
+detect_changes:
+  stage: .pre
+  script:
+    - |
+      mkdir -p "${CI_PROJECT_DIR}/tmp"
+      CHANGE_FILE="${CI_PROJECT_DIR}/tmp/changed_vars.env"
+      touch "${CHANGE_FILE}"
+
+      if [ -n "$CI_MERGE_REQUEST_CHANGED_PATHS" ]; then
+        echo "Using Merge Request changed paths..."
+        mapfile -t CHANGED_FILES <<< "$CI_MERGE_REQUEST_CHANGED_PATHS"
+      else
+        if [ "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+          echo "Using git diff for changes..."
+          mapfile -t CHANGED_FILES < <(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA 2>/dev/null || echo "")
+        fi
+      fi
+
+      declare -A UNIQUE_PATHS
+      for file in "${CHANGED_FILES[@]}"; do
+        if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/ ]]; then
+          TOOL="${BASH_REMATCH[1]}"
+          MODULE="${BASH_REMATCH[2]}"
+          ORG="${BASH_REMATCH[3]}"
+          ENV="${BASH_REMATCH[4]}"
+          KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
+          UNIQUE_PATHS["$KEY"]=1
+        fi
+      done
+
+      for path in "${!UNIQUE_PATHS[@]}"; do
+        echo "${path}_CHANGED=true" >> "${CHANGE_FILE}"
+      done
+
+      mv "${CHANGE_FILE}" "${CI_PROJECT_DIR}/"
+      echo "Detected changes:"
+      cat changed_vars.env || echo "No changes detected"
+  artifacts:
+    paths:
+      - changed_vars.env
+    when: always
+
+# Job 2: Tạo dynamic jobs với cải tiến
+generate_dynamic_jobs:
+  stage: .pre
+  needs: ["detect_changes"]
+  script:
+    - |
+      cat > generated-jobs.yml <<'EOF'
+      include:
+        - project: 'iac/core-ci'
+          file: '/includes/common-vars.yml'
+          ref: dev
+        - project: 'iac/core-ci'
+          file: '/includes/iac.gitlab-ci.yml'
+          ref: dev
+        - project: 'iac/core-ci'
+          file: '/templates/notify.yml'
+          ref: dev
+
+      stages:
+        - init
+        - validate
+        - security
+        - plan
+        - deploy
+        - notify
+        - cleanup
+
+      no_changes:
+        stage: init
+        script:
+          - echo "No changes detected in any module"
+        rules:
+          - if: '$CI_PIPELINE_SOURCE == "push"'
+            when: never
+          - when: on_success
+      EOF
+
+      CHANGED_MODULES=0
+      if [ -f changed_vars.env ]; then
+        echo "Processing detected changes..."
+        while IFS='=' read -r var_name _; do
+          if [[ "$var_name" =~ ^(.*)_CHANGED$ ]]; then
+            COMBO="${BASH_REMATCH[1]}"
+            IFS='_' read -r TOOL MODULE ORG ENV <<< "$COMBO"
+            echo "Generating jobs for ${TOOL}_${MODULE}_${ORG}_${ENV}..."
+
+            cat >> generated-jobs.yml <<EOF
+
+      ${TOOL}_${MODULE}_${ORG}_${ENV}_validate:
+        stage: validate
+        extends: [".iac_validate",".predefined_id_tokens"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ORG: ${ORG}
+          ENV: ${ENV}
+
+      ${TOOL}_${MODULE}_${ORG}_${ENV}_scan:
+        stage: security
+        extends: [".iac_security_tf"]
+        needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_validate"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ORG: ${ORG}
+          ENV: ${ENV}
+
+      ${TOOL}_${MODULE}_${ORG}_${ENV}_plan:
+        stage: plan
+        extends: [".iac_plan",".predefined_id_tokens"]
+        needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_validate"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ORG: ${ORG}
+          ENV: ${ENV}
+
+      ${TOOL}_${MODULE}_${ORG}_${ENV}_deploy:
+        stage: deploy
+        extends: [".iac_deploy",".predefined_id_tokens"]
+        needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_plan"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ORG: ${ORG}
+          ENV: ${ENV}
+
+      ${TOOL}_${MODULE}_${ORG}_${ENV}_notify:
+        stage: notify
+        extends: [".notify_slack"]
+        needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_validate"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ORG: ${ORG}
+          ENV: ${ENV}
+        
+      EOF
+
+            CHANGED_MODULES=$((CHANGED_MODULES + 1))
+          fi
+        done < changed_vars.env
+      else
+        echo "No module changes detected."
+      fi
+
+      if [ $CHANGED_MODULES -gt 0 ]; then
+        sed -i '/no_changes:/,/when: on_success/d' generated-jobs.yml
+      fi
+      echo "Generated jobs.yml content:"
+      cat generated-jobs.yml
+  artifacts:
+    paths:
+      - generated-jobs.yml
+    expire_in: 1 hour
+
+# Job 3: Kích hoạt pipeline con
+trigger_dynamic:
+  stage: init
+  needs:
+    - job: generate_dynamic_jobs
+      artifacts: true
+  trigger:
+    include:
+      - artifact: generated-jobs.yml
+        job: generate_dynamic_jobs
+      #- local: '.gitlab/ci/core.gitlab-ci.yml'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'

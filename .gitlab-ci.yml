@@ -27,19 +27,29 @@ detect_changes:
         fi
       fi
 
-      declare -A UNIQUE_PATHS
+      declare -A UNIQUE_JOBS
+
       for file in "${CHANGED_FILES[@]}"; do
-        if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/ ]]; then
+        if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/.*\.tfvars$ ]]; then
           TOOL="${BASH_REMATCH[1]}"
           MODULE="${BASH_REMATCH[2]}"
           ORG="${BASH_REMATCH[3]}"
           ENV="${BASH_REMATCH[4]}"
-          KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
-          UNIQUE_PATHS["$KEY"]=1
+          JOB_KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
+          echo "Detected ENV CHANGE: $JOB_KEY"
+          echo "${JOB_KEY}_CHANGED=true" >> "${CHANGE_FILE}"
+          UNIQUE_JOBS["$JOB_KEY"]="env"
+        elif [[ "$file" =~ ^([^/]+)/([^/]+)/.*$ ]] && [[ ! "$file" =~ variable\.d/ ]]; then
+          TOOL="${BASH_REMATCH[1]}"
+          MODULE="${BASH_REMATCH[2]}"
+          JOB_KEY="${TOOL}_${MODULE}"
+          echo "Detected MODULE CHANGE: $JOB_KEY"
+          echo "${JOB_KEY}_CHANGED=true" >> "${CHANGE_FILE}"
+          UNIQUE_JOBS["$JOB_KEY"]="module"
         fi
       done
 
-      for path in "${!UNIQUE_PATHS[@]}"; do
+      for path in "${!UNIQUE_JOBS[@]}"; do
         echo "${path}_CHANGED=true" >> "${CHANGE_FILE}"
       done
 
@@ -92,10 +102,12 @@ generate_dynamic_jobs:
       if [ -f changed_vars.env ]; then
         echo "Processing detected changes..."
         while IFS='=' read -r var_name _; do
-          if [[ "$var_name" =~ ^(.*)_CHANGED$ ]]; then
-            COMBO="${BASH_REMATCH[1]}"
-            IFS='_' read -r TOOL MODULE ORG ENV <<< "$COMBO"
-            echo "Generating jobs for ${TOOL}_${MODULE}_${ORG}_${ENV}..."
+          if [[ "$var_name" =~ ^([^_]+)_([^_]+)_([^_]+)_([^_]+)_CHANGED$ ]]; then
+            TOOL="${BASH_REMATCH[1]}"
+            MODULE="${BASH_REMATCH[2]}"
+            ORG="${BASH_REMATCH[3]}"
+            ENV="${BASH_REMATCH[4]}"
+            echo "Generating full ENV jobs for ${TOOL}_${MODULE}_${ORG}_${ENV}..."
 
             cat >> generated-jobs.yml <<EOF
 
@@ -147,9 +159,40 @@ generate_dynamic_jobs:
           MODULE: ${MODULE}
           ORG: ${ORG}
           ENV: ${ENV}
-        
       EOF
+            CHANGED_MODULES=$((CHANGED_MODULES + 1))
 
+      elif [[ "$var_name" =~ ^([^_]+)_([^_]+)_CHANGED$ ]]; then
+        TOOL="${BASH_REMATCH[1]}"
+        MODULE="${BASH_REMATCH[2]}"
+        echo "Generating basic MODULE jobs for ${TOOL}_${MODULE}..."
+
+        cat >> generated-jobs.yml <<EOF
+
+      ${TOOL}_${MODULE}_validate:
+        stage: validate
+        extends: [".iac_validate",".predefined_id_tokens"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ENV: "local"
+
+      ${TOOL}_${MODULE}_scan:
+        stage: security
+        extends: [".iac_security_tf"]
+        needs: ["${TOOL}_${MODULE}_validate"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+
+      ${TOOL}_${MODULE}_notify:
+        stage: notify
+        extends: [".notify_slack"]
+        needs: ["${TOOL}_${MODULE}_validate"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+      EOF
             CHANGED_MODULES=$((CHANGED_MODULES + 1))
           fi
         done < changed_vars.env
@@ -166,6 +209,7 @@ generate_dynamic_jobs:
     paths:
       - generated-jobs.yml
     expire_in: 1 hour
+
 
 # Job 3: Kích hoạt pipeline con
 trigger_dynamic:
