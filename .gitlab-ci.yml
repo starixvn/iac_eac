@@ -129,6 +129,26 @@ generate_dynamic_jobs:
           MODULE: ${MODULE}
           ORG: ${ORG}
           ENV: ${ENV}
+
+      ${TOOL}_${MODULE}_${ORG}_${ENV}_deploy:
+        stage: deploy
+        extends: [".iac_deploy",".predefined_id_tokens"]
+        needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_plan"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ORG: ${ORG}
+          ENV: ${ENV}
+
+      ${TOOL}_${MODULE}_${ORG}_${ENV}_notify:
+        stage: notify
+        extends: [".notify_slack"]
+        needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_validate"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ORG: ${ORG}
+          ENV: ${ENV}
         
       EOF
 
