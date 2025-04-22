@@ -3,6 +3,8 @@
   - |
     echo "Debug: TOOL=${TOOL}, MODULE=${MODULE}, ORG=${ORG}, ENV=${ENV}"
     echo "Current path: $(pwd) | CI_PROJECT_DIR ${CI_PROJECT_DIR}"
+  - echo "MODULE content: ${MODULE}"
+  - echo "Number of modules: $(echo ${MODULE} | wc -w)"
   - |
     if [ -z "${MODULE}" ]; then
       echo "Cannot determine MODULE from path changes"
