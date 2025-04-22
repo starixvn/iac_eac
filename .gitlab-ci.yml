@@ -74,7 +74,8 @@ generate_dynamic_jobs:
             when: never
           - when: on_success
       EOF
-
+      # Đếm số module thay đổi
+      CHANGED_MODULES=0
       # Thêm jobs nếu có thay đổi
       if [ -f changed_vars.env ]; then
         echo "Processing detected changes..."
