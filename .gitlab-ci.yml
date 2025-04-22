@@ -61,10 +61,13 @@ generate_dynamic_jobs:
       include:
         - project: 'iac/core-ci'
           file: '/includes/common-vars.yml'
-          ref: main
+          ref: dev
+        - project: 'iac/core-ci'
+          file: '/includes/iac.gitlab-ci.yml'
+          ref: dev
         - project: 'iac/core-ci'
           file: '/templates/notify.yml'
-          ref: main
+          ref: dev
 
       stages:
         - init
@@ -98,7 +101,7 @@ generate_dynamic_jobs:
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_init:
         stage: init
-        extends: .init
+        extends: .iac_init
         variables:
           TOOL: ${TOOL}
           MODULE: ${MODULE}
@@ -109,7 +112,7 @@ generate_dynamic_jobs:
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_validate:
         stage: validate
-        extends: .validate
+        extends: .iac_validate
         needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_init"]
         variables:
           TOOL: ${TOOL}
@@ -147,6 +150,6 @@ trigger_dynamic:
     include:
       - artifact: generated-jobs.yml
         job: generate_dynamic_jobs
-      - local: '.gitlab/ci/core.gitlab-ci.yml'
+      #- local: '.gitlab/ci/core.gitlab-ci.yml'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
