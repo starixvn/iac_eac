@@ -28,7 +28,7 @@ generate_jobs:
                 - "${tool}/${module}/**/*"
               when: always
         EOF
-        done
+      done
   artifacts:
     paths:
       - .gitlab-ci/jobs/*.yml
