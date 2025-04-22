@@ -44,6 +44,16 @@ generate_dynamic_jobs:
         - init
         - validate
         - deploy
+
+      # Job fallback khi không có thay đổi
+      no_changes:
+        stage: init
+        script:
+          - echo "No changes detected in any module"
+        rules:
+          - if: '$CI_PIPELINE_SOURCE == "push"'
+            when: never
+          - when: on_success
       EOF
 
       if [ -f changed_vars.env ]; then
@@ -55,7 +65,11 @@ generate_dynamic_jobs:
             cat >> generated-jobs.yml <<EOF
 
       ${TOOL}_${MODULE}_init:
+        extends: .init
         stage: init
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
         script:
           - cd "${TOOL}/${MODULE}"
           - terraform init
@@ -63,7 +77,11 @@ generate_dynamic_jobs:
           - if: '\$${var_name}'
 
       ${TOOL}_${MODULE}_validate:
+        extends: .validate
         stage: validate
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
         script:
           - cd "${TOOL}/${MODULE}"
           - terraform validate
@@ -90,11 +108,13 @@ generate_dynamic_jobs:
 # Job 3: Trigger pipeline con
 trigger_dynamic:
   stage: init
-  needs: ["generate_dynamic_jobs"]  # Rõ ràng khai báo dependency
+  needs:
+    - job: .generate_jobs
+      artifacts: true
   trigger:
     include:
       - artifact: generated-jobs.yml
-        job: "generate_dynamic_jobs"  # Đúng tên job
+        job: .generate_jobs
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
