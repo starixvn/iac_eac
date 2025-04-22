@@ -101,7 +101,7 @@ generate_dynamic_jobs:
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_validate:
         stage: validate
-        extends: [".iac_validate,".predefined_id_tokens"]
+        extends: [".iac_validate",".predefined_id_tokens"]
         needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_init"]
         variables:
           TOOL: ${TOOL}
