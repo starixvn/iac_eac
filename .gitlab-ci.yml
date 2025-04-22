@@ -1,32 +1,37 @@
-# File: .gitlab-ci.yml
+# File: .gitlab-ci.yml (fixed)
 stages:
+  - detect_changes
   - init
   - validate
   - deploy
 
 variables:
-  TF_ROOT: ${CI_PROJECT_DIR}
+  TF_ROOT: "${CI_PROJECT_DIR}"
 
-# Include các file CI cụ thể
+# Stage 1: Dynamic detection
+detect_changes:
+  stage: detect_changes
+  script:
+    - |
+      CHANGED_PATHS=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA || echo "")
+      echo "Detecting changes in: ${CHANGED_PATHS}"
+      
+      declare -A MODULE_MAP
+      while IFS= read -r path; do
+        if [[ "$path" =~ ^([^/]+)/([^/]+)/ ]]; then
+          TOOL="${BASH_REMATCH[1]}"
+          MODULE="${BASH_REMATCH[2]}"
+          MODULE_MAP["${TOOL}_${MODULE}"]=1
+        fi
+      done <<< "$CHANGED_PATHS"
+      
+      for key in "${!MODULE_MAP[@]}"; do
+        echo "${key}_CHANGED=true" >> changed_vars.env
+      done
+  artifacts:
+    reports:
+      dotenv: changed_vars.env
+
 include:
-  - local: '/.gitlab/ci/core.gitlab-ci.yml'
-  - local: '/.gitlab/ci/vault.gitlab-ci.yml'
-
-
-# Sử dụng rules với cách viết đúng chuẩn YAML
-workflow:
-  rules:
-    - if: $CI_COMMIT_MESSAGE =~ /skip-ci/
-      when: never
-    - changes:
-        - "vault/**/*"
-      variables:
-        TOOL: "vault"
-        MODULE: "$(ls -d ${CI_PROJECT_DIR}/vault/*/ | xargs -n 1 basename | head -n 1)"
-    - changes:
-        - "rancher/**/*"
-      variables:
-        TOOL: "rancher"
-        MODULE: "$(ls -d ${CI_PROJECT_DIR}/rancher/*/ | xargs -n 1 basename | head -n 1)"
-    # Thêm các tool khác tương tự
-    - when: always
+  - local: '.gitlab/ci/core.gitlab-ci.yml'
+  - local: '.gitlab/ci/dynamic-templates.gitlab-ci.yml'

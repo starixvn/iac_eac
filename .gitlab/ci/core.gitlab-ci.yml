@@ -1,51 +1,38 @@
 # File: .gitlab/ci/core.gitlab-ci.yml
-.default_before_script: &default_before_script
-  - |
-    echo "Debug: TOOL=${TOOL}, MODULE=${MODULE}, ORG=${ORG}, ENV=${ENV}"
-    echo "Current path: $(pwd) | CI_PROJECT_DIR ${CI_PROJECT_DIR}"
-  - echo "MODULE content: ${MODULE}"
-  - echo "Number of modules: $(echo ${MODULE} | wc -w)"
-  - |
-    if [ -z "${MODULE}" ]; then
-      echo "Cannot determine MODULE from path changes"
-      exit 1
-    fi
-  - cd ${TOOL}/${MODULE}
-  - terraform --version
-  #- terraform init -backend-config="address=${TF_ADDRESS}"
-
-.default_rules:
-  rules:
-    - changes:
-        - "${TOOL}/${MODULE}/**/*"
-        - "${TOOL}/${MODULE}/variable.d/${ORG}/${ENV}/*"
-      when: on_success
-    - when: never
+.default_terraform: &default_terraform
+  image: hashicorp/terraform:latest
+  before_script:
+    - |
+      echo "Debug: TOOL=${TOOL}, MODULE=${MODULE}, ORG=${ORG}, ENV=${ENV}"
+      echo "Current path: $(pwd) | CI_PROJECT_DIR ${CI_PROJECT_DIR}"
+    - |
+      if [ ! -d "${TOOL}/${MODULE}" ]; then
+        echo "ERROR: Module path ${TOOL}/${MODULE} không tồn tại!"
+        exit 1
+      fi
+      cd "${TOOL}/${MODULE}" || exit 1
+      echo "terraform init"
 
 .init:
+  extends: .default_terraform
   stage: init
   script:
-    - *default_before_script
-    - echo "Init ..."
-    #terraform init -backend-config="address=${TF_ADDRESS}" -reconfigure
+    - echo "init ..."
+    #- terraform init -reconfigure
 
 .validate:
+  extends: .default_terraform
   stage: validate
   script:
-    - *default_before_script
-    #- terraform validate
     - echo "validate ..."
-    #- terraform plan -var-file="variable.d/${ORG}/${ENV}/variable.tfvars" -out=tfplan
-  artifacts:
-    paths:
-      - ${TOOL}/${MODULE}/tfplan
+    #- terraform validate
+    #- terraform plan -var-file="variable.d/${ORG}/${ENV}/variable.tfvars"
 
 .deploy:
+  extends: .default_terraform
   stage: deploy
   script:
-    - *default_before_script
     - echo "deploy ..."
-    #- terraform apply -auto-approve tfplan
-  when: manual
-  # dependencies:
-  #   - validate
+    #- terraform apply -auto-approve
+  #when: manual
+

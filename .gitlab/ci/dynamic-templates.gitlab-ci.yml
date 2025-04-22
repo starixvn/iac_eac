@@ -1,0 +1,57 @@
+# File: .gitlab/ci/dynamic-templates.gitlab-ci.yml (fixed)
+.generate_jobs:
+  stage: init
+  script:
+    - |
+      cat > generated-jobs.yml <<EOF
+      stages:
+        - init
+        - validate
+        - deploy
+      EOF
+      
+      for var in $(printenv | grep '_CHANGED=true' | cut -d= -f1); do
+        TOOL_MODULE="${var%_CHANGED}"
+        TOOL="${TOOL_MODULE%_*}"
+        MODULE="${TOOL_MODULE#*_}"
+        
+        cat >> generated-jobs.yml <<EOF
+      
+      ${TOOL}_${MODULE}_init:
+        extends: .init
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
+        rules:
+          - if: '\$$var' == 'true'
+      
+      ${TOOL}_${MODULE}_validate:
+        extends: .validate
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
+        needs: ["${TOOL}_${MODULE}_init"]
+        rules:
+          - if: '\$$var' == 'true'
+      
+      ${TOOL}_${MODULE}_deploy:
+        extends: .deploy
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
+        needs: ["${TOOL}_${MODULE}_validate"]
+        rules:
+          - if: '\$$var' == 'true'
+      EOF
+      done
+  artifacts:
+    paths:
+      - generated-jobs.yml
+
+trigger_dynamic_jobs:
+  stage: validate
+  trigger:
+    include:
+      - artifact: generated-jobs.yml
+        job: .generate_jobs
+  # Đã bỏ strategy không hợp lệ
