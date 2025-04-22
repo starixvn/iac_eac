@@ -1,0 +1,8 @@
+.include_init_validate_deploy:
+  image: hashicorp/terraform:1.6
+  before_script:
+    - apk add bash git
+    - terraform --version
+    - cd $CI_PROJECT_DIR
+  script:
+    - echo "Template base. Should be overridden."

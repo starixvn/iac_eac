@@ -1,78 +1,62 @@
-### File: templates.yml
-include:
-  - project: 'iac/core-ci'
-    file: '/templates/iac-base.yml'
-    ref: main
-  - project: 'iac/core-ci'
-    file: '/templates/common-base.yml'
-    ref: main
-  - project: 'iac/core-ci'
-    file: '/includes/common-vars.yml'
-    ref: main
-  - project: 'iac/core-ci'
-    file: '/templates/notify.yml'
-    ref: main
-  #- local: 'dev.gitlab-ci.yml'
-  #- local: 'local.gitlab-ci.yml'
-
 stages:
   - detect
-  - extract
+  - init
   - validate
-  - security
-  - plan
   - deploy
-  - notify
-  - cleanup
 
-cache:
-  - key: ${APP}-$VAULT_ENV-terraform
+include:
+  - local: '.gitlab/include/core-ci.yml'
+
+detect_change:
+  stage: detect
+  script:
+    - |
+      echo "Detecting changes in variable.d/"
+      CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'variable\.d/')
+      echo "$CHANGED_FILES" > changed_files.txt
+
+      # Extract tool/module/org/env from path: vault/acl/variable.d/lumi/local/variable.tfvars
+      CHANGED_TARGETS=""
+      while read -r FILE; do
+        [[ $FILE =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/.*$ ]] && \
+        CHANGED_TARGETS+="${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]} ${BASH_REMATCH[4]}\n"
+      done <<< "$CHANGED_FILES"
+
+      echo -e "$CHANGED_TARGETS" > changed_targets.txt
+  artifacts:
     paths:
-      - $CI_PROJECT_DIR/.terraform
-  # - key: ${APP}-$VAULT_ENV-terraform.lock.hcl
-  #   paths:
-  #     - $CI_PROJECT_DIR/.terraform/${APP}-$VAULT_ENV-terraform.lock.hcl
+      - changed_targets.txt
 
-detect-app:
-  extends: .detect_app
+.include_init_validate_deploy:
+  stage: deploy
+  script:
+    - echo "This job should be overridden"
 
-extract_tag_vars:
-  extends: .extract_tag_vars
-############################
-validate:
-  extends: 
-  - .predefined_id_tokens
-  - .iac_validate
-  needs: ["detect-app"]
-  # rules:
-  #   - changes:
-  #       - applications/*/*
-  #       - applications/*/*/*
- 
-security:
-  extends: .iac_security_tf
-  needs: ["detect-app","validate"] 
+generate_jobs:
+  stage: deploy
+  needs: [detect_change]
+  script:
+    - |
+      while read -r TOOL MODULE ORG ENV; do
+        echo "Triggering pipeline for $TOOL - $MODULE - $ORG - $ENV"
+        echo "CI_JOB_NAME: ${TOOL}_${MODULE}_${ORG}_${ENV}_deploy"
+        echo "
+${TOOL}_${MODULE}_${ORG}_${ENV}_init:
+  extends: [.include_init_validate_deploy]
+  stage: init
+  script:
+    - terraform init -backend-config=backend.hcl $TOOL/$MODULE
 
-## Run on deploy tags
-plan:
-  extends: 
-  - .predefined_id_tokens
-  - .iac_plan
-  needs: ["extract_tag_vars"]
-  rules:
-    - if: '$CI_COMMIT_TAG =~ /^deploy-.+-.+$/'
- 
-deploy:
-  extends: 
-  - .predefined_id_tokens
-  - .iac_deploy
-  needs: ["extract_tag_vars","plan"]
-  rules:
-    - if: '$CI_COMMIT_TAG =~ /^deploy-.+-.+$/'
-      when: manual
- 
-notify:
-  extends: .notify_slack
+${TOOL}_${MODULE}_${ORG}_${ENV}_validate:
+  extends: [.include_init_validate_deploy]
+  stage: validate
+  script:
+    - terraform validate $TOOL/$MODULE
 
-cleanup_tag:
-  extends: .cleanup_tag
+${TOOL}_${MODULE}_${ORG}_${ENV}_deploy:
+  extends: [.include_init_validate_deploy]
+  stage: deploy
+  script:
+    - terraform apply -auto-approve -var-file=$TOOL/$MODULE/variable.d/$ORG/$ENV/variable.tfvars
+        "
+      done < changed_targets.txt
