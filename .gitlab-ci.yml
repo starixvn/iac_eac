@@ -102,8 +102,6 @@ generate_jobs:
       EOF
         fi
       done < changed_vars.env
-      # Verify YAML syntax
-      yamllint generated-jobs.yml || exit 1
       echo "Generated jobs file:"
       cat generated-jobs.yml
       # Kiểm tra YAML cơ bản
