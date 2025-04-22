@@ -79,7 +79,6 @@ generate_jobs:
 
       ${TOOL}_${MODULE}_init:
         extends: .init
-        stage: init
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
@@ -88,7 +87,6 @@ generate_jobs:
 
       ${TOOL}_${MODULE}_validate:
         extends: .validate
-        stage: validate
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
@@ -98,7 +96,6 @@ generate_jobs:
 
       ${TOOL}_${MODULE}_deploy:
         extends: .deploy
-        stage: deploy
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
