@@ -11,6 +11,7 @@
       if echo ${ENV} | grep -q "local"; then export VAULT_ENV=$ENV;export VAULT_ADDR="https://vault.nexdev.net";
       elif echo ${ENV} | grep -q "dev"; then export VAULT_ENV=$ENV;export VAULT_ADDR="https://vault-dev.nexdev.net";
       elif echo ${ENV} | grep -q "uat"; then export VAULT_ENV=$ENV;export VAULT_ADDR="https://vault.starixuat.com";
+      fi;
     - |
       echo "Debug: VAULT_ENV=${VAULT_ENV}, VAULT_ADDR=${VAULT_ADDR}"
     - echo "$CI_SERVER_HOST | $CI_JOB_TOKEN | $TF_CLI_CONFIG_FILE"
