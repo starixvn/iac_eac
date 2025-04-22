@@ -2,7 +2,7 @@
 .default_before_script: &default_before_script
   - |
     echo "Debug: TOOL=${TOOL}, MODULE=${MODULE}, ORG=${ORG}, ENV=${ENV}"
-    echo "Current path: $(pwd)"
+    echo "Current path: $(pwd) | CI_PROJECT_DIR ${CI_PROJECT_DIR}"
   - |
     if [ -z "${MODULE}" ]; then
       echo "Cannot determine MODULE from path changes"

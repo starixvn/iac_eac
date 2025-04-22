@@ -8,7 +8,6 @@ vault_local_init:
   variables:
     ENV: "local"
     ORG: "starix"
-    MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | xargs -n 1 basename)"
   rules:
     - changes:
         - "vault/*/variable.d/starix/local/*"
@@ -20,7 +19,6 @@ vault_local_validate:
   variables:
     ENV: "local"
     ORG: "starix"
-    MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | xargs -n 1 basename)"
   rules:
     - changes:
         - "vault/*/variable.d/starix/local/*"
