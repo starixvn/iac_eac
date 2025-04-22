@@ -1,0 +1,51 @@
+.lumi:
+  extends: .base-rules
+  variables:
+    RULES_CHANGES_PATH: "project/**/*"
+    DIR_PATH: "project"
+
+code-quality-lumi-terraform-lint:
+  extends: [.lumi, .terraform_lint]
+
+code-quality-lumi-terraform-fmt:
+  extends: [.lumi, .terraform_fmt]
+
+code-quality-lumi-yaml-lint:
+  extends: [.lumi, .yaml_lint]
+
+validate-syntax-lumi:
+  extends: [.lumi, .validate_syntax]
+
+validate-security-lumi:
+  extends: [.lumi, .validate_security]
+
+# validate-security-checkov-lumi:
+#   extends: [.lumi, .validate_security_checkov]
+
+build:
+  stage: build
+  rules:
+    - if: $RULES_CHANGES_PATH != "project/**/*"
+      when: never
+    - !reference [.base-rules, rules]
+  extends: [.lumi, .plan]
+  needs: []
+
+deploy:
+  stage: deploy
+  rules:
+    - if: $RULES_CHANGES_PATH != "project/**/*"
+      when: never
+    - !reference [.base-rules, rules]
+  extends: [.lumi, .apply]
+  needs: ["build"]
+
+destroy:
+  stage: destroy
+  rules:
+    - if: $RULES_CHANGES_PATH != "project/**/*"
+      when: never
+    - !reference [.destroy, rules]
+    - !reference [.base-rules, rules]
+  extends: [.lumi, .destroy]
+  needs: ["build"]
