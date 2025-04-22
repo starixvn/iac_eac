@@ -8,8 +8,8 @@ stages:
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}"
 
-include:
-  - local: '/.gitlab/ci/core.gitlab-ci.yml'
+#include:
+#  - local: '/.gitlab/ci/core.gitlab-ci.yml'
 
 # Job 1: Phát hiện thay đổi và tạo file env
 detect_changes:
@@ -128,6 +128,7 @@ trigger_dynamic:
     include:
       - artifact: generated-jobs.yml
         job: "generate_jobs"
+      - local: '/.gitlab/ci/core.gitlab-ci.yml'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
