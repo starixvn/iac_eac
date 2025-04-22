@@ -54,62 +54,68 @@ generate_jobs:
       artifacts: true  # Bắt buộc tải artifact
   script:
     - |
-      # Tạo file YAML với format đúng
-      {
-        echo "stages:"
-        echo "  - init"
-        echo "  - validate"
-        echo "  - deploy"
-        echo ""
-        
-        while IFS='=' read -r var_name _; do
-          if [[ "$var_name" =~ ^(.*)_CHANGED$ ]]; then
-            TOOL_MODULE="${BASH_REMATCH[1]}"
-            IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
-            
-            echo "${TOOL}_${MODULE}_init:"
-            echo "  extends: .init"
-            echo "  stage: init"
-            echo "  variables:"
-            echo "    TOOL: \"${TOOL}\""
-            echo "    MODULE: \"${MODULE}\""
-            echo "  rules:"
-            echo "    - if: \$vault_starix_CHANGED == \"true\""
-            echo ""
-            
-            echo "${TOOL}_${MODULE}_validate:"
-            echo "  extends: .validate"
-            echo "  stage: validate"
-            echo "  variables:"
-            echo "    TOOL: \"${TOOL}\""
-            echo "    MODULE: \"${MODULE}\""
-            echo "  needs: [\"${TOOL}_${MODULE}_init\"]"
-            echo "  rules:"
-            echo "    - if: \$vault_starix_CHANGED == \"true\""
-            echo ""
-            
-            echo "${TOOL}_${MODULE}_deploy:"
-            echo "  extends: .deploy"
-            echo "  stage: deploy"
-            echo "  variables:"
-            echo "    TOOL: \"${TOOL}\""
-            echo "    MODULE: \"${MODULE}\""
-            echo "  needs: [\"${TOOL}_${MODULE}_validate\"]"
-            echo "  rules:"
-            echo "    - if: \$vault_starix_CHANGED == \"true\""
-            echo ""
-          fi
-        done < changed_vars.env
-      } > generated-jobs.yml
-      
+      # Tạo file YAML đúng định dạng
+      cat > generated-jobs.yml <<EOF
+      stages:
+        - init
+        - validate
+        - deploy
+      EOF
+
+      # Thêm từng job với định dạng chuẩn
+      while IFS='=' read -r var_name _; do
+        if [[ "$var_name" =~ ^(.*)_CHANGED$ ]]; then
+          TOOL_MODULE="${BASH_REMATCH[1]}"
+          IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
+
+          # Append jobs với định dạng đúng
+          cat >> generated-jobs.yml <<EOF
+
+      ${TOOL}_${MODULE}_init:
+        extends: .init
+        stage: init
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
+        rules:
+          - if: '\$${var_name}' == 'true'
+
+      ${TOOL}_${MODULE}_validate:
+        extends: .validate
+        stage: validate
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
+        needs: ["${TOOL}_${MODULE}_init"]
+        rules:
+          - if: '\$${var_name}' == 'true'
+
+      ${TOOL}_${MODULE}_deploy:
+        extends: .deploy
+        stage: deploy
+        variables:
+          TOOL: "${TOOL}"
+          MODULE: "${MODULE}"
+        needs: ["${TOOL}_${MODULE}_validate"]
+        rules:
+          - if: '\$${var_name}' == 'true'
+      EOF
+        fi
+      done < changed_vars.env
       # Verify YAML syntax
       yamllint generated-jobs.yml || exit 1
       echo "Generated jobs file:"
       cat generated-jobs.yml
+      # Kiểm tra YAML cơ bản
+      if ! grep -q 'stages:' generated-jobs.yml; then
+        echo "Error: Invalid YAML format!"
+        exit 1
+      fi
   artifacts:
     paths:
       - generated-jobs.yml
     expire_in: 1 hour
+
 
 # Job 3: Kích hoạt pipeline con
 trigger_dynamic:
