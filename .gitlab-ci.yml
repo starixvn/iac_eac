@@ -1,62 +1,21 @@
+variables:
+  TERRAFORM_VERSION: "1.5.7"
+  TF_CLI_ARGS: "-no-color"
+  TF_CLI_ARGS_init: "-input=false"
+  TF_IN_AUTOMATION: "true"
+
 stages:
-  - detect
+  - prepare
   - init
   - validate
+  - plan
   - deploy
 
 include:
-  - local: '.gitlab/include/core-ci.yml'
+  - local: '.gitlab-ci/core-ci-templates.yml'
+  - local: '.gitlab-ci/dynamic-jobs.yml'
 
-detect_change:
-  stage: detect
-  script:
-    - |
-      echo "Detecting changes in variable.d/"
-      CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep 'variable\.d/')
-      echo "$CHANGED_FILES" > changed_files.txt
-
-      # Extract tool/module/org/env from path: vault/acl/variable.d/lumi/local/variable.tfvars
-      CHANGED_TARGETS=""
-      while read -r FILE; do
-        [[ $FILE =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/.*$ ]] && \
-        CHANGED_TARGETS+="${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]} ${BASH_REMATCH[4]}\n"
-      done <<< "$CHANGED_FILES"
-
-      echo -e "$CHANGED_TARGETS" > changed_targets.txt
-  artifacts:
-    paths:
-      - changed_targets.txt
-
-.include_init_validate_deploy:
-  stage: deploy
-  script:
-    - echo "This job should be overridden"
-
-generate_jobs:
-  stage: deploy
-  needs: [detect_change]
-  script:
-    - |
-      while read -r TOOL MODULE ORG ENV; do
-        echo "Triggering pipeline for $TOOL - $MODULE - $ORG - $ENV"
-        echo "CI_JOB_NAME: ${TOOL}_${MODULE}_${ORG}_${ENV}_deploy"
-        echo "
-${TOOL}_${MODULE}_${ORG}_${ENV}_init:
-  extends: [.include_init_validate_deploy]
-  stage: init
-  script:
-    - terraform init -backend-config=backend.hcl $TOOL/$MODULE
-
-${TOOL}_${MODULE}_${ORG}_${ENV}_validate:
-  extends: [.include_init_validate_deploy]
-  stage: validate
-  script:
-    - terraform validate $TOOL/$MODULE
-
-${TOOL}_${MODULE}_${ORG}_${ENV}_deploy:
-  extends: [.include_init_validate_deploy]
-  stage: deploy
-  script:
-    - terraform apply -auto-approve -var-file=$TOOL/$MODULE/variable.d/$ORG/$ENV/variable.tfvars
-        "
-      done < changed_targets.txt
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
