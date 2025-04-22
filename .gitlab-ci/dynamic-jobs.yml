@@ -3,12 +3,10 @@ generate_jobs:
   image: hub.nexdev.net/base/alpine:git-3.21
   script:
     - |
-      # Find all TF modules and generate jobs
       find -maxdepth 4 -mindepth 4 -type d -path '*/variable.d/*' | while read -r dir; do
         tool=$(echo "$dir" | cut -d'/' -f2)
         module=$(echo "$dir" | cut -d'/' -f3)
         org=$(echo "$dir" | cut -d'/' -f5)
-        
         # Generate init/validate jobs for all modules
         cat <<EOF > ".gitlab-ci/jobs/${tool}_${module}_base.yml"
         init_${tool}_${module}:
@@ -31,7 +29,6 @@ generate_jobs:
                 - "${tool}/${module}/**/*"
               when: always
         EOF
-
         # Find all environments for this module
         find "$dir" -mindepth 1 -maxdepth 1 -type d | while read -r env_dir; do
           env=$(basename "$env_dir")
