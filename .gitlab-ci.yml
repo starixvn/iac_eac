@@ -34,7 +34,7 @@ detect_changes:
     when: always
 
 # Job 2: Tạo dynamic jobs
-generate_dynamic_jobs:
+.generate_jobs:
   stage: .pre
   needs: ["detect_changes"]  # Rõ ràng khai báo dependency
   script:
