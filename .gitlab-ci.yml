@@ -1,21 +1,29 @@
-variables:
-  TERRAFORM_VERSION: "1.5.7"
-  TF_CLI_ARGS: "-no-color"
-  TF_CLI_ARGS_init: "-input=false"
-  TF_IN_AUTOMATION: "true"
-
+# File: .gitlab-ci.yml
 stages:
-  - prepare
   - init
   - validate
-  - plan
   - deploy
 
-include:
-  - local: '.gitlab-ci/core-ci-templates.yml'
-  - local: '.gitlab-ci/dynamic-jobs.yml'
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}
 
+# Include các file CI cụ thể
+include:
+  - local: '/.gitlab/ci/core.gitlab-ci.yml'
+  - local: '/.gitlab/ci/vault.gitlab-ci.yml'
+
+
+# Sử dụng rules để extract module từ path
 workflow:
   rules:
-    - if: $CI_COMMIT_BRANCH == "dev"
-      when: always
+    - changes:
+        - "vault/**/*"
+      variables:
+        TOOL: "vault"
+        MODULE: "$(echo ${CI_PROJECT_DIR}/vault/* | sed 's|.*/vault/\([^/]*\).*|\1|')"
+    - changes:
+        - "rancher/**/*"
+      variables:
+        TOOL: "rancher"
+        MODULE: "$(echo ${CI_PROJECT_DIR}/rancher/* | sed 's|.*/rancher/\([^/]*\).*|\1|')"
+    # Thêm các tool khác tương tự

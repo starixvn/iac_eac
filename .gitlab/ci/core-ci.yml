@@ -1,0 +1,46 @@
+# File: .gitlab/ci/core.gitlab-ci.yml
+.default_before_script: &default_before_script
+  - |
+    if [ -z "${MODULE}" ]; then
+      echo "Cannot determine MODULE from path changes"
+      exit 1
+    fi
+  - cd ${TOOL}/${MODULE}
+  - terraform --version
+  #- terraform init -backend-config="address=${TF_ADDRESS}"
+
+.default_rules:
+  rules:
+    - changes:
+        - "${TOOL}/${MODULE}/**/*"
+        - "${TOOL}/${MODULE}/variable.d/${ORG}/${ENV}/*"
+      when: on_success
+    - when: never
+
+.init:
+  stage: init
+  script:
+    - *default_before_script
+    - echo "Init ..."
+    #terraform init -backend-config="address=${TF_ADDRESS}" -reconfigure
+
+.validate:
+  stage: validate
+  script:
+    - *default_before_script
+    #- terraform validate
+    - echo "validate ..."
+    #- terraform plan -var-file="variable.d/${ORG}/${ENV}/variable.tfvars" -out=tfplan
+  artifacts:
+    paths:
+      - ${TOOL}/${MODULE}/tfplan
+
+.deploy:
+  stage: deploy
+  script:
+    - *default_before_script
+    - echo "deploy ..."
+    #- terraform apply -auto-approve tfplan
+  when: manual
+  dependencies:
+    - validate
