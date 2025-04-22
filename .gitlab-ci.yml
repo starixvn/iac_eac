@@ -59,6 +59,9 @@ generate_jobs:
     - |
       # Tạo file YAML đúng định dạng
       cat > generated-jobs.yml <<EOF
+      include:
+        - local: '/.gitlab/ci/core.gitlab-ci.yml'
+
       stages:
         - init
         - validate
@@ -128,7 +131,7 @@ trigger_dynamic:
     include:
       - artifact: generated-jobs.yml
         job: "generate_jobs"
-      - local: '/.gitlab/ci/core.gitlab-ci.yml'
+      #- local: '/.gitlab/ci/core.gitlab-ci.yml'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
