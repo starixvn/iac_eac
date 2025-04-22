@@ -28,9 +28,8 @@ detect_changes:
       fi
 
       declare -A UNIQUE_JOBS
-
-      for file in "${CHANGED_FILES[@]}"; do
-        if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/.*\.tfvars$ ]]; then
+        for file in "${CHANGED_FILES[@]}"; do
+        if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/ ]]; then
           TOOL="${BASH_REMATCH[1]}"
           MODULE="${BASH_REMATCH[2]}"
           ORG="${BASH_REMATCH[3]}"
