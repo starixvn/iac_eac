@@ -1,6 +1,6 @@
 # File: .gitlab/ci/dynamic-templates.gitlab-ci.yml (fixed)
 .generate_jobs:
-  stage: .pre  # Sử dụng stage đặc biệt .pre để chạy đầu tiên
+  stage: init  # Sử dụng stage đặc biệt .pre để chạy đầu tiên
   script:
     - |
       # Tạo file YAML header
