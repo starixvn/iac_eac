@@ -93,8 +93,6 @@ generate_dynamic_jobs:
           - echo "Running init for ${TOOL}/${MODULE}"
           - cd "${TOOL}/${MODULE}"
           - terraform init
-        rules:
-          - if: '\$${var_name} == "true"'
 
       ${TOOL}_${MODULE}_validate:
         stage: validate
@@ -103,8 +101,6 @@ generate_dynamic_jobs:
           - cd "${TOOL}/${MODULE}"
           - terraform validate
         needs: ["${TOOL}_${MODULE}_init"]
-        rules:
-          - if: '\$${var_name} == "true"'
       EOF
           fi
         done < changed_vars.env
