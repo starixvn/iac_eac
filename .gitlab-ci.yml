@@ -64,13 +64,13 @@ generate_dynamic_jobs:
         - init
         - validate
         - deploy
-      # Job fallback khi không có thay đổi
+      # Job fallback với cú pháp rules đúng
       no_changes:
         stage: init
         script:
           - echo "No changes detected in any module"
         rules:
-          - if: '$CI_PIPELINE_SOURCE == "push"'
+          - if: $CI_PIPELINE_SOURCE == "push"
             when: never
           - when: on_success
       EOF
