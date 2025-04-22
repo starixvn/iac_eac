@@ -27,19 +27,29 @@ detect_changes:
         fi
       fi
 
-      declare -A UNIQUE_PATHS
+      declare -A UNIQUE_JOBS
+
       for file in "${CHANGED_FILES[@]}"; do
-        if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/ ]]; then
+        if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/.*\.tfvars$ ]]; then
           TOOL="${BASH_REMATCH[1]}"
           MODULE="${BASH_REMATCH[2]}"
           ORG="${BASH_REMATCH[3]}"
           ENV="${BASH_REMATCH[4]}"
-          KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
-          UNIQUE_PATHS["$KEY"]=1
+          JOB_KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
+          echo "Detected ENV CHANGE: $JOB_KEY"
+          echo "${JOB_KEY}_CHANGED=true" >> "${CHANGE_FILE}"
+          UNIQUE_JOBS["$JOB_KEY"]="env"
+        elif [[ "$file" =~ ^([^/]+)/([^/]+)/.*$ ]] && [[ ! "$file" =~ variable\.d/ ]]; then
+          TOOL="${BASH_REMATCH[1]}"
+          MODULE="${BASH_REMATCH[2]}"
+          JOB_KEY="${TOOL}_${MODULE}"
+          echo "Detected MODULE CHANGE: $JOB_KEY"
+          echo "${JOB_KEY}_CHANGED=true" >> "${CHANGE_FILE}"
+          UNIQUE_JOBS["$JOB_KEY"]="module"
         fi
       done
 
-      for path in "${!UNIQUE_PATHS[@]}"; do
+      for path in "${!UNIQUE_JOBS[@]}"; do
         echo "${path}_CHANGED=true" >> "${CHANGE_FILE}"
       done
 
