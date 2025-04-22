@@ -1,6 +1,6 @@
 # File: .gitlab-ci.yml
 stages:
-  - .pre  # Stage đặc biệt chạy đầu tiên
+  - .pre
   - init
   - validate
   - deploy
@@ -8,37 +8,56 @@ stages:
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}"
 
-# Job phát hiện thay đổi LUÔN chạy đầu tiên
+# Job 1: Phát hiện thay đổi và tạo file env
 detect_changes:
   stage: .pre
   script:
     - |
-      echo "Detecting changes between $CI_COMMIT_BEFORE_SHA and $CI_COMMIT_SHA"
-      mapfile -t CHANGED_FILES < <(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA || echo "")
+      # Tạo file changed_vars.env rỗng nếu không có thay đổi
+      touch changed_vars.env
       
-      declare -A UNIQUE_MODULES
-      for file in "${CHANGED_FILES[@]}"; do
-        if [[ "$file" =~ ^([^/]+)/([^/]+)/ ]]; then
-          TOOL="${BASH_REMATCH[1]}"
-          MODULE="${BASH_REMATCH[2]}"
-          UNIQUE_MODULES["${TOOL}_${MODULE}"]=1
-        fi
-      done
+      # Kiểm tra nếu có commit trước đó
+      if [ "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+        echo "Detecting changes between ${CI_COMMIT_BEFORE_SHA:0:8}...${CI_COMMIT_SHA:0:8}"
+        mapfile -t CHANGED_FILES < <(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA 2>/dev/null || echo "")
+        
+        declare -A UNIQUE_MODULES
+        for file in "${CHANGED_FILES[@]}"; do
+          if [[ "$file" =~ ^([^/]+)/([^/]+)/ ]]; then
+            TOOL="${BASH_REMATCH[1]}"
+            MODULE="${BASH_REMATCH[2]}"
+            UNIQUE_MODULES["${TOOL}_${MODULE}"]=1
+          fi
+        done
 
-      for module in "${!UNIQUE_MODULES[@]}"; do
-        echo "${module}_CHANGED=true" >> changed_vars.env
-        echo "Detected changes in: $module"
-      done
+        for module in "${!UNIQUE_MODULES[@]}"; do
+          echo "${module}_CHANGED=true" >> changed_vars.env
+          echo "Detected changes in: $module"
+        done
+      else
+        echo "Initial commit, no previous version to compare"
+      fi
+      
+      # Log nội dung file env để debug
+      echo "Generated changed_vars.env content:"
+      cat changed_vars.env
   artifacts:
     reports:
       dotenv: changed_vars.env
 
-# Job tạo dynamic pipeline
+# Job 2: Tạo file CI config động
 generate_jobs:
   stage: .pre
-  needs: ["detect_changes"]  # Rõ ràng phụ thuộc vào job detect
+  needs: ["detect_changes"]
   script:
     - |
+      # Đảm bảo file tồn tại
+      if [ ! -f changed_vars.env ]; then
+        echo "Error: changed_vars.env not found!"
+        exit 1
+      fi
+      
+      # Tạo file YAML header
       cat > generated-jobs.yml <<EOF
       stages:
         - init
@@ -46,12 +65,14 @@ generate_jobs:
         - deploy
       EOF
 
-      while IFS='=' read -r var_name _; do
-        if [[ "$var_name" == *_CHANGED ]]; then
-          TOOL_MODULE="${var_name%_CHANGED}"
-          IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
-          
-          cat >> generated-jobs.yml <<EOF
+      # Thêm jobs nếu có thay đổi
+      if [ -s changed_vars.env ]; then
+        while IFS='=' read -r var_name _; do
+          if [[ "$var_name" == *_CHANGED ]]; then
+            TOOL_MODULE="${var_name%_CHANGED}"
+            IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
+            
+            cat >> generated-jobs.yml <<EOF
 
       ${TOOL}_${MODULE}_init:
         extends: .init
@@ -82,41 +103,28 @@ generate_jobs:
         rules:
           - if: '\$$var_name' == 'true'
       EOF
-        fi
-      done < changed_vars.env
+          fi
+        done < changed_vars.env
+      else
+        echo "No changes detected in any module"
+      fi
+      
+      # Log nội dung file để debug
+      echo "Generated jobs.yml content:"
+      cat generated-jobs.yml
   artifacts:
     paths:
       - generated-jobs.yml
     expire_in: 1 hour
 
-# Trigger dynamic pipeline
+# Job 3: Kích hoạt pipeline con
 trigger_dynamic:
   stage: init
-  needs: ["generate_jobs"]  # Rõ ràng phụ thuộc vào generate_jobs
+  needs: ["generate_jobs"]
   trigger:
     include:
       - artifact: generated-jobs.yml
         job: "generate_jobs"
-
-debug_artifacts:
-  stage: .pre
-  needs: ["generate_jobs"]
-  script:
-    - ls -la
-    - if [ -f generated-jobs.yml ]; then 
-        echo "Generated jobs content:"; 
-        cat generated-jobs.yml; 
-      else 
-        echo "No generated jobs file found"; 
-        exit 1; 
-      fi
-
-show_changes:
-  stage: .pre
-  script:
-    - echo "All changed modules:"
-    - cat changed_vars.env || echo "No changes detected"
-
-# include:
-#   - local: '.gitlab/ci/core.gitlab-ci.yml'
-#   - local: '.gitlab/ci/dynamic-templates.gitlab-ci.yml'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
