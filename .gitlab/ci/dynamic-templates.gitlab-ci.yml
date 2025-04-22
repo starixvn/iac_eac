@@ -1,44 +1,54 @@
 # File: .gitlab/ci/dynamic-templates.gitlab-ci.yml (fixed)
 .generate_jobs:
-  stage: init
+  stage: .pre  # Sử dụng stage đặc biệt .pre để chạy đầu tiên
   script:
     - |
+      # Tạo file YAML header
       cat > generated-jobs.yml <<EOF
       stages:
         - init
         - validate
         - deploy
       EOF
-      
-      for var in $(printenv | grep '_CHANGED=true' | cut -d= -f1); do
+
+      # Thêm jobs cho mỗi module thay đổi
+      for var in $(printenv | grep '_CHANGED=true$' | cut -d= -f1); do
         TOOL_MODULE="${var%_CHANGED}"
-        TOOL="${TOOL_MODULE%_*}"
-        MODULE="${TOOL_MODULE#*_}"
+        IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
         
         cat >> generated-jobs.yml <<EOF
-      
+
       ${TOOL}_${MODULE}_init:
         extends: .init
+        stage: init
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
+          ORG: "\${ORG:-lumi}"  # Có thể override khi cần
+          ENV: "\${ENV:-local}"
         rules:
           - if: '\$$var' == 'true'
-      
+
       ${TOOL}_${MODULE}_validate:
         extends: .validate
+        stage: validate
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
+          ORG: "\${ORG:-lumi}"
+          ENV: "\${ENV:-local}"
         needs: ["${TOOL}_${MODULE}_init"]
         rules:
           - if: '\$$var' == 'true'
-      
+
       ${TOOL}_${MODULE}_deploy:
         extends: .deploy
+        stage: deploy
         variables:
           TOOL: "${TOOL}"
           MODULE: "${MODULE}"
+          ORG: "\${ORG:-lumi}"
+          ENV: "\${ENV:-local}"
         needs: ["${TOOL}_${MODULE}_validate"]
         rules:
           - if: '\$$var' == 'true'
@@ -47,11 +57,12 @@
   artifacts:
     paths:
       - generated-jobs.yml
+    expire_in: 1 hour
 
 trigger_dynamic_jobs:
-  stage: validate
+  stage: init
+  needs: [".generate_jobs"]  # Rõ ràng khai báo dependency
   trigger:
     include:
       - artifact: generated-jobs.yml
-        job: .generate_jobs
-  # Đã bỏ strategy không hợp lệ
+        job: ".generate_jobs"
