@@ -42,5 +42,5 @@
     - echo "deploy ..."
     #- terraform apply -auto-approve tfplan
   when: manual
-  dependencies:
-    - validate
+  # dependencies:
+  #   - validate
