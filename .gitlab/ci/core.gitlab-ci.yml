@@ -1,18 +1,5 @@
 # File: .gitlab/ci/core.gitlab-ci.yml
 ---
-variables:
-  # Terraform
-  TF_CLI_ARGS: "-no-color"
-  TF_CLI_ARGS_plan: "-lock-timeout=300s"
-  TF_CLI_ARGS_apply: "-lock-timeout=300s"
-  TF_IN_AUTOMATION: "true"
-  TF_INPUT: "false"
-  TF_VAR_vault_role: vault_jwt_auth_backend-pipeline
-  PLAN: plan.tfplan
-  JSON_PLAN_FILE: tfplan.json
-  TF_ROOT: "${CI_PROJECT_DIR}/applications"
-  TF_CLI_CONFIG_FILE: $CI_PROJECT_DIR/.terraformrc
-
 .init: &init
   image:
     name: $DOCKER_REG_LOCAL_URL/base/hashicorp/terraform:1.4.5-vault
@@ -52,17 +39,13 @@ variables:
     - export AWS_PROFILE=$VAULT_ENV
     - aws configure list
     - |
-      for tool in $CHANGED_TOOLS; do
-        APP_MAIN=$(echo "$tool" | cut -d'/' -f1)
-        APP=$(echo "$tool" | cut -d'/' -f2)
-        echo "🔧 validate $APP_MAIN / $APP | $VAULT_ENV ...";
-        echo "$CI_PROJECT_DIR/applications/$APP_MAIN/$APP ";
-        cd $CI_PROJECT_DIR/applications/$APP_MAIN/$APP
-        terraform init -backend-config="$CI_PROJECT_DIR/environments/${VAULT_ENV}/${APP_MAIN}/${APP}/${VAULT_ENV}.hcl"
+        echo "🔧 validate $TOOL / $MODULE | $VAULT_ENV ...";
+        echo "$CI_PROJECT_DIR/$TOOL/$MODULE ";
+        cd $CI_PROJECT_DIR/$TOOL/$MODULE
+        terraform init -backend-config="$CI_PROJECT_DIR/$TOOL/$MODULE/variable.d/${VAULT_ENV}/backend.conf"
         (terraform workspace select ${VAULT_ENV} || terraform workspace new ${VAULT_ENV})
         terraform validate
         terraform fmt 
-      done
 
 .deploy:
   <<: *init
