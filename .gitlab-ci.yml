@@ -3,11 +3,7 @@ stages:
   - .pre
   - init
   - validate
-  - security
-  - plan
   - deploy
-  - notify
-  - cleanup
 
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}"
@@ -116,7 +112,6 @@ generate_dynamic_jobs:
         stage: validate
         extends: 
           - .iac_validate
-          - .predefined_id_tokens
         needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_init"]
         variables:
           TOOL: ${TOOL}
@@ -137,9 +132,7 @@ generate_dynamic_jobs:
 
       ${TOOL}_${MODULE}_${ORG}_${ENV}_plan:
         stage: plan
-        extends: 
-          - .iac_plan
-          - .predefined_id_tokens
+        extends: .iac_plan
         needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_validate"]
         variables:
           TOOL: ${TOOL}
