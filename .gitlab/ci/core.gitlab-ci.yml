@@ -1,5 +1,5 @@
 # File: .gitlab/ci/core.gitlab-ci.yml
-.init: &iac_init
+.init: &init
   image:
     name: $DOCKER_REG_LOCAL_URL/base/hashicorp/terraform:1.4.5-vault
     entrypoint: ["/usr/bin/env"]
@@ -11,7 +11,7 @@
       echo "terraform init"
 
 .validate:
-  <<: *iac_init
+  <<: *init
   stage: validate
   script:
     - echo "validate ..."
@@ -19,7 +19,7 @@
     #- terraform plan -var-file="variable.d/${ORG}/${ENV}/variable.tfvars"
 
 .deploy:
-  <<: *iac_init
+  <<: *init
   stage: deploy
   script:
     - echo "deploy ..."
