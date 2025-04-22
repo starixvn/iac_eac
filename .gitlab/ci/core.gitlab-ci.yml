@@ -25,4 +25,3 @@
     - echo "deploy ..."
     #- terraform apply -auto-approve
   #when: manual
-

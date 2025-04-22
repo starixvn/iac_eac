@@ -13,44 +13,43 @@ detect_changes:
   stage: .pre
   script:
     - |
-      # Luôn tạo file dù có thay đổi hay không
       mkdir -p "${CI_PROJECT_DIR}/tmp"
       CHANGE_FILE="${CI_PROJECT_DIR}/tmp/changed_vars.env"
       touch "${CHANGE_FILE}"
-      
-      # Sử dụng CI_MERGE_REQUEST_CHANGED_PATHS nếu có (cho Merge Request)
+
       if [ -n "$CI_MERGE_REQUEST_CHANGED_PATHS" ]; then
         echo "Using Merge Request changed paths..."
         mapfile -t CHANGED_FILES <<< "$CI_MERGE_REQUEST_CHANGED_PATHS"
       else
-        # Fallback cho push thông thường
         if [ "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
           echo "Using git diff for changes..."
           mapfile -t CHANGED_FILES < <(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA 2>/dev/null || echo "")
         fi
       fi
 
-      declare -A UNIQUE_MODULES
+      declare -A UNIQUE_PATHS
       for file in "${CHANGED_FILES[@]}"; do
-        if [[ "$file" =~ ^([^/]+)/([^/]+)/ ]]; then
+        if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/ ]]; then
           TOOL="${BASH_REMATCH[1]}"
           MODULE="${BASH_REMATCH[2]}"
-          UNIQUE_MODULES["${TOOL}_${MODULE}"]=1
+          ORG="${BASH_REMATCH[3]}"
+          ENV="${BASH_REMATCH[4]}"
+          KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
+          UNIQUE_PATHS["$KEY"]=1
         fi
       done
 
-      for module in "${!UNIQUE_MODULES[@]}"; do
-        echo "${module}_CHANGED=true" >> "${CHANGE_FILE}"
+      for path in "${!UNIQUE_PATHS[@]}"; do
+        echo "${path}_CHANGED=true" >> "${CHANGE_FILE}"
       done
-      
-      # Di chuyển file vào thư mục artifact
+
       mv "${CHANGE_FILE}" "${CI_PROJECT_DIR}/"
       echo "Detected changes:"
       cat changed_vars.env || echo "No changes detected"
   artifacts:
     paths:
       - changed_vars.env
-    when: always  # Luôn tạo artifact
+    when: always
 
 # Job 2: Tạo dynamic jobs với cải tiến
 generate_dynamic_jobs:
@@ -58,13 +57,11 @@ generate_dynamic_jobs:
   needs: ["detect_changes"]
   script:
     - |
-      # Tạo file YAML cơ bản
       cat > generated-jobs.yml <<'EOF'
       stages:
         - init
         - validate
         - deploy
-      # Job fallback với cú pháp rules đúng
       no_changes:
         stage: init
         script:
@@ -74,34 +71,45 @@ generate_dynamic_jobs:
             when: never
           - when: on_success
       EOF
-      # Đếm số module thay đổi
+
       CHANGED_MODULES=0
-      # Thêm jobs nếu có thay đổi
       if [ -f changed_vars.env ]; then
         echo "Processing detected changes..."
         while IFS='=' read -r var_name _; do
           if [[ "$var_name" =~ ^(.*)_CHANGED$ ]]; then
-            TOOL_MODULE="${BASH_REMATCH[1]}"
-            IFS='_' read -r TOOL MODULE <<< "$TOOL_MODULE"
-            echo "Generating jobs for ${TOOL}_${MODULE}..."
-            
+            COMBO="${BASH_REMATCH[1]}"
+            IFS='_' read -r TOOL MODULE ORG ENV <<< "$COMBO"
+            echo "Generating jobs for ${TOOL}_${MODULE}_${ORG}_${ENV}..."
+
             cat >> generated-jobs.yml <<EOF
 
-      ${TOOL}_${MODULE}_init:
+      ${TOOL}_${MODULE}_${ORG}_${ENV}_init:
         stage: init
         extends: .init
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ORG: ${ORG}
+          ENV: ${ENV}
 
-      ${TOOL}_${MODULE}_validate:
+      ${TOOL}_${MODULE}_${ORG}_${ENV}_validate:
         stage: validate
         extends: .validate
-        needs: ["${TOOL}_${MODULE}_init"]
+        needs: ["${TOOL}_${MODULE}_${ORG}_${ENV}_init"]
+        variables:
+          TOOL: ${TOOL}
+          MODULE: ${MODULE}
+          ORG: ${ORG}
+          ENV: ${ENV}
       EOF
+
+            CHANGED_MODULES=$((CHANGED_MODULES + 1))
           fi
         done < changed_vars.env
       else
         echo "No module changes detected."
       fi
-      # Nếu không có module nào thay đổi, disable job fallback
+
       if [ $CHANGED_MODULES -gt 0 ]; then
         sed -i '/no_changes:/,/when: on_success/d' generated-jobs.yml
       fi
@@ -125,7 +133,3 @@ trigger_dynamic:
       - local: '.gitlab/ci/core.gitlab-ci.yml'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
-
-# Include core templates
-#include:
-#  - local: '.gitlab/ci/core.gitlab-ci.yml'
