@@ -8,15 +8,46 @@
       echo "Debug: TOOL=${TOOL}, MODULE=${MODULE}, ORG=${ORG}, ENV=${ENV}"
       echo "Current path: $(pwd) | CI_PROJECT_DIR ${CI_PROJECT_DIR}"
     - |
-      echo "terraform init"
+      if echo ${ENV} | grep -q "local"; then export VAULT_ENV=$ENV;export VAULT_ADDR="https://vault.nexdev.net";
+      elif echo ${ENV} | grep -q "dev"; then export VAULT_ENV=$ENV;export VAULT_ADDR="https://vault-dev.nexdev.net";
+      elif echo ${ENV} | grep -q "uat"; then export VAULT_ENV=$ENV;export VAULT_ADDR="https://vault.starixuat.com";
+    - |
+      echo "Debug: VAULT_ENV=${VAULT_ENV}, VAULT_ADDR=${VAULT_ADDR}"
+    - echo "$CI_SERVER_HOST | $CI_JOB_TOKEN | $TF_CLI_CONFIG_FILE"
+    - echo -e "credentials \"$CI_SERVER_HOST\" {\n  token = \"$CI_JOB_TOKEN\"\n}" > $TF_CLI_CONFIG_FILE
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - git config --global user.email "ansible@nexdev.net"
+    - git config --global user.name "ansible"
+    - git config --global url."https://ansible:$CI_JOB_TOKEN@$CI_SERVER_HOST".insteadOf "https://$CI_SERVER_HOST"
+    - ssh-keyscan -t rsa gitlab.nexdev.net >> ~/.ssh/known_hosts ;
+    - terraform --version
 
 .validate:
   <<: *init
   stage: validate
   script:
     - echo "validate ..."
-    #- terraform validate
-    #- terraform plan -var-file="variable.d/${ORG}/${ENV}/variable.tfvars"
+    - |
+        echo "** Getting credentials - Project_ID $CI_PROJECT_ID"
+        vault --version
+        export VAULT_TOKEN="$(vault write -field=token auth/jwt/login role="$TF_VAR_vault_role" jwt=$VAULT_ID_TOKEN)"
+        vault token lookup
+    - export AWS_PROFILE=$VAULT_ENV
+    - aws configure list
+    - |
+      for tool in $CHANGED_TOOLS; do
+        APP_MAIN=$(echo "$tool" | cut -d'/' -f1)
+        APP=$(echo "$tool" | cut -d'/' -f2)
+        echo "🔧 validate $APP_MAIN / $APP | $VAULT_ENV ...";
+        echo "$CI_PROJECT_DIR/applications/$APP_MAIN/$APP ";
+        cd $CI_PROJECT_DIR/applications/$APP_MAIN/$APP
+        terraform init -backend-config="$CI_PROJECT_DIR/environments/${VAULT_ENV}/${APP_MAIN}/${APP}/${VAULT_ENV}.hcl"
+        (terraform workspace select ${VAULT_ENV} || terraform workspace new ${VAULT_ENV})
+        terraform validate
+        terraform fmt 
+      done
 
 .deploy:
   <<: *init
