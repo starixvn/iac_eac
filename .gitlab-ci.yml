@@ -17,7 +17,11 @@ stages:
   - .pre
   - init
   - validate
+  - security
+  - plan
   - deploy
+  - notify
+  - cleanup
 
 # Job 2: Generate dynamic jobs
 generate_dynamic_jobs:
