@@ -13,6 +13,11 @@ stages:
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}"
 
+# Job 2: Generate dynamic jobs
+generate_dynamic_jobs:
+  stage: .pre
+  extends: [".generate_dynamic_jobs"]
+  needs: ["detect_changes"]
 
 # Job 3: Kích hoạt pipeline con
 trigger_dynamic:
