@@ -17,31 +17,50 @@
 ## Folder Structure
 
 ### Standard Project Layout
-```mermaid
+```text
 project-root/
 │
-├── app1/ # Application 1
-│ ├── module1/ # Module 1
-│ │ ├── main.tf # Main Terraform config
-│ │ ├── variables.tf # Variable declarations
-│ │ ├── outputs.tf # Output definitions
-│ │ └── variable.d/ # Environment-specific variables
-│ │ ├── org1/ # Organization 1
-│ │ │ ├── dev/ # Dev environment
-│ │ │ │ ├── backend.conf # Backend configuration
-│ │ │ │ └── variables.tfvars # Variable values
-│ │ │ └── uat/ # UAT environment
-│ │ └── org2/ # Organization 2
-│ │ └── prod/ # Production environment
-│ └── module2/ # Module 2
-│ └── ... # Similar structure
+├── app1/                  # Application 1
+│   ├── module1/           # Module 1
+│   │   ├── main.tf              # Main Terraform config
+│   │   ├── variables.tf         # Variable declarations
+│   │   ├── outputs.tf           # Output definitions
+│   │   └── variable.d/          # Environment-specific variables
+│   │       ├── org1/            # Organization 1
+│   │       │   ├── dev/         # Dev environment
+│   │       │   │   ├── backend.conf
+│   │       │   │   └── variables.tfvars
+│   │       │   └── uat/
+│   │       └── org2/
+│   │           └── prod/
+│   └── module2/
+│       └── ...
 │
-├── app2/ # Application 2
-│ └── ... # Similar structure
+├── app2/
+│   └── ...
 │
-└── .gitlab-ci.yml # CI/CD pipeline configuration
+└── .gitlab-ci.yml         # CI/CD pipeline configuration
 
-```
+### 🎨 Mermaid-style (tuỳ chọn nếu bạn muốn biểu diễn dạng sơ đồ)
+```mermaid
+graph TD
+  A[project-root] --> B[app1]
+  B --> B1[module1]
+  B1 --> B1a[main.tf]
+  B1 --> B1b[variables.tf]
+  B1 --> B1c[outputs.tf]
+  B1 --> B1d[variable.d]
+  B1d --> B1d1[org1]
+  B1d1 --> B1d1a[dev]
+  B1d1a --> B1d1a1[backend.conf]
+  B1d1a --> B1d1a2[variables.tfvars]
+  B1d1 --> B1d1b[uat]
+  B1d --> B1d2[org2]
+  B1d2 --> B1d2a[prod]
+  B --> B2[module2]
+  A --> C[app2]
+  A --> D[.gitlab-ci.yml]
+
 ## Pipeline Structure
 
 ### Stages
