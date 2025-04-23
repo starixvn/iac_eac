@@ -1,17 +1,47 @@
 # Infrastructure as Code (IaC) Pipeline Guidelines
 
 ## Table of Contents
-1. [Pipeline Structure](#pipeline-structure)
-2. [Job Naming Conventions](#job-naming-conventions)
-3. [Environment Variables](#environment-variables)
-4. [Terraform Configuration](#terraform-configuration)
-5. [Vault Integration](#vault-integration)
-6. [Dynamic Job Generation](#dynamic-job-generation)
-7. [Tag-based Deployment](#tag-based-deployment)
-8. [Notification System](#notification-system)
-9. [Security Practices](#security-practices)
-10. [Artifact Management](#artifact-management)
+1. [Folder Structure](#folder-structure)
+2. [Pipeline Structure](#pipeline-structure)
+3. [Job Naming Conventions](#job-naming-conventions)
+4. [Environment Variables](#environment-variables)
+5. [Terraform Configuration](#terraform-configuration)
+6. [Vault Integration](#vault-integration)
+7. [Dynamic Job Generation](#dynamic-job-generation)
+8. [Tag-based Deployment](#tag-based-deployment)
+9. [Notification System](#notification-system)
+10. [Security Practices](#security-practices)
+11. [Artifact Management](#artifact-management)
+12. [Use Cases](#use-cases)
 
+## Folder Structure
+
+### Standard Project Layout
+```mermaid
+project-root/
+│
+├── app1/ # Application 1
+│ ├── module1/ # Module 1
+│ │ ├── main.tf # Main Terraform config
+│ │ ├── variables.tf # Variable declarations
+│ │ ├── outputs.tf # Output definitions
+│ │ └── variable.d/ # Environment-specific variables
+│ │ ├── org1/ # Organization 1
+│ │ │ ├── dev/ # Dev environment
+│ │ │ │ ├── backend.conf # Backend configuration
+│ │ │ │ └── variables.tfvars # Variable values
+│ │ │ └── uat/ # UAT environment
+│ │ └── org2/ # Organization 2
+│ │ └── prod/ # Production environment
+│ └── module2/ # Module 2
+│ └── ... # Similar structure
+│
+├── app2/ # Application 2
+│ └── ... # Similar structure
+│
+└── .gitlab-ci.yml # CI/CD pipeline configuration
+
+```
 ## Pipeline Structure
 
 ### Stages
