@@ -59,8 +59,8 @@ deploy:
   needs: ["extract_tag_vars","plan"]
  
 notify:
-  extends: .notify_slack
-  needs: ["extract_tag_vars","deploy"]
+  extends: .notify_slack_tag
+  needs: ["plan","deploy"]
 
 cleanup_tag:
   extends: .cleanup_tag
