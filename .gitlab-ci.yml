@@ -1,4 +1,9 @@
-# File: .gitlab-ci.yml
+---
+include:
+  - project: 'iac/core-ci'
+    file: '/templates/common-base.yml'
+    ref: dev
+
 stages:
   - .pre
   - init
@@ -7,61 +12,6 @@ stages:
 
 variables:
   TF_ROOT: "${CI_PROJECT_DIR}"
-
-# Job 1: Phát hiện thay đổi với cải tiến
-detect_changes:
-  stage: .pre
-  script:
-    - |
-      mkdir -p "${CI_PROJECT_DIR}/tmp"
-      CHANGE_FILE="${CI_PROJECT_DIR}/tmp/changed_vars.env"
-      touch "${CHANGE_FILE}"
-
-      if [ -n "$CI_MERGE_REQUEST_CHANGED_PATHS" ]; then
-        echo "Using Merge Request changed paths..."
-        mapfile -t CHANGED_FILES <<< "$CI_MERGE_REQUEST_CHANGED_PATHS"
-      else
-        if [ "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
-          echo "Using git diff for changes..."
-          mapfile -t CHANGED_FILES < <(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA 2>/dev/null || echo "")
-        fi
-      fi
-
-      declare -A UNIQUE_PATHS
-        for file in "${CHANGED_FILES[@]}"; do
-        # Case 1: variable.d changes (tool/module/variable.d/org/env/...)
-        if [[ "$file" =~ ^([^/]+)/([^/]+)/variable\.d/([^/]+)/([^/]+)/ ]]; then
-          TOOL="${BASH_REMATCH[1]}"
-          MODULE="${BASH_REMATCH[2]}"
-          ORG="${BASH_REMATCH[3]}"
-          ENV="${BASH_REMATCH[4]}"
-          KEY="${TOOL}_${MODULE}_${ORG}_${ENV}"
-          UNIQUE_PATHS["$KEY"]=1
-
-        # Case 2: General file changes inside tool/module/ but not in variable.d/
-        elif [[ "$file" =~ ^([^/]+)/([^/]+)/(.*)$ ]]; then
-          TOOL="${BASH_REMATCH[1]}"
-          MODULE="${BASH_REMATCH[2]}"
-          SUBPATH="${BASH_REMATCH[3]}"
-          
-          if [[ ! "$SUBPATH" =~ ^variable\.d/ ]]; then
-            KEY="${TOOL}_${MODULE}"
-            UNIQUE_PATHS["$KEY"]=1
-          fi
-        fi
-      done
-
-      for path in "${!UNIQUE_PATHS[@]}"; do
-        echo "${path}_CHANGED=true" >> "${CHANGE_FILE}"
-      done
-
-      mv "${CHANGE_FILE}" "${CI_PROJECT_DIR}/"
-      echo "Detected changes:"
-      cat changed_vars.env || echo "No changes detected"
-  artifacts:
-    paths:
-      - changed_vars.env
-    when: always
 
 # Job 2: Tạo dynamic jobs với cải tiến
 generate_dynamic_jobs:
@@ -222,6 +172,5 @@ trigger_dynamic:
     include:
       - artifact: generated-jobs.yml
         job: generate_dynamic_jobs
-      #- local: '.gitlab/ci/core.gitlab-ci.yml'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
