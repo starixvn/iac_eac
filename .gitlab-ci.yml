@@ -43,6 +43,9 @@ trigger_dynamic:
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
 
 ## Run on deploy tags
+extract_tag_vars:
+  extends: .extract_tag_vars
+
 plan:
   extends: 
   - .predefined_id_tokens
