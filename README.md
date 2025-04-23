@@ -40,7 +40,7 @@ project-root/
 │   └── ...
 │
 └── .gitlab-ci.yml         # CI/CD pipeline configuration
-
+```
 ### 🎨 Mermaid-style (tuỳ chọn nếu bạn muốn biểu diễn dạng sơ đồ)
 ```mermaid
 graph TD
@@ -60,7 +60,7 @@ graph TD
   B --> B2[module2]
   A --> C[app2]
   A --> D[.gitlab-ci.yml]
-
+```
 ## Pipeline Structure
 
 ### Stages
