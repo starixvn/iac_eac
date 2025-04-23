@@ -3,11 +3,12 @@ include:
   - project: 'iac/core-ci'
     file: '/templates/common-base.gitlab-ci.yml'
     ref: dev
-
+  - project: 'iac/core-ci'
+    file: '/templates/iac-base.gitlab-ci.yml'
+    ref: dev
   - project: 'iac/core-ci'
     file: '/includes/common-vars.yml'
     ref: dev
-
   - project: 'iac/core-ci'
     file: '/includes/notify.yml'
     ref: dev
