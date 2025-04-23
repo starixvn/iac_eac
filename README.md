@@ -151,3 +151,36 @@ elif echo ${ENV} | grep -q "uat"; then
   export VAULT_ENV=$ENV
   export VAULT_ADDR="https://vault.starixuat.com"
 fi
+
+```
+## Use Cases
+
+### 1. Standard Module Development
+**Scenario**: Developer working on a module1 in app1
+
+1. Make changes to Terraform files in `app1/module1/`
+2. Push changes to branch
+3. Pipeline automatically:
+   - Detects changes in `app1/module1/`
+   - Runs unit tests and security scans
+   - Notifies team of results
+
+**Example Job Flow**:
+app1_module1_unit_test → app1_module1_scan → app1_module1_notify
+
+### 2. Environment-specific Deployment
+**Scenario**: Deploying module1 to UAT environment
+
+1. Create deployment tag:
+   ```bash
+   git tag -a deploy-app1-module1-org1-uat -m "Deploy to UAT"
+   git push origin deploy-app1-module1-org1-uat
+
+2. Pipeline automatically:
+    - Extracts variables from tag
+    - Sets up Vault connection for UAT
+    - Runs Terraform plan
+    - Waits for manual approval
+    - Deploys when approved
+    - Notifies team
+    - Cleans up tag
