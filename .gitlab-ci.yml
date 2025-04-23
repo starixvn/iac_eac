@@ -1,7 +1,11 @@
 ---
 include:
   - project: 'iac/core-ci'
-    file: '/templates/common-base.yml'
+    file: '/templates/common-base.gitlab-ci.yml'
+    ref: dev
+
+  - project: 'iac/core-ci'
+    file: '/includes/common-vars.yml'
     ref: dev
 
 stages:
@@ -9,9 +13,6 @@ stages:
   - init
   - validate
   - deploy
-
-variables:
-  TF_ROOT: "${CI_PROJECT_DIR}"
 
 # Job 2: Generate dynamic jobs
 generate_dynamic_jobs:
