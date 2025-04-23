@@ -41,7 +41,7 @@ project-root/
 │
 └── .gitlab-ci.yml         # CI/CD pipeline configuration
 ```
-### 🎨 Mermaid-style (tuỳ chọn nếu bạn muốn biểu diễn dạng sơ đồ)
+### Stage Flow
 ```mermaid
 graph TD
   A[project-root] --> B[app1]
