@@ -8,6 +8,10 @@ include:
     file: '/includes/common-vars.yml'
     ref: dev
 
+  - project: 'iac/core-ci'
+    file: '/includes/notify.yml'
+    ref: dev
+
 stages:
   - .pre
   - init
@@ -32,3 +36,22 @@ trigger_dynamic:
         job: generate_dynamic_jobs
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
+
+## Run on deploy tags
+plan:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_plan_tag
+  needs: ["extract_tag_vars"]
+ 
+deploy:
+  extends: 
+  - .predefined_id_tokens
+  - .iac_deploy_tag
+  needs: ["extract_tag_vars","plan"]
+ 
+notify:
+  extends: .notify_slack
+
+cleanup_tag:
+  extends: .cleanup_tag
