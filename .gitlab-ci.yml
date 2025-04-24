@@ -40,7 +40,11 @@ trigger_dynamic:
       - artifact: generated-jobs.yml
         job: generate_dynamic_jobs
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - when: always
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
 
 ## Run on deploy tags
 extract_tag_vars:
