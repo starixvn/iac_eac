@@ -66,9 +66,5 @@ notify_tag_success:
   extends: .notify_slack_tag_success
   needs: ["plan","deploy"]
 
-notify_tag_failure:
-  extends: .notify_slack_tag_failure
-  needs: ["plan","deploy"]
-
 cleanup_tag:
   extends: .cleanup_tag
