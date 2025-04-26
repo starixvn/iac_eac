@@ -1,4 +1,4 @@
-# Infrastructure as Code (EaC) Pipeline Guidelines
+# Environment as Code (EaC) Pipeline Guidelines
 
 ## Table of Contents
 1. [Folder Structure](#folder-structure)
