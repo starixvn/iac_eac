@@ -64,7 +64,7 @@ deploy:
   needs: ["extract_tag_vars","plan"]
  
 notify_tag_success:
-  extends: .notify_pipeline_success
+  extends: .notify_pipeline_tag_success
   needs: ["plan","deploy"]
 
 cleanup_tag:
