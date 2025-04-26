@@ -159,8 +159,8 @@ app1_module1_unit_test → app1_module1_scan → app1_module1_notify
 
 1. Create deployment tag:
    ```bash
-   git tag -a deploy-app1-module1-org1-uat -m "Deploy to UAT"
-   git push origin deploy-app1-module1-org1-uat
+   git tag -a deploy_app1_module1_org1_uat -m "Deploy to UAT"
+   git push origin deploy_app1_module1_org1_uat
 
 2. Pipeline automatically:
     - Extracts variables from tag
