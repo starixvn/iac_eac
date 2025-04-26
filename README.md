@@ -1,4 +1,4 @@
-# Infrastructure as Code (IaC) Pipeline Guidelines
+# Infrastructure as Code (EaC) Pipeline Guidelines
 
 ## Table of Contents
 1. [Folder Structure](#folder-structure)
@@ -139,20 +139,6 @@ The pipeline consists of the following stages:
 - Token obtained via `vault write auth/jwt/login`
 - Role configured via `TF_VAR_vault_role`
 
-### Environment Setup
-```bash
-if echo ${ENV} | grep -q "local"; then 
-  export VAULT_ENV=$ENV
-  export VAULT_ADDR="https://vault.nexdev.net"
-elif echo ${ENV} | grep -q "dev"; then 
-  export VAULT_ENV=$ENV
-  export VAULT_ADDR="https://vault-dev.nexdev.net"
-elif echo ${ENV} | grep -q "uat"; then 
-  export VAULT_ENV=$ENV
-  export VAULT_ADDR="https://vault.starixuat.com"
-fi
-
-```
 ## Use Cases
 
 ### 1. Standard Module Development
