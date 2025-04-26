@@ -1,3 +1,4 @@
+# file .gitlab-ci.yml
 ---
 include:
   - project: 'iac/core-ci'
