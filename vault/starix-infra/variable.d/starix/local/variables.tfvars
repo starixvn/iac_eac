@@ -7,8 +7,9 @@ CIDR_OFFICE                 = ["10.0.0.0/8"]
 application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-local-vault-role-v1" #required
 
 bound_gitlab_project_id = "2660,3061,3062"
-bound_gitlab_ref        = "main,local,deploy-*-local"
-bound_gitlab_ref_type   = "branch,tag"
+# bound_gitlab_ref        = "main,dev,local,deploy-*-local"
+bound_gitlab_ref      = "*"
+bound_gitlab_ref_type = "branch,tag"
 
 ###########
 ########### mount

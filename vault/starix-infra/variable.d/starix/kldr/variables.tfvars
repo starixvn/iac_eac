@@ -1,6 +1,14 @@
-env           = "uat"
-vault_address = "https://vault.starixuat.com"
-###########
+env           = "kldr"
+vault_address = "https://vn-st-vault.byb6181.com"
+
+CIDR_OFFICE                 = ["10.0.0.0/8"]
+application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1" #required
+
+bound_gitlab_project_id = "2660,3061,3062"
+bound_gitlab_ref        = "main,dev,kldr,deploy-*-kldr"
+bound_gitlab_ref_type   = "branch,tag"
+
+############
 ########### mount
 vault_mount = [
   {
@@ -27,7 +35,6 @@ vault_mount = [
 ]
 ########### Policy
 polices = [
-  ## Users / Team
   ############## System/App
 
   ############## Automation / Tools
@@ -47,33 +54,28 @@ polices = [
 roles = [
   {
     "role_name" : "p-mssql-olympus",
-    "policy_path" : "dba/uat",
+    "policy_path" : "dba/kldr",
     "policy_template" : "p-mssql-olympus",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
   {
     "role_name" : "p-mssql-rome",
-    "policy_path" : "dba/uat",
+    "policy_path" : "dba/kldr",
     "policy_template" : "p-mssql-rome",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
   {
     "role_name" : "p-mssql-legion",
-    "policy_path" : "dba/uat",
+    "policy_path" : "dba/kldr",
     "policy_template" : "p-mssql-legion",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
   {
     "role_name" : "p-mssql-wabi",
-    "policy_path" : "dba/uat",
+    "policy_path" : "dba/kldr",
     "policy_template" : "p-mssql-wabi",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
   {
     "role_name" : "p-mssql-nexus",
-    "policy_path" : "dba/uat",
+    "policy_path" : "dba/kldr",
     "policy_template" : "p-mssql-nexus",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
 
 ]
@@ -183,8 +185,7 @@ vault_users_readonly = []
 ############### Demo 
 vault_generic_secret = []
 
-application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1" #required
-# gitlab_domain               = "gitlab.nexdev.net"
+# gitlab_domain               = "https://gitlab.nexdev.net"
 
 ################ AUDIT DEVICE ################
 audit_devices = [
@@ -194,13 +195,13 @@ audit_devices = [
       file_path = "stdout"
     }
   },
-  {
-    type = "socket"
-    options = {
-      address              = "logstash-starix-k3suat-logstash.logging.svc:5064"
-      socket_type          = "tcp"
-      elide_list_responses = "true"
-      description          = "logstash socket"
-    }
-  }
+  # {
+  #   type = "socket"
+  #   options = {
+  #     address     = "logstash-starix-k3sprod-logstash.logging.svc:5064"
+  #     socket_type = "tcp"
+  #     elide_list_responses = "true"
+  #     description = "logstash socket"
+  #   }
+  # }
 ]

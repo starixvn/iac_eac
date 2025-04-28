@@ -1,6 +1,15 @@
-env           = "prod"
-vault_address = "https://vault.starixplay.com"
-###########
+env           = "sit"
+vault_address = "https://vault.playonesit.com"
+
+
+CIDR_OFFICE                 = ["10.0.0.0/8"]
+application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1" #required
+
+bound_gitlab_project_id = "2660,3061,3062"
+bound_gitlab_ref        = "main,dev,sit,deploy-*-sit"
+bound_gitlab_ref_type   = "branch,tag"
+
+#############
 ########### mount
 vault_mount = [
   {
@@ -46,59 +55,54 @@ polices = [
 roles = [
   {
     "role_name" : "p-mssql-olympus",
-    "policy_path" : "dba/prod",
+    "policy_path" : "dba/sit",
     "policy_template" : "p-mssql-olympus",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
   {
     "role_name" : "p-mssql-rome",
-    "policy_path" : "dba/prod",
+    "policy_path" : "dba/sit",
     "policy_template" : "p-mssql-rome",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
   {
     "role_name" : "p-mssql-legion",
-    "policy_path" : "dba/prod",
+    "policy_path" : "dba/sit",
     "policy_template" : "p-mssql-legion",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
   {
     "role_name" : "p-mssql-wabi",
-    "policy_path" : "dba/prod",
+    "policy_path" : "dba/sit",
     "policy_template" : "p-mssql-wabi",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
   {
     "role_name" : "p-mssql-nexus",
-    "policy_path" : "dba/prod",
+    "policy_path" : "dba/sit",
     "policy_template" : "p-mssql-nexus",
-    "bound_cidrs" : ["10.0.0.0/8"]
   },
 
 ]
 
 ########### AUTH ROLE for Kubernetes auth method ############
 kubernetes_auth_role = [
-  {
-    "role_name" : "vault-snapshot",
-    "sa_name" : "vault-snapshot"
-    "sa_namespace" : "vault",
-    "policies" : ["raft-snapshot", ],
-  },
+  # {
+  #   "role_name" : "vault-snapshot",
+  #   "sa_name" : "vault-snapshot"
+  #   "sa_namespace" : "vault",
+  #   "policies" : ["raft-snapshot", ],
+  # },
 ]
 
 kube_auth_backends = [
-  {
-    path = "kubernetes",
-    roles = [
-      {
-        role_name    = "vault-snapshot"
-        sa_name      = ["vault-snapshot", ]
-        sa_namespace = ["vault", ]
-        policies     = ["raft-snapshot", ]
-      },
-    ]
-  },
+  # {
+  #   path = "kubernetes",
+  #   roles = [
+  #     {
+  #       role_name    = "vault-snapshot"
+  #       sa_name      = ["vault-snapshot", ]
+  #       sa_namespace = ["vault", ]
+  #       policies     = ["raft-snapshot", ]
+  #     },
+  #   ]
+  # },
 ]
 
 #####################################
@@ -182,8 +186,7 @@ vault_users_readonly = []
 ############### Demo 
 vault_generic_secret = []
 
-application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1" #required
-# gitlab_domain               = "gitlab.nexdev.net"
+# gitlab_domain               = "https://gitlab.nexdev.net"
 
 ################ AUDIT DEVICE ################
 audit_devices = [
@@ -193,13 +196,13 @@ audit_devices = [
       file_path = "stdout"
     }
   },
-  {
-    type = "socket"
-    options = {
-      address              = "logstash-starix-k3sprod-logstash.logging.svc:5064"
-      socket_type          = "tcp"
-      elide_list_responses = "true"
-      description          = "logstash socket"
-    }
-  }
+  # {
+  #   type = "socket"
+  #   options = {
+  #     address     = "logstash-starix-k3sprod-logstash.logging.svc:5064"
+  #     socket_type = "tcp"
+  #     elide_list_responses = "true"
+  #     description = "logstash socket"
+  #   }
+  # }
 ]
