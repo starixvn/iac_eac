@@ -17,7 +17,7 @@ locals {
     for group, group_details in var.user_groups : [
       for member in group_details.members : {
         name          = member
-        rancher_admin = group_details.rancher_admin
+        rancher_admin = lookup(group_details, "rancher_admin", false)
       }
     ]
   ])
