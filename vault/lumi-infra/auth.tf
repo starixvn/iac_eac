@@ -31,7 +31,7 @@ resource "vault_generic_endpoint" "userpass_readonly" {
   EOT
 }
 #"policies": ["${each.value.policy}"],
-###############
+################
 resource "vault_token" "prometheus_token" {
   #role_name = "prometheus-role"
   policies  = ["prometheus"]
@@ -48,16 +48,19 @@ resource "vault_token" "prometheus_token" {
 
 ################## KUBERNETS AUTH ##################
 resource "vault_auth_backend" "kubernetes" {
-  type = "kubernetes"
+  for_each = { for backend in var.kube_auth_backends : backend.path => backend }
+  type     = "kubernetes"
+  path     = each.value.path
 }
 
-resource "vault_kubernetes_auth_backend_role" "role" {
-  for_each                         = { for role in local.vault_kubernetes_auth_role : role.role_name => role }
-  backend                          = vault_auth_backend.kubernetes.path
+resource "vault_kubernetes_auth_backend_role" "kube_roles" {
+  depends_on                       = [vault_auth_backend.kubernetes]
+  for_each                         = { for idx, role in local.kube_auth_backend_roles : idx => role }
+  backend                          = each.value.backend_path
   role_name                        = each.value.role_name
-  bound_service_account_names      = ["${each.value.sa_name}"]
-  bound_service_account_namespaces = ["${each.value.sa_namespace}"]
-  token_ttl                        = 3600
+  bound_service_account_names      = each.value.sa_name
+  bound_service_account_namespaces = each.value.sa_namespace
+  token_ttl                        = 180
   token_policies                   = each.value.policies
   # audience                         = "vault"
 }

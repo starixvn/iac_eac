@@ -1,16 +1,14 @@
-################ CONSTANT VARIABLE ################
-# gitlab_domain               = "gitlab.nexdev.net"
 env           = "local"
-vault_address = "https://vault.nexdev.net"
+vault_address = "https://vault.lumigame.com"
 
 CIDR_OFFICE                 = ["10.0.0.0/8"]
 application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-local-vault-role-v1" #required
 
 bound_gitlab_project_id = "2660,3061,3062"
-bound_gitlab_ref        = "main,local,deploy-*-local"
+bound_gitlab_ref        = "main,dev,local,deploy-*-local"
 bound_gitlab_ref_type   = "branch,tag"
 
-###########
+#####
 ########### mount
 vault_mount = [
   {
@@ -18,133 +16,73 @@ vault_mount = [
     "type" : "kv-v2"
   },
   {
-    "path" : "pontus",
-    "type" : "kv-v2"
-  },
-  {
-    "path" : "rome",
-    "type" : "kv-v2"
-  },
-  {
-    "path" : "olympus",
-    "type" : "kv-v2"
-  },
-  {
-    "path" : "nexus",
+    "path" : "pentagon",
     "type" : "kv-v2"
   },
 
 ]
 ########### Policy
 polices = [
+  ## Users / Team
+  {
+    "policy_name" : "lumi_dba",
+    "policy_path" : "dba",
+    "policy_template" : "lumi-dba-policy",
+  },
+  ############## System/App
+  {
+    "policy_name" : "service-sg",
+    "policy_path" : "dba",
+    "policy_template" : "sg-policy",
+  },
+  {
+    "policy_name" : "service-vg",
+    "policy_path" : "dba",
+    "policy_template" : "vg-policy",
+  },
+
   ############## Automation / Tools
   {
-    policy_name     = "prometheus",
-    policy_path     = "tools",
-    policy_template = "prometheus-policy",
+    "policy_name" : "prometheus",
+    "policy_path" : "tools",
+    "policy_template" : "prometheus-policy",
   },
   {
-    policy_name     = "raft-snapshot",
-    policy_path     = "tools",
-    policy_template = "raft-snapshot",
-  },
-  {
-    policy_name     = "cert-reader",
-    policy_path     = "tools",
-    policy_template = "cert-reader",
-  },
-  {
-    policy_name     = "cert-updater",
-    policy_path     = "tools",
-    policy_template = "cert-updater",
-  },
-  {
-    policy_name     = "aws-local-cert-challenger",
-    policy_path     = "tools",
-    policy_template = "aws-local-cert-challenger",
+    "policy_name" : "raft-snapshot",
+    "policy_path" : "tools",
+    "policy_template" : "raft-snapshot",
   },
 
 ]
 ########### ROLE for System/App
 roles = [
   {
-    "role_name" : "p-mssql-olympus",
-    "policy_path" : "dba/local",
-    "policy_template" : "p-mssql-olympus",
-    # "bound_cidrs" : [
-    #   "10.17.200.0/24",
-    #   "10.18.200.0/24",
-    #   "10.19.10.0/24"
-    # ]
+    "role_name" : "service-sg",
+    "policy_path" : "dba",
+    "policy_template" : "sg-policy",
   },
   {
-    "role_name" : "p-mssql-rome",
-    "policy_path" : "dba/local",
-    "policy_template" : "p-mssql-rome",
-    # "bound_cidrs" : [
-    #   "10.17.200.0/24",
-    #   "10.18.200.0/24",
-    #   "10.19.10.0/24"
-    # ]
+    "role_name" : "service-vg",
+    "policy_path" : "dba",
+    "policy_template" : "vg-policy",
   },
-  {
-    "role_name" : "p-mssql-legion",
-    "policy_path" : "dba/local",
-    "policy_template" : "p-mssql-legion",
-    # "bound_cidrs" : [
-    #   "10.17.200.0/24",
-    #   "10.18.200.0/24",
-    #   "10.19.10.0/24"
-    # ]
-  },
-  {
-    "role_name" : "p-mssql-wabi",
-    "policy_path" : "dba/local",
-    "policy_template" : "p-mssql-wabi",
-    # "bound_cidrs" : [
-    #   "10.17.200.0/24",
-    #   "10.18.200.0/24",
-    #   "10.19.10.0/24"
-    # ]
-  },
-  {
-    "role_name" : "dev-admin",
-    "policy_path" : "dba/local",
-    "policy_template" : "dev-admin",
-    # "bound_cidrs" : [
-    #   "10.17.200.0/24",
-    #   "10.18.200.0/24",
-    #   "10.19.10.0/24"
-    # ]
-  },
-  {
-    "role_name" : "p-mssql-nexus",
-    "policy_path" : "dba/local",
-    "policy_template" : "p-mssql-nexus",
-    # "bound_cidrs" : [
-    #   "10.17.200.0/24",
-    #   "10.18.200.0/24",
-    #   "10.19.10.0/24"
-    # ]
-  },
-  {
-    "role_name" : "nexops-sample",
-    "policy_path" : "tools",
-    "policy_template" : "prometheus-policy",
-    # "bound_cidrs" : [
-    #   "10.17.200.0/24",
-    #   "10.18.200.0/24",
-    #   "10.19.10.0/24"
-    # ]
-  }
 
 ]
 
 
 ########### AUTH ROLE for Kubernetes auth method ############
+kubernetes_auth_role = [
+  {
+    "role_name" : "vault-snapshot",
+    "sa_name" : "vault-snapshot"
+    "sa_namespace" : "vault",
+    "policies" : ["raft-snapshot", ],
+  },
+]
+
 kube_auth_backends = [
   {
-    path = "kubernetes"
+    path = "kubernetes",
     roles = [
       {
         role_name    = "vault-snapshot"
@@ -152,110 +90,27 @@ kube_auth_backends = [
         sa_namespace = ["vault", ]
         policies     = ["raft-snapshot", ]
       },
-      {
-        role_name    = "cert-reader"
-        sa_name      = ["vault-cert-injector", ]
-        sa_namespace = ["haproxy-ingress", ]
-        policies     = ["cert-reader", ]
-      },
-      {
-        role_name    = "cert-updater"
-        sa_name      = ["cert-updater-starix-nexprod", ]
-        sa_namespace = ["cert-manager", ]
-        policies     = ["cert-updater", ]
-      },
-      {
-        role_name    = "aws-local-cert-challenger"
-        sa_name      = ["cert-manager-starix-nexprod", ]
-        sa_namespace = ["cert-manager", ]
-        policies     = ["aws-local-cert-challenger", ]
-      },
-    ]
-  },
-  {
-    path = "kubernetes-st-backup"
-    roles = [
-      {
-        role_name    = "cert-reader"
-        sa_name      = ["vault-cert-injector", ]
-        sa_namespace = ["haproxy-ingress", ]
-        policies     = ["cert-reader", ]
-      },
-    ]
-  },
-  {
-    path = "kubernetes-st-local"
-    roles = [
-      {
-        role_name    = "cert-reader"
-        sa_name      = ["vault-cert-injector", ]
-        sa_namespace = ["haproxy-ingress", ]
-        policies     = ["cert-reader", ]
-      },
-    ]
-  },
-  {
-    path = "kubernetes-sc-local"
-    roles = [
-      {
-        role_name    = "cert-reader"
-        sa_name      = ["vault-cert-injector", ]
-        sa_namespace = ["haproxy-ingress", ]
-        policies     = ["cert-reader", ]
-      },
-    ]
-  },
-  {
-    path = "kubernetes-sc-lumprod"
-    roles = [
-      {
-        role_name    = "cert-reader"
-        sa_name      = ["vault-cert-injector", ]
-        sa_namespace = ["haproxy-ingress", ]
-        policies     = ["cert-reader", ]
-      },
     ]
   },
 ]
-
-
-########### AWS role base access management ############
-aws_secret_backend = [
-  # {
-  #   backend = "aws_local"
-  #   roles = [
-  #     {
-  #       name                 = "route53-dns-challenge"
-  #       credential_type      = "assumed_role"
-  #       policy_document_file = "dns-challenge-lumigame-com.json"
-  #     }
-  #   ]
-  # },
-]
-
 
 
 #####################################
 vault_team = [
   "nexops",
-  "pontus",
-  "rome",
-  "olympus",
-  "nexus",
-  "legion",
+  "pentagon",
+  "sg",
 ]
 
 ## Vault Admin Users
-###
+##
 vault_admin_users = [
   "troy.vo",
   "ken.nguyen",
   "josh.tran",
   "dennis.le",
-  "jacob.phan",
-  "sol.le",
 ]
-### ALL Vault Users
+## ALL Vault Users
 vault_users = [
   {
     "name" : "troy.vo",
@@ -275,62 +130,29 @@ vault_users = [
   },
   #### DBA
   {
-    "name" : "lukas.luu",
-    "team" : "pontus",
-  },
-  {
-    "name" : "patrick.pham",
-    "team" : "pontus",
-  },
-  {
-    "name" : "sol.le",
-    "team" : "pontus",
-  },
-  {
-    "name" : "brice.nguyen",
-    "team" : "pontus",
-  },
-  {
-    "name" : "evan.trinh",
-    "team" : "pontus",
-  },
-  {
-    "name" : "daniel.truong",
-    "team" : "pontus",
-  },
-  {
-    "name" : "nexops.test",
-    "team" : "pontus",
+    "name" : "billy.bui",
+    "team" : "pentagon",
   },
   #### DEV
   {
-    "name" : "jacob.phan",
-    "team" : "olympus",
+    "name" : "ricky.nguyen",
+    "team" : "sg",
   },
   {
-    "name" : "ethan.nguyen",
-    "team" : "rome",
-  },
-  {
-    "name" : "kos.nguyen",
-    "team" : "legion",
+    "name" : "vivian.nguyen",
+    "team" : "sg",
   },
 ]
 
-vault_users_readonly = []
+vault_users_readonly = [
+  {
+    "name" : "david.teo",
+    "team" : "sg",
+  },
+]
 
 ############## Demo 
 vault_generic_secret = [
-  {
-    "path" : "rome/alpha/api_1",
-    "username" : "alpha1",
-    "password" : "y7changeme",
-  },
-  {
-    "path" : "olympus/setle/api_1",
-    "username" : "setle1",
-    "password" : "changeme",
-  },
   ###Automation & tools
   {
     "path" : "nexops/automation/ansible/apitest",
@@ -342,6 +164,7 @@ vault_generic_secret = [
     "username" : "aws",
     "password" : "changeme",
   },
+
 ]
 
 ################ AUDIT DEVICE ################
@@ -349,17 +172,15 @@ audit_devices = [
   {
     type = "file"
     options = {
-      file_path = "stdout"
+      file_path = "/vault/logs/audit.log"
     }
   },
   {
     type = "socket"
     options = {
-      address              = "logstash.nexdev.net:30064"
-      socket_type          = "tcp"
-      elide_list_responses = "true"
-      description          = "logstash socket"
+      address     = "logstash-lumi-lumprod-logstash.logging-lumi:5064"
+      socket_type = "tcp"
+      description = "logstash socket"
     }
   }
 ]
-

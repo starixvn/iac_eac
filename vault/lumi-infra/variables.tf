@@ -7,15 +7,25 @@ variable "region" {
   default     = "ap-northeast-1"
 }
 #####################
-# Gitlab
+## Gitlab
 variable "gitlab_domain" {
   description = "The domain name of your gitlab (e.g: gitlab.com)"
-  default     = "gitlab.nexdev.net"
+  default     = "https://gitlab.nexdev.net"
 }
 
-variable "gitlab_project_id" {
+variable "bound_gitlab_project_id" {
   description = "The pipeline ID to authorize to auth with Vault"
-  default     = "2702"
+  default     = "2660"
+}
+
+variable "bound_gitlab_ref" {
+  description = "The pipeline Ref to authorize to auth with Vault"
+  default     = "main"
+}
+
+variable "bound_gitlab_ref_type" {
+  description = "The pipeline Ref Type to authorize to auth with Vault"
+  default     = "branch"
 }
 
 variable "gitlab_project_branch" {
@@ -25,6 +35,11 @@ variable "gitlab_project_branch" {
 variable "jwt_token_max_ttl" {
   description = "The token max ttl for JWT auth backend (default: 15min)"
   default     = 1800
+}
+variable "jwk_gitlab_nexdev" {
+  description = "Public key for jwt trust in vault"
+  type        = list(string)
+  default     = ["-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2/04ETbN8KaMDnwGZ1u5\n8W1RXaGuQH4VKEpFs3zuouRxCy7uMdRJ2Uz4TFs51V5wWDV/CrU85oXUXGm5jBrG\nRyfqTWos6F4iM0jzAEibvK0LotPX4kWiEi4lf1Xt5BfzR6oEG7TcHbYfqvvM9fSa\nnrzriXKquK+vLA7yxIrgVB/NId6OrsknlKOnbwLE3uC2FX2bRdKIATAxcBu3Xyl4\nYzttYqr5NrXfHo+Rr7H495kV2hjI+L1Y9NYcZ67FR3ZzrlZcAuf4EQAhhMqLOXzj\nOhaNPqAn7JYIneQNVxZw5NH3Opn2lD8KHCReMAMvvtZyANXCaqbtVo9dWsbE1s13\ntQ39m7wCzIkhHgnRxIjGeAHzgmUgarB/FI+/LJqjN/kM+K1Vip6lM6KfWYDIr31C\nh/lSOy+TBb7Rl15Rqc2ilTMzIlDhwF8nIp+/JtrH7+3emiSB7q3VXdHSI1TGzPiS\nJJ222GMf6uzJ7soGKo9vo0DlwhiThG14gUCwywxObafUliylyq6jZvVj0haAwJb2\n91P1RUfeMtbSSMtOFqASC6D6uiLydtSZ/AzPhkMcrGC0LXh9VTyGEAAF8wMTZ081\n/Q0dEep+mk1BIdhXHnXdb18HX65iHS4pi3cPagIOOEq8UVqqequrlEI3213pxe8v\n3wqRGcovlVI3YYk8LJeoaG0CAwEAAQ==\n-----END PUBLIC KEY-----", "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAojzYWT6rRbcZTxWUdTXW\n8bEBv50FElYwi67FvF/kEjzHiN8Z/t/3klDiQp/OT15SFdTRvKyjVi4Bg7omnDeJ\nPEbQCrr15qCGnB3RoR0PtWgaKN766H2cJ3/K+maIquj3PLunY3R72qiAxznJswY9\n7sIYpF6l++Qh66+C5jbGBzFTwaf4kGkxNIycUs19vW7VWLaNS/FMlM0bPaB8X6sq\nRvWQmV0N4aLOc3PkKqcWKAdYiLC6fFI4ln9sqMnHBz+cFL1kmwAVjmdBsUJA1l3d\nvnc84TKFa/InVKTEaZVCvgThC0L2O/CJQfCxqi6WWKuonSpKiJrAV/sUcFhQBnrH\n2wIDAQAB\n-----END PUBLIC KEY-----"]
 }
 
 variable "jwt_auth_tune_default_ttl" {
@@ -37,12 +52,17 @@ variable "jwt_auth_tune_max_ttl" {
 }
 variable "aws_secret_default_ttl" {
   description = "The default lease ttl for AWS secret engine (default: 10min)"
-  default     = 1800
+  default     = 900
 }
 
 variable "aws_secret_max_ttl" {
   description = "The max lease ttl for AWS secret engine (default: 15min)"
-  default     = 3600
+  default     = 1800
+}
+
+
+variable "application_aws_assume_role" {
+  description = "The AWS arn role for Vault to assume for AWS Secret engine. The AWS credentials are pass to the application."
 }
 #####################
 # MANDATORY
@@ -147,8 +167,13 @@ variable "readonly_users" {
   default     = []
 }
 
-variable "kubernetes_auth_role" {
-  description = "Roles for kubernetes auth method"
+variable "kube_auth_backends" {
+  description = "Auth type backends"
+  default     = [{}]
+}
+
+variable "aws_secret_backend" {
+  description = "AWS Authz backends"
   default     = [{}]
 }
 
