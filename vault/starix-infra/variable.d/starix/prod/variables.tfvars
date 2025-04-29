@@ -1,13 +1,13 @@
 env           = "prod"
 vault_address = "https://vault.starixplay.com"
 
-application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1" #required
+application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1"
 
 bound_gitlab_project_id = "2660,3061,3062"
 bound_gitlab_ref        = "main,prod,deploy-*-prod"
 bound_gitlab_ref_type   = "branch,tag"
 
-############
+#############
 ########### mount
 vault_mount = [
   {
@@ -189,7 +189,6 @@ vault_users_readonly = []
 ############### Demo 
 vault_generic_secret = []
 
-application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1" #required
 # gitlab_domain               = "gitlab.nexdev.net"
 
 ################ AUDIT DEVICE ################
