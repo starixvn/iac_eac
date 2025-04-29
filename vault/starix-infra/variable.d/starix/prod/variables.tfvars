@@ -1,6 +1,8 @@
 env           = "prod"
 vault_address = "https://vault.starixplay.com"
 
+application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1" #required
+
 bound_gitlab_project_id = "2660,3061,3062"
 bound_gitlab_ref        = "main,prod,deploy-*-prod"
 bound_gitlab_ref_type   = "branch,tag"

@@ -1,6 +1,8 @@
 env           = "uat"
 vault_address = "https://vault.starixuat.com"
 
+application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1"
+
 bound_gitlab_project_id = "2660,3061,3062"
 bound_gitlab_ref        = "main,dev,uat,deploy-*-uat"
 bound_gitlab_ref_type   = "branch,tag"
@@ -187,9 +189,6 @@ vault_users_readonly = []
 
 ############### Demo 
 vault_generic_secret = []
-
-application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1" #required
-# gitlab_domain               = "gitlab.nexdev.net"
 
 ################ AUDIT DEVICE ################
 audit_devices = [
