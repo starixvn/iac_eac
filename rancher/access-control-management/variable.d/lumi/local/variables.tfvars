@@ -66,7 +66,8 @@ user_groups = {
       "vivian.nguyen",
       "zephyr.nguyen",
       "cruz.huynh",
-      "wynn.ton"
+      "wynn.ton",
+      "james.nguyen"
     ]
   }
 
