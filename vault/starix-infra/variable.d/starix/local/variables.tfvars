@@ -6,7 +6,10 @@ vault_address = "https://vault.nexdev.net"
 CIDR_OFFICE                 = ["10.0.0.0/8"]
 application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-local-vault-role-v1" #required
 
-bound_gitlab_project_id = "2660,3061,3062"
+# 2660: https://gitlab.nexdev.net/iac/vault/vault-starix
+# 3061: https://gitlab.nexdev.net/iac/eac
+# 3083: https://gitlab.nexdev.net/iac/kubernetes
+bound_gitlab_project_id = "2660,3061,3083"
 # bound_gitlab_ref        = "main,dev,local,deploy-*-local"
 bound_gitlab_ref      = "*"
 bound_gitlab_ref_type = "branch,tag"
