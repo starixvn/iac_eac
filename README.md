@@ -1,21 +1,11 @@
-# Environment as Code (EaC) Pipeline Guidelines
-
+# Infrastructure & Environment as Code Guidelines
+CoreCI-IaC-EaC is a comprehensive GitLab CI/CD framework designed for managing and deploying infrastructure using Infrastructure as Code (IaC) principles. It provides automated workflows for both dynamic and tag-based deployments with built-in security features.
 ## Table of Contents
 1. [Folder Structure](#folder-structure)
-2. [Pipeline Structure](#pipeline-structure)
-3. [Job Naming Conventions](#job-naming-conventions)
-4. [Environment Variables](#environment-variables)
-5. [Terraform Configuration](#terraform-configuration)
-6. [Vault Integration](#vault-integration)
-7. [Dynamic Job Generation](#dynamic-job-generation)
-8. [Tag-based Deployment](#tag-based-deployment)
-9. [Notification System](#notification-system)
-10. [Security Practices](#security-practices)
-11. [Artifact Management](#artifact-management)
-12. [Use Cases](#use-cases)
+2. [Pipeline Architecture](#pipeline-architecture)
+3. [Deployment](#deployment)
 
 ## Folder Structure
-
 ### Standard Project Layout
 ```text
 project-root/
@@ -61,20 +51,20 @@ graph TD
   A --> C[app2]
   A --> D[.gitlab-ci.yml]
 ```
-## Pipeline Structure
-
+## Pipeline Architecture
 ### Stages
 The pipeline consists of the following stages:
-- `.pre`: Preparation jobs (change detection, job generation)
-- `init`: Initialization jobs
+- `.pre`: Initialization and setup
+- `init`: Resource preparation
 - `validate`: Validation and testing
-- `security`: Security scanning
+- `security`: Security checks
 - `plan`: Terraform planning
 - `deploy`: Deployment (manual by default)
 - `notify`: Notification handling
 - `cleanup`: Resource cleanup
 
-### Key Jobs
+### Jobs
+The pipeline consists of the following jobs: 
 - `detect_changes`: Identifies changed modules/paths
 - `generate_dynamic_jobs`: Creates jobs based on changes
 - `trigger_dynamic`: Triggers dynamic child pipeline
@@ -84,89 +74,36 @@ The pipeline consists of the following stages:
 - `notify`: Sends notifications
 - `cleanup_tag`: Cleans up deployment tags
 
-## Job Naming Conventions
+## Deployment
+### 1. Standard deployment
+#### Manual Trigger
+- Make changes to the code and push to the repository. `(eg: app1/module1/variable.d/{ORG}/{ENV}/*)`
+- The pipeline will automatically detect changes and generate jobs.
+- The generated jobs will be triggered by a manual approval.
+- The manual approval is required to proceed with the deployment.
+#### Job Flow
+- Initializes Terraform
+- Sets up Vault connection for specified environment
+- Runs Terraform plan
+- Waits for manual approval
+- Deploys when approved
+- Notifies team
+- Cleans up resources
+**Example Job Flow**:
+app1_module1_unit_test → app1_module1_scan → app1_module1_notify → app1_module1_plan → app1_module1_deploy → app1_module1_notify → app1_module1_cleanup
 
-### Standard Jobs
-- `{APP}_{MODULE}_{ORG}_{ENV}_validate`: Validation job
-- `{APP}_{MODULE}_{ORG}_{ENV}_scan`: Security scan job
-- `{APP}_{MODULE}_{ORG}_{ENV}_plan`: Planning job
-- `{APP}_{MODULE}_{ORG}_{ENV}_deploy`: Deployment job
-- `{APP}_{MODULE}_{ORG}_{ENV}_notify`: Notification job
+### 2. Tag-based Deployment
+#### Tag Format
+- Tags should follow the format: `deploy_{APP}_{MODULE}_{ORG}_{ENV}`
 
-### Module-level Jobs
-- `{APP}_{MODULE}_unit_test`: Basic unit testing
-- `{APP}_{MODULE}_scan`: Security scanning
-- `{APP}_{MODULE}_notify`: Notification
-
-## Environment Variables
-
-### Required Variables
-- `APP`: Application name
-- `MODULE`: Module name
-- `ORG`: Organization name
-- `ENV`: Environment (dev, uat, prod)
-- `VAULT_ENV`: Vault environment
-- `VAULT_ADDR`: Vault server address
-- `TF_VAR_vault_role`: Vault JWT auth role
-
-### Terraform Variables
-- `TF_CLI_ARGS`: Common CLI arguments
-- `TF_IN_AUTOMATION`: Set to "true"
-- `TF_INPUT`: Set to "false"
-- `TF_ROOT`: Project directory
-- `TF_CLI_CONFIG_FILE`: Terraform config path
-
-## Terraform Configuration
-
-### Standard Practices
-- Always use workspaces (one per environment)
-- Store backend config in `variable.d/{ORG}/{ENV}/backend.conf`
-- Store variables in `variable.d/{ORG}/{ENV}/variables.tfvars`
-- Use `terraform fmt` to maintain consistent formatting
-- Validate configurations with `terraform validate`
-
-### Plan/Apply Process
-1. Initialize with backend config
-2. Select/create workspace
-3. Generate plan with `-out` parameter
-4. Store plan as artifact
-5. Apply only after successful plan
-
-## Vault Integration
-
-### Authentication
-- Uses JWT authentication with GitLab CI
-- Token obtained via `vault write auth/jwt/login`
-- Role configured via `TF_VAR_vault_role`
-
-## Use Cases
-
-### 1. Standard Module Development
-**Scenario**: Developer working on a module1 in app1
-
-1. Make changes to Terraform files in `app1/module1/`
-2. Push changes to branch
-3. Pipeline automatically:
-   - Detects changes in `app1/module1/`
-   - Runs unit tests and security scans
-   - Notifies team of results
+#### Tag Processing
+- Extracts variables from tag
+- Sets up Vault connection for specified environment
+- Runs Terraform plan
+- Waits for manual approval
+- Deploys when approved
+- Notifies team
+- Cleans up tag
 
 **Example Job Flow**:
-app1_module1_unit_test → app1_module1_scan → app1_module1_notify
-
-### 2. Environment-specific Deployment
-**Scenario**: Deploying module1 to UAT environment
-
-1. Create deployment tag:
-   ```bash
-   git tag -a deploy_app1_module1_org1_uat -m "Deploy to UAT"
-   git push origin deploy_app1_module1_org1_uat
-
-2. Pipeline automatically:
-    - Extracts variables from tag
-    - Sets up Vault connection for UAT
-    - Runs Terraform plan
-    - Waits for manual approval
-    - Deploys when approved
-    - Notifies team
-    - Cleans up tag
+app1_module1_unit_test → app1_module1_scan → app1_module1_notify → app1_module1_plan → app1_module1_deploy → app1_module1_notify → app1_module1_cleanup
