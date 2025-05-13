@@ -84,7 +84,7 @@ roles = [
 kubernetes_auth_role = [
   {
     "role_name" : "vault-snapshot",
-    "sa_name" : "vault-snapshot"
+    "sa_name" : "vault-snapshot",
     "sa_namespace" : "vault",
     "policies" : ["raft-snapshot", ],
   },
@@ -163,6 +163,10 @@ vault_users = [
   },
   {
     "name" : "daniel.truong",
+    "team" : "pontus",
+  },
+  {
+    "name" : "dominic.dao",
     "team" : "pontus",
   },
   #### DEV
