@@ -190,10 +190,6 @@ vault_users = [
     "name" : "dominic.dao",
     "team" : "pontus",
   },
-  {
-    "name" : "dominic.dao",
-    "team" : "pontus",
-  },
   #### DEV
   {
     "name" : "jacob.phan",
