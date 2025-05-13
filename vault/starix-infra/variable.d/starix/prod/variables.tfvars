@@ -169,6 +169,10 @@ vault_users = [
     "name" : "daniel.truong",
     "team" : "pontus",
   },
+  {
+    "name" : "dominic.dao",
+    "team" : "pontus",
+  },
   #### DEV
   {
     "name" : "jacob.phan",

@@ -303,6 +303,10 @@ vault_users = [
     "team" : "pontus",
   },
   {
+    "name" : "dominic.dao",
+    "team" : "pontus",
+  },
+  {
     "name" : "nexops.test",
     "team" : "pontus",
   },
