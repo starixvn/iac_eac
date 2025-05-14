@@ -4,10 +4,7 @@ variable "project" {
 variable "team" {
   type = string
 }
-variable "aws_profile" {
-  description = "aws profile"
-  type        = string
-}
+
 variable "environment" {
   description = "Environment Variable used as a prefix"
   type        = string
