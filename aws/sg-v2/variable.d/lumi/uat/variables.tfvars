@@ -1,6 +1,6 @@
 environment = "uat"
 project = "vn"
-team = "lumi"
+team = "NX-Pentagon"
 aws_region  = "ap-southeast-1"
 ################## Whitelist
 allow_whitelist = "0.0.0.0/0"
