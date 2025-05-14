@@ -1,0 +1,13 @@
+# local terraform dir
+.terraform
+*/.terraform
+.terraform.lock.hcl
+*/.terraform.lock.hcl
+# tf state files
+terraform.tfstate
+terraform.tfstate.*
+*/terraform.tfstate
+*/terraform.tfstate.*
+
+#  varriable files, my include sensitive data
+#*.tfvars
