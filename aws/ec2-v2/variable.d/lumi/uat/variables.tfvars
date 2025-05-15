@@ -9,9 +9,9 @@ aws_region_bucket_remote_state_vn = "vn-lumi-starix-tf-state"
 aws_region_key_sg_remote_state_vn = "env:/uat/lumi-sg-tf.tfstate"
 vpc_id                            = "vpc-0080458809d79b6f8"
 # vpc_private_subnets = [
-#   "subnet-04c72431b574d41fc", 10.100.144.0/21 (2046): 10.100.144.1->10.100.151.254
-#   "subnet-04fb2d663dfa2959c", 10.100.152.0/21 (2046): 10.100.152.1->10.100.159.254 
-#   "subnet-0a93fc87114aeced5" 10.100.160.0/21 (2046): 10.100.160.1->10.100.167.254
+#   "subnet-0a4e02d5e2193e3cf", 10.101.0.0/20 (4k): 10.101.0.1->10.101.15.254
+#   "subnet-0108d53b24f4083e4", 10.101.16.0/20 (4k): 10.101.16.1->10.101.31.254 
+#   "subnet-0b6ab739f6da6a762" 10.101.32.0/20 (4k): 10.101.32.1->10.101.47.254
 # ]
 
 ##################  EC2
@@ -24,8 +24,8 @@ proxy_gw_vm = [
     "ami" : "ubuntu22",
     "volume_type" : "gp3",
     "volume_size" : "40",
-    "subnet_id" : "subnet-04c72431b574d41fc",
-    "private_ip" : "10.100.151.200",
+    "subnet_id" : "subnet-0a4e02d5e2193e3cf",
+    "private_ip" : "10.101.15.200",
     "tag" : "EC2"
   },
   /*  {
