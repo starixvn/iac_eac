@@ -3,7 +3,7 @@ include:
   ## Workflows
   - project: 'iac/core-ci'
     file: '/templates/workflows/dynamic.yml'
-    ref: security
+    ref: main
   - project: 'iac/core-ci'
     file: '/templates/workflows/tag-deploy.yml'
-    ref: security
+    ref: main
