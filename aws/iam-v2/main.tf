@@ -77,3 +77,42 @@ EOF
   tags = local.common_tags
 }
 ###################
+module "iam_policy_cloud_watch_v1" {
+  source  = "gitlab.nexdev.net/iac/aws-iam/aws//modules/iam-policy"
+  version = "5.17.1"
+
+  name        = lower("${var.team}-${var.environment}-CloudWatch-Policy-v1")
+  path        = "/"
+  description = "Managed by vnTerraform"
+
+  policy = <<EOF
+{
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:PutMetricData",
+                "ec2:DescribeVolumes",
+                "ec2:DescribeTags",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams",
+                "logs:DescribeLogGroups",
+                "logs:CreateLogStream",
+                "logs:CreateLogGroup"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParameter"
+            ],
+            "Resource": "arn:aws:ssm:*:*:parameter/AmazonCloudWatch-*"
+        }
+    ],
+    "Version": "2012-10-17"
+}
+EOF
+
+  tags = local.common_tags
+}
