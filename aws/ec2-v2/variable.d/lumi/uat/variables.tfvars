@@ -1,6 +1,6 @@
 environment = "uat"
 project = "vn"
-team = "lumi"
+team = "NX-Pentagon"
 aws_region  = "ap-southeast-1"
 aws_region_bucket_remote_state    = "spnk-terraform-remote-state-s3"
 aws_region_key_remote_state       = "spnk-terraform-akira-vpc.tfstate"

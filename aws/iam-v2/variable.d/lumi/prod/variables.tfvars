@@ -1,4 +1,4 @@
 environment = "prod"
 project = "vn"
-team = "lumi"
+team = "NX-Pentagon"
 aws_region  = "ap-southeast-1"
