@@ -1,4 +1,4 @@
-#########
+########
 cluster_org = "lumi"
 cluster_env = "local"
 
