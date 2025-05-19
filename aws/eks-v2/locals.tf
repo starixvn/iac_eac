@@ -3,11 +3,13 @@ locals {
   project     = var.project
   environment = var.environment
   team        = var.team
+  aws_region  = var.aws_region
   common_tags = {
     Dept        = "VNTeam"
     Team        = local.team
     ManageBy    = "vnTerraform"
     Environment = upper(local.environment)
+    Region = local.aws_region
     map-migrated = "migQK0IMQ5LFK"
   }
 }
