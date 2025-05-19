@@ -27,4 +27,5 @@ terraform {
 data "aws_caller_identity" "current" {} # used for accesing Account ID and ARN
 
 provider "aws" {
+  region = var.aws_region
 }
