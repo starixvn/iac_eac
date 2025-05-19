@@ -7,7 +7,7 @@ module "proxy_gw_v1" {
   name          = lower("vn-${var.team}-${var.environment}-${each.key}")
   ami           = data.aws_ami.os[each.value.ami].id
   subnet_id     = each.value.subnet_id
-  #vpc_security_group_ids = [data.terraform_remote_state.sg.outputs.proxy_gw_sg]
+  vpc_security_group_ids = [data.terraform_remote_state.sg.outputs.proxy_gw_sg]
   private_ip         = each.value.private_ip
   hibernation        = false
   enable_volume_tags = false
@@ -48,9 +48,9 @@ module "app_v1" {
   name          = lower("vn-${var.team}-${var.environment}-${each.key}")
   ami           = data.aws_ami.os[each.value.ami].id
   subnet_id     = each.value.subnet_id
-  # vpc_security_group_ids = [
-  #   data.terraform_remote_state.sg.outputs.private_web_sg,
-  #   ]
+  vpc_security_group_ids = [
+    data.terraform_remote_state.sg.outputs.private_web_sg,
+    ]
   private_ip         = each.value.private_ip
   hibernation        = false
   enable_volume_tags = false
