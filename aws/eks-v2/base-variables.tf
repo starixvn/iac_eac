@@ -13,7 +13,6 @@ variable "environment" {
 variable "aws_region" {
   description = "Region in which AWS Resources to be created"
   type        = string
-  default     = "ap-northeast-1"
 }
 variable "aws_region_bucket_remote_state" {
   description = "aws_region_bucket VN"
