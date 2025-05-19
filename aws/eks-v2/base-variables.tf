@@ -15,7 +15,7 @@ variable "aws_region" {
   type        = string
   default     = "ap-northeast-1"
 }
-variable "aws_region_bucket_remote_state_vn" {
+variable "aws_region_bucket_remote_state" {
   description = "aws_region_bucket VN"
   type        = string
 }

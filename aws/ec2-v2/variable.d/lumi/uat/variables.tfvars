@@ -2,11 +2,8 @@ environment = "uat"
 project = "vn"
 team = "NX-Pentagon"
 aws_region  = "ap-southeast-1"
-aws_region_bucket_remote_state    = "spnk-terraform-remote-state-s3"
-aws_region_key_remote_state       = "spnk-terraform-akira-vpc.tfstate"
-aws_region_key_iam_remote_state   = "spnk-terraform-asura-vpc-ec2-iam.tfstate"
-aws_region_bucket_remote_state_vn = "vn-lumi-starix-tf-state"
-aws_region_key_sg_remote_state_vn = "env:/uat/lumi-sg-tf.tfstate"
+aws_region_bucket_remote_state = "vn-lumi-starix-tf-state"
+aws_region_key_sg_remote_state = "env:/uat/lumi-sg-tf.tfstate"
 vpc_id                            = "vpc-0080458809d79b6f8"
 # vpc_private_subnets = [
 #   "subnet-0a4e02d5e2193e3cf", 10.101.0.0/20 (4k): 10.101.0.1->10.101.15.254
