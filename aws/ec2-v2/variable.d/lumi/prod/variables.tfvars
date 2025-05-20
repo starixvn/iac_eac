@@ -15,7 +15,7 @@ vpc_id                            = "vpc-0080458809d79b6f8"
 public_key_location  = "key/id_rsa.pub"
 private_key_location = "key/id_rsa"
 proxy_gw_vm = [
-  {
+  /*{
     "application_name" : "proxy-gw-01",
     "instance_type" : "t3a.small",
     "ami" : "ubuntu22",
@@ -24,7 +24,7 @@ proxy_gw_vm = [
     "subnet_id" : "subnet-0613fbd221a805b5b",
     "private_ip" : "10.101.55.200",
     "tag" : "EC2"
-  },
+  },*/
   /*  {
     "application_name" : "proxy-gw-02",
     "instance_type" : "t3.small",

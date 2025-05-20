@@ -75,6 +75,7 @@ eks_managed_node_groups = {
       EOT
   },
   */
+  /*
   ######## HAPROXY Ingress
   "vn-lumi-prod-eks-ing1" = {
     name                       = "vn-lumi-prod-eks-ing1"
@@ -124,7 +125,6 @@ eks_managed_node_groups = {
         sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
       EOT
   },
-  /*
   "vn-lumi-prod-eks-ing2" = {
     name                       = "vn-lumi-prod-eks-ing2"
     subnet_ids                 = ["subnet-013bce3c7a2d4020c"]
