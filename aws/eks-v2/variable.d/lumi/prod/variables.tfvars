@@ -21,8 +21,9 @@ vpc_private_subnets = [
 #   "subnet-0475b4fa8ffc80ab7" 10.101.64.0/21(2046): 10.101.64.1->10.101.71.254
 
 autoscaling_average_cpu = 90
-cluster_version         = "1.31"
+cluster_version         = "1.32"
 eks_managed_node_groups = {
+  /*
   ######## Monitor tools
   "vn-lumi-prod-eks-mon1" = {
     name                       = "vn-lumi-prod-eks-mon1"
@@ -73,6 +74,7 @@ eks_managed_node_groups = {
         sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
       EOT
   },
+  */
   ######## HAPROXY Ingress
   "vn-lumi-prod-eks-ing1" = {
     name                       = "vn-lumi-prod-eks-ing1"
