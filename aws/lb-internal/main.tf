@@ -59,7 +59,7 @@ module "internal_proxy_gw_v1" {
   # Target Groups
   target_groups = [
     {
-      name                 = lower("${var.team}-${var.environment}-gw-80-v1")
+      name                 = lower("${var.team}-${var.environment}-gw80-v1")
       backend_protocol     = "TCP"
       backend_port         = 80
       target_type          = "ip" #"ip" instance alb
@@ -88,7 +88,7 @@ module "internal_proxy_gw_v1" {
       tags = local.common_tags # Target Group Tags
     },
     {
-      name                 = lower("${var.team}-${var.environment}-gw-8088-v1")
+      name                 = lower("${var.team}-${var.environment}-gw8088-v1")
       backend_protocol     = "TCP"
       backend_port         = 8088
       target_type          = "ip"
@@ -109,7 +109,7 @@ module "internal_proxy_gw_v1" {
       }
     },
     {
-      name                 = lower("${var.team}-${var.environment}-gw-8080-v1")
+      name                 = lower("${var.team}-${var.environment}-gw8080-v1")
       backend_protocol     = "TCP"
       backend_port         = 8080
       target_type          = "ip"
@@ -130,7 +130,7 @@ module "internal_proxy_gw_v1" {
       }
     },
     {
-      name                 = lower("${var.team}-${var.environment}-ansible-8882-v1")
+      name                 = lower("${var.team}-${var.environment}-awx8882-v1")
       backend_protocol     = "TCP"
       backend_port         = 8882
       target_type          = "ip"
@@ -151,7 +151,7 @@ module "internal_proxy_gw_v1" {
       }
     },
     {
-      name                 = lower("${var.team}-${var.environment}-registry-5055-v1")
+      name                 = lower("${var.team}-${var.environment}-hub-5055-v1")
       backend_protocol     = "TCP"
       backend_port         = 5055
       target_type          = "ip"
@@ -168,69 +168,6 @@ module "internal_proxy_gw_v1" {
         server.instance_name => {
           target_id = server.private_ip
           port      = 5055
-        }
-      }
-    },
-    {
-      name                 = lower("${var.team}-${var.environment}-zabbix-8081-v1")
-      backend_protocol     = "TCP"
-      backend_port         = 8081
-      target_type          = "ip"
-      health_check = {
-        protocol            = "TCP"
-        healthy_threshold   = 2
-        unhealthy_threshold = 2
-        interval            = 5
-        timeout             = 3
-      }
-      # Target Group - Targets
-      targets = {
-        for server in local.mons_instances :
-        server.instance_name => {
-          target_id = server.private_ip
-          port      = 8081
-        }
-      }
-    },
-    {
-      name                 = lower("${var.team}-${var.environment}-dr-8885-v1")
-      backend_protocol     = "TCP"
-      backend_port         = 8885
-      target_type          = "ip"
-      health_check = {
-        protocol            = "TCP"
-        healthy_threshold   = 2
-        unhealthy_threshold = 2
-        interval            = 5
-        timeout             = 3
-      }
-      # Target Group - Targets
-      targets = {
-        for server in local.apps_serverconfig :
-        server.instance_name => {
-          target_id = server.private_ip
-          port      = 80
-        }
-      }
-    },
-    {
-      name                 = lower("${var.team}-${var.environment}-dr-deployapi-v1")
-      backend_protocol     = "TCP"
-      backend_port         = 22222
-      target_type          = "ip"
-      health_check = {
-        protocol            = "TCP"
-        healthy_threshold   = 2
-        unhealthy_threshold = 2
-        interval            = 5
-        timeout             = 3
-      }
-      # Target Group - Targets
-      targets = {
-        for server in local.apps_serverconfig :
-        server.instance_name => {
-          target_id = server.private_ip
-          port      = 22222
         }
       }
     },
