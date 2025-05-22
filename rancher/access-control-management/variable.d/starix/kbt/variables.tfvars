@@ -73,6 +73,9 @@ user_groups = {
       "theresa.le",
       "tracy.hoang",
       "vivian.nguyen",
+      "cruz.huynh",
+      "wynn.ton",
+      "nexops.test",
     ]
   }
 
