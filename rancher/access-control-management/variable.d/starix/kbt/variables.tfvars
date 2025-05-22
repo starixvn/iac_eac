@@ -75,6 +75,7 @@ user_groups = {
       "vivian.nguyen",
       "cruz.huynh",
       "wynn.ton",
+      "nexops.test",
     ]
   }
 
