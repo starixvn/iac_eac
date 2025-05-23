@@ -18,10 +18,10 @@ module "eventbridge" {
   schedules = {
     lambda-cron = {
       group_name          = "gr"
-      description         = "Trigger for Stop/Start EC2 instances"
+      description         = "Trigger for Start EC2 instances"
       schedule_expression = "cron(0 1 * * ? *)"
       timezone            = "Asia/Bangkok"
-      #arn                 = module.lambda.lambda_function_arn
+      arn                 = module.lambda.lambda_function_arn
       input               = jsonencode({ "job" : "cron-by-rate" })
     }
   }
@@ -31,25 +31,19 @@ module "eventbridge" {
 # Extra resources
 ##################
 
-resource "random_pet" "this" {
-  length = 2
-}
-
 #############################################
 # Using packaged function from Lambda module
 #############################################
-/*
-module "lambda" {
-  source  = "terraform-aws-modules/lambda/aws"
-  version = "~> 5.0"
+module "lambda_f1" {
+  source = "gitlab.nexdev.net/iac/aws-lambda/aws"
+  version = "7.21.0"
 
-  function_name = "${random_pet.this.id}-lambda"
+  tags = local.common_tags
+
+  function_name = "${var.team}-StartEC2Instances"
   handler       = "index.lambda_handler"
-  runtime       = "python3.8"
-
-  create_package         = false
-  local_existing_package = local.downloaded
-
+  runtime       = "python3.9"
+  description   = "Trigger for Start EC2 instances"
   trusted_entities = ["scheduler.amazonaws.com"]
 
   create_current_version_allowed_triggers = false
@@ -59,20 +53,5 @@ module "lambda" {
       source_arn = module.eventbridge.eventbridge_schedule_arns["lambda-cron"]
     }
   }
+  source_path = "${path.module}/fixtures/StartEC2Instances.py"
 }
-
-locals {
-  package_url = "https://raw.githubusercontent.com/terraform-aws-modules/terraform-aws-lambda/master/examples/fixtures/python3.8-zip/existing_package.zip"
-  downloaded  = "downloaded_package_${md5(local.package_url)}.zip"
-}
-
-resource "null_resource" "download_package" {
-  triggers = {
-    downloaded = local.downloaded
-  }
-
-  provisioner "local-exec" {
-    command = "curl -L -o ${local.downloaded} ${local.package_url}"
-  }
-}
-*/
