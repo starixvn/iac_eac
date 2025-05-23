@@ -62,7 +62,16 @@ module "lambda_f1" {
     }
   }
 
-  source_path = "${path.module}/fixtures/StartEC2Instances.py"
+  source_path = [
+    {
+      path             = "${path.module}/fixtures/StartEC2Instances.py"
+      pip_requirements = false
+      patterns        = ["!.*/.*"] # Exclude hidden files and directories
+    }
+  ]
+
+  store_on_s3 = false
+  artifacts_dir = ".terraform/lambda-builds"
   build_in_docker = false
 }
 
@@ -86,6 +95,15 @@ module "lambda_f2" {
     }
   }
 
-  source_path = "${path.module}/fixtures/StopEC2Instances.py"
   build_in_docker = false
+  source_path = [
+    {
+      path             = "${path.module}/fixtures/StopEC2Instances.py"
+      pip_requirements = false
+      patterns        = ["!.*/.*"] # Exclude hidden files and directories
+    }
+  ]
+
+  store_on_s3 = false
+  artifacts_dir = ".terraform/lambda-builds"
 }
