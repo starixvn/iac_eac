@@ -6,12 +6,15 @@ module "eventbridge" {
   #bus_name   = "example" # "default" bus already support schedule_expression in rules
 
   #attach_lambda_policy = true
-  lambda_target_arns   = [module.lambda_f1.lambda_function_arn]
+  #lambda_target_arns   = [module.lambda_f1.lambda_function_arn]
 
   schedule_groups = {
     gr = {
       name_prefix = lower("${var.team}-${var.environment}-")
-      tags = local.common_tags
+      tags = merge(local.common_tags, {
+        Service = "EC2-Scheduler"
+        Purpose = "Auto Start/Stop EC2"
+      })
     }
   }
 
@@ -24,6 +27,7 @@ module "eventbridge" {
       arn                 = module.lambda_f1.lambda_function_arn
       input               = jsonencode({ "job" : "cron-by-rate" })
     }
+    
     lambda-stop-ec2 = {
       group_name          = "StopEC2Instances"
       description         = "Trigger for STOP EC2 instances"
@@ -42,6 +46,7 @@ module "eventbridge" {
 #############################################
 # Using packaged function from Lambda module
 #############################################
+
 module "lambda_f1" {
   source  = "gitlab.nexdev.net/iac/aws-lambda/aws"
   version = "7.21.0"
@@ -49,25 +54,16 @@ module "lambda_f1" {
   tags = local.common_tags
 
   function_name = "${var.team}-StartEC2Instances"
-  handler       = "StartEC2Instances.lambda_handler"
-  runtime       = "python3.9"
-  description   = "Trigger for Start EC2 instances"
-  trusted_entities = ["scheduler.amazonaws.com"]
-
-  create_current_version_allowed_triggers = false
-  allowed_triggers = {
-    ScanAmiRule = {
-      principal  = "scheduler.amazonaws.com"
-      source_arn = module.eventbridge.eventbridge_schedule_arns["lambda-start-ec2"]
-    }
-  }
-
+  runtime = "python3.9"
+  handler       = "StartEC2Instances.lambda_handler"  # Sửa handler để trỏ đến đúng file
   source_path = "${path.module}/fixtures/StartEC2Instances.py"
   build_in_docker = false
-  recreate_missing_package = false
-  ignore_source_code_hash = true
+  recreate_missing_package = true
+  ignore_source_code_hash = false
+  local_existing_package = "${path.module}/fixtures/StartEC2Instances.py"
+  create_package         = false
+  hash_extra = "lambda-package"
 }
-
 module "lambda_f2" {
   source  = "gitlab.nexdev.net/iac/aws-lambda/aws"
   version = "7.21.0"
@@ -75,21 +71,13 @@ module "lambda_f2" {
   tags = local.common_tags
 
   function_name = "${var.team}-StopEC2Instances"
-  handler       = "StopEC2Instances.lambda_handler"
-  runtime       = "python3.9"
-  description   = "Trigger for Start EC2 instances"
-  trusted_entities = ["scheduler.amazonaws.com"]
-
-  create_current_version_allowed_triggers = false
-  allowed_triggers = {
-    ScanAmiRule = {
-      principal  = "scheduler.amazonaws.com"
-      source_arn = module.eventbridge.eventbridge_schedule_arns["lambda-stop-ec2"]
-    }
-  }
-
+  runtime = "python3.9"
+  handler       = "StopEC2Instances.lambda_handler"  # Sửa handler để trỏ đến đúng file
   source_path = "${path.module}/fixtures/StopEC2Instances.py"
   build_in_docker = false
-  recreate_missing_package = false
-  ignore_source_code_hash = true
+  recreate_missing_package = true
+  ignore_source_code_hash = false
+  local_existing_package = "${path.module}/fixtures/StopEC2Instances.py"
+  create_package         = false
+  hash_extra = "lambda-package"
 }
