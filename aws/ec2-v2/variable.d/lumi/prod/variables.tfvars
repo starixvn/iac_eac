@@ -47,7 +47,7 @@ monitor_vm = [
   {
     "application_name" : "ansible-01",
     "instance_type" : "t3a.medium",
-    "ami" : "ubuntu22vn",
+    "ami" : "ubuntu22",
     "volume_type" : "gp3",
     "volume_size" : "60",
     "subnet_id" : "subnet-0613fbd221a805b5b",
@@ -57,7 +57,7 @@ monitor_vm = [
   {
     "application_name" : "registry-02",
     "instance_type" : "t3a.medium", ### Upgrade specs hub
-    "ami" : "ubuntu22vn",
+    "ami" : "ubuntu22",
     "volume_type" : "gp3",
     "volume_size" : "50",
     "subnet_id" : "subnet-0613fbd221a805b5b",
