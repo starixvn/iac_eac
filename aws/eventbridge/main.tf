@@ -16,12 +16,20 @@ module "eventbridge" {
   }
 
   schedules = {
-    lambda-cron = {
-      group_name          = "gr"
+    lambda-start-ec2 = {
+      group_name          = "StartEC2Instances"
       description         = "Trigger for Start EC2 instances"
-      schedule_expression = "cron(0 1 * * ? *)"
+      schedule_expression = "cron(30 7 ? * Mon-Fri *)"
       timezone            = "Asia/Bangkok"
       arn                 = module.lambda_f1.lambda_function_arn
+      input               = jsonencode({ "job" : "cron-by-rate" })
+    }
+    lambda-stop-ec2 = {
+      group_name          = "StopEC2Instances"
+      description         = "Trigger for STOP EC2 instances"
+      schedule_expression = "cron(00 20 ? * Mon-Fri *)"
+      timezone            = "Asia/Bangkok"
+      arn                 = module.lambda_f2.lambda_function_arn
       input               = jsonencode({ "job" : "cron-by-rate" })
     }
   }
@@ -41,7 +49,7 @@ module "lambda_f1" {
   tags = local.common_tags
 
   function_name = "${var.team}-StartEC2Instances"
-  handler       = "index.lambda_handler"
+  handler       = "StartEC2Instances.lambda_handler"
   runtime       = "python3.9"
   description   = "Trigger for Start EC2 instances"
   trusted_entities = ["scheduler.amazonaws.com"]
@@ -50,14 +58,34 @@ module "lambda_f1" {
   allowed_triggers = {
     ScanAmiRule = {
       principal  = "scheduler.amazonaws.com"
-      source_arn = module.eventbridge.eventbridge_schedule_arns["lambda-cron"]
+      source_arn = module.eventbridge.eventbridge_schedule_arns["lambda-start-ec2"]
     }
   }
 
-  source_path = [
-    {
-      path = "${path.module}/fixtures/StartEC2Instances.py",
-      filename = "index.py"
+  source_path = "${path.module}/fixtures/StartEC2Instances.py"
+  build_in_docker = false
+}
+
+module "lambda_f2" {
+  source  = "gitlab.nexdev.net/iac/aws-lambda/aws"
+  version = "7.21.0"
+
+  tags = local.common_tags
+
+  function_name = "${var.team}-StopEC2Instances"
+  handler       = "StopEC2Instances.lambda_handler"
+  runtime       = "python3.9"
+  description   = "Trigger for Start EC2 instances"
+  trusted_entities = ["scheduler.amazonaws.com"]
+
+  create_current_version_allowed_triggers = false
+  allowed_triggers = {
+    ScanAmiRule = {
+      principal  = "scheduler.amazonaws.com"
+      source_arn = module.eventbridge.eventbridge_schedule_arns["lambda-stop-ec2"]
     }
-  ]
+  }
+
+  source_path = "${path.module}/fixtures/StopEC2Instances.py"
+  build_in_docker = false
 }
