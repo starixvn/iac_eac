@@ -21,7 +21,7 @@ module "eventbridge" {
       description         = "Trigger for Start EC2 instances"
       schedule_expression = "cron(0 1 * * ? *)"
       timezone            = "Asia/Bangkok"
-      arn                 = module.lambda.lambda_function_arn
+      arn                 = module.lambda_f1.lambda_function_arn
       input               = jsonencode({ "job" : "cron-by-rate" })
     }
   }
