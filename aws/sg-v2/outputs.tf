@@ -3,11 +3,11 @@
 output "proxy_gw_sg" {
   value = module.proxy_gw_sg_v2.security_group_id
 }
-
+/*
 output "private_web_sg" {
   value = module.private_web_sg_v2.security_group_id
 }
-
+*/
 # output "private_db_sg" {
 #   value = module.private_dba_sg_v2.security_group_id
 # }

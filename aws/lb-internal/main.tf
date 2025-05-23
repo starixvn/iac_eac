@@ -49,6 +49,7 @@ module "internal_proxy_gw_v1" {
       backend_port         = 80
       target_type          = "ip" #"ip" instance alb
       deregistration_delay = 10
+      protocol_version     = "HTTP1"
       health_check = {
         protocol            = "TCP"
         healthy_threshold   = 2
