@@ -2,11 +2,11 @@ module "eventbridge" {
   source = "gitlab.nexdev.net/iac/aws-eventbridge/aws"
   version = "3.17.1"
 
-  #create_bus = true
+  create_bus = false
   #bus_name   = "example" # "default" bus already support schedule_expression in rules
 
   #attach_lambda_policy = true
-  #lambda_target_arns   = [module.lambda.lambda_function_arn]
+  lambda_target_arns   = [module.lambda_f1.lambda_function_arn]
 
   schedule_groups = {
     gr = {
@@ -35,7 +35,7 @@ module "eventbridge" {
 # Using packaged function from Lambda module
 #############################################
 module "lambda_f1" {
-  source = "gitlab.nexdev.net/iac/aws-lambda/aws"
+  source  = "gitlab.nexdev.net/iac/aws-lambda/aws"
   version = "7.21.0"
 
   tags = local.common_tags
@@ -53,5 +53,11 @@ module "lambda_f1" {
       source_arn = module.eventbridge.eventbridge_schedule_arns["lambda-cron"]
     }
   }
-  source_path = "${path.module}/fixtures/StartEC2Instances.py"
+
+  source_path = [
+    {
+      path = "${path.module}/fixtures/StartEC2Instances.py",
+      filename = "index.py"
+    }
+  ]
 }
