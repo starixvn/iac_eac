@@ -3,6 +3,7 @@ module "eventbridge" {
   version = "3.17.1"
 
   create_bus = false
+  tags = local.common_tags
   #bus_name   = "example" # "default" bus already support schedule_expression in rules
 
   #attach_lambda_policy = true
