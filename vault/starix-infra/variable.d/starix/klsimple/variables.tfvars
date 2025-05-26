@@ -4,7 +4,7 @@ vault_address = "http://127.0.0.1:8200"
 application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1"
 
 bound_gitlab_project_id = "2660,3061,3062"
-bound_gitlab_ref        = "main,proddev,deploy-*-proddev"
+bound_gitlab_ref        = "main,klsimple,deploy-*-klsimple"
 bound_gitlab_ref_type   = "branch,tag"
 
 ##############
