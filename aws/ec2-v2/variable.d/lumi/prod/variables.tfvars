@@ -44,6 +44,7 @@ proxy_gw_vm = [
 ]
 
 monitor_vm = [
+  /*
   {
     "application_name" : "ansible-01",
     "instance_type" : "t3a.medium",
@@ -64,6 +65,7 @@ monitor_vm = [
     "private_ip" : "10.101.55.241",
     "tag" : "EC2"
   },
+  */
 ]
 ## Zone A: subnet-0613fbd221a805b5b C: subnet-013bce3c7a2d4020c D: subnet-0bbd3d3adba525a51
 apps_vm = [
