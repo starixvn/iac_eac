@@ -78,6 +78,6 @@ user_groups = {
 vault_secrets = {
   rancher_cred = {
     mount = "nexops"
-    path  = "automation/Opensearch/datastream-management/starix/creds"
+    path  = "automation/rancher/sc/local/nexops"
   }
 }
