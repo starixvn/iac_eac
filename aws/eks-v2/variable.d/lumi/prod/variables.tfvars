@@ -23,8 +23,106 @@ vpc_private_subnets = [
 autoscaling_average_cpu = 90
 cluster_version         = "1.32"
 eks_managed_node_groups = {
+  ######## NexOps tools
+  "nx-pentagon-prod-eks-awx" = {
+    name                       = "nx-pentagon-prod-awx"
+    subnet_ids                 = ["subnet-0613fbd221a805b5b"]
+    use_custom_launch_template = true
+    iam_role_additional_policies = {
+      additional = "arn:aws:iam::014999276089:policy/lumi-prod-cloudwatch-policy-v1"
+    }
+    labels = {
+      "nexops-mon" = "yes"
+    }
+    ami_type     = "AL2_x86_64"
+    min_size     = 0
+    max_size     = 1
+    desired_size = 1
+    instance_types = [
+      "t3a.medium"
+    ]
+    block_device_mappings = {
+      xvda = {
+        device_name = "/dev/xvda"
+        ebs = {
+          volume_size           = 50
+          volume_type           = "gp3"
+          iops                  = 3000
+          throughput            = 150
+          delete_on_termination = true
+        }
+      }
+    }
+    capacity_type = "ON_DEMAND"
+    network_interfaces = [{
+      delete_on_termination       = true
+      associate_public_ip_address = false
+    }]
+    tag_specifications = [
+      "instance",
+      "volume",
+      "network-interface"
+    ]
+    ####
+
+    pre_bootstrap_user_data = <<-EOT
+        #!/bin/bash
+        LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
+        REPLACEMENT="\ \ \ \ \ \ KUBELET_EXTRA_ARGS=\$(echo \$2 | sed -s -E 's/--max-pods=[0-9]+/--max-pods=150/g')"
+        sed -i '/KUBELET_EXTRA_ARGS=\$2/d' /etc/eks/bootstrap.sh
+        sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
+      EOT
+  },
+  "nx-pentagon-prod-eks-hub" = {
+    name                       = "nx-pentagon-prod-hub"
+    subnet_ids                 = ["subnet-0613fbd221a805b5b"]
+    use_custom_launch_template = true
+    iam_role_additional_policies = {
+      additional = "arn:aws:iam::014999276089:policy/lumi-prod-cloudwatch-policy-v1"
+    }
+    labels = {
+      "nexops-mon" = "yes"
+    }
+    ami_type     = "AL2_x86_64"
+    min_size     = 0
+    max_size     = 1
+    desired_size = 1
+    instance_types = [
+      "t3a.medium"
+    ]
+    block_device_mappings = {
+      xvda = {
+        device_name = "/dev/xvda"
+        ebs = {
+          volume_size           = 50
+          volume_type           = "gp3"
+          iops                  = 3000
+          throughput            = 150
+          delete_on_termination = true
+        }
+      }
+    }
+    capacity_type = "ON_DEMAND"
+    network_interfaces = [{
+      delete_on_termination       = true
+      associate_public_ip_address = false
+    }]
+    tag_specifications = [
+      "instance",
+      "volume",
+      "network-interface"
+    ]
+    ####
+
+    pre_bootstrap_user_data = <<-EOT
+        #!/bin/bash
+        LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
+        REPLACEMENT="\ \ \ \ \ \ KUBELET_EXTRA_ARGS=\$(echo \$2 | sed -s -E 's/--max-pods=[0-9]+/--max-pods=150/g')"
+        sed -i '/KUBELET_EXTRA_ARGS=\$2/d' /etc/eks/bootstrap.sh
+        sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
+      EOT
+  },
   /*
-  ######## Monitor tools
   "vn-lumi-prod-eks-mon1" = {
     name                       = "vn-lumi-prod-eks-mon1"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]

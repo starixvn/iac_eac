@@ -1,6 +1,6 @@
 module "ebs_csi_irsa_role" {
-  source = "gitlab.nexdev.net/iac/aws-iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.17.1"
+  source                = "gitlab.nexdev.net/iac/aws-iam/aws//modules/iam-role-for-service-accounts-eks"
+  version               = "5.17.1"
   role_name             = "${local.cluster_name}-ebs-csi"
   attach_ebs_csi_policy = true
 
@@ -13,16 +13,16 @@ module "ebs_csi_irsa_role" {
 }
 # create EKS cluster
 module "cluster" {
-  source = "gitlab.nexdev.net/iac/aws-eks/aws"
+  source  = "gitlab.nexdev.net/iac/aws-eks/aws"
   version = "19.21.0"
 
-  cluster_name                    = lower("${var.team}-${var.environment}-eks")
-  cluster_version                 = "${var.cluster_version}"
-  cluster_endpoint_private_access = true
-  cluster_endpoint_public_access  = true
+  cluster_name                         = lower("${var.team}-${var.environment}-eks")
+  cluster_version                      = var.cluster_version
+  cluster_endpoint_private_access      = true
+  cluster_endpoint_public_access       = true
   cluster_endpoint_public_access_cidrs = var.allow_whitelist
-  create_cloudwatch_log_group = var.create_cloudwatch_log_group
-  cluster_enabled_log_types = ["scheduler", "controllerManager"]
+  create_cloudwatch_log_group          = var.create_cloudwatch_log_group
+  cluster_enabled_log_types            = ["scheduler", "controllerManager"]
   #cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"] #default     = ["audit", "api", "authenticator"]
   # Extend node-to-node security group rules 10.77.0.0/16 10.88.0.0/16
   node_security_group_additional_rules = {
@@ -40,7 +40,7 @@ module "cluster" {
   cluster_addons = {
     coredns = {
       most_recent = true
-      #addon_version = "v1.11.4-eksbuild.2" #"v1.10.1-eksbuild.5"
+      addon_version = "v1.11.4-eksbuild.14"
       resolve_conflicts = "OVERWRITE"
     }
     kube-proxy = {
@@ -49,9 +49,9 @@ module "cluster" {
     }
     vpc-cni = {
       resolve_conflicts = "OVERWRITE"
-      most_recent              = true
-      #addon_version = "v1.19.2-eksbuild.5" #"v1.15.3-eksbuild.1"
-      before_compute           = true
+      most_recent       = true
+      addon_version = "v1.19.5-eksbuild.3"
+      before_compute = true
       configuration_values = jsonencode({
         env = {
           # Reference docs https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html
@@ -63,16 +63,16 @@ module "cluster" {
     aws-ebs-csi-driver = {
       service_account_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.cluster_name}-ebs-csi"
       most_recent              = true
-      #addon_version = "v1.24.1-eksbuild.1"
-      resolve_conflicts="PRESERVE"
+      addon_version = "v1.44.0-eksbuild.1"
+      resolve_conflicts = "PRESERVE"
     }
   }
-  vpc_id                          = var.vpc_id
-  subnet_ids                      = var.vpc_private_subnets
-  eks_managed_node_groups         = var.eks_managed_node_groups
+  vpc_id                  = var.vpc_id
+  subnet_ids              = var.vpc_private_subnets
+  eks_managed_node_groups = var.eks_managed_node_groups
   iam_role_additional_policies = {
-      additional = data.terraform_remote_state.iam.outputs.cloud_watch_iam_role_arn
-    }
+    additional = data.terraform_remote_state.iam.outputs.cloud_watch_iam_role_arn
+  }
   tags = merge(
     local.common_tags,
     {

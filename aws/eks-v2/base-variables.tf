@@ -25,7 +25,7 @@ variable "aws_region_key_iam_remote_state" {
 }
 
 variable "cluster_version" {
-  type        = string
+  type = string
 }
 variable "allow_whitelist" {
   description = "allow whitelist"
@@ -43,18 +43,18 @@ variable "create_cloudwatch_log_group" {
   default     = "true"
 }
 variable "lb_subnets" {
-  type        = string
+  type = string
 }
 variable "lb_az_cross" {
-  type        = string
+  type = string
 }
 # variable "lb_private_ips" {
 #   type        = string
 # }
 variable "vpc_id" {
-  type        = string
+  type = string
 }
 variable "vpc_private_subnets" {
   description = "VPC Private Subnets"
-  type = list(string)
+  type        = list(string)
 }

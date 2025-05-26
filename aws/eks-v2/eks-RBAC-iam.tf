@@ -41,7 +41,7 @@ resource "kubernetes_config_map_v1_data" "aws_auth_users" {
 
   depends_on = [
     module.cluster.cluster_name
- ]
+  ]
 }
 
 # create developers Role using RBAC
@@ -95,7 +95,7 @@ resource "kubernetes_cluster_role_binding" "iam_roles_developers" {
 # get EKS authentication for being able to manage k8s objects from terraform
 # deploy spot termination handler
 resource "helm_release" "spot_termination_handler" {
-/*  depends_on = [
+  /*  depends_on = [
     module.cluster
  ]*/
   name          = var.spot_termination_handler_chart_name
