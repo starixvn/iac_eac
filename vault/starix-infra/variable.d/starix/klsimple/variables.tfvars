@@ -3,7 +3,10 @@ vault_address = "https://vn-vault-s.byb6181.com"
 
 application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1"
 
-bound_gitlab_project_id = "2660,3061,3062"
+# 3061: https://gitlab.nexdev.net/iac/eac
+# 3083: https://gitlab.nexdev.net/iac/kubernetes
+# 3096: https://gitlab.nexdev.net/iac/opensearch
+bound_gitlab_project_id = "3061,3083,3096"
 bound_gitlab_ref        = "main,klsimple,deploy-*-klsimple"
 bound_gitlab_ref_type   = "branch,tag"
 
