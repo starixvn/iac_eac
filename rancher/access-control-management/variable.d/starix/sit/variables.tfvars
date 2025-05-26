@@ -43,7 +43,7 @@ user_groups = {
     ]
   }
 
-  "pentagon-uat" = {
+  "pentagon-sit" = {
     rancher_admin = false
     members = [
       "alice.le",
