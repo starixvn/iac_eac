@@ -14,6 +14,7 @@ variable "rancher-url" {
   default = {
     starix = {
       kbt = "https://rancher.starixplay.com"
+      sit = "https://rancher.playonesit.com"
     }
     lumi = {
       local = "https://rancher.lumigame.com"

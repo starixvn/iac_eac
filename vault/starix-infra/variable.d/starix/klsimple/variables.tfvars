@@ -1,5 +1,5 @@
-env           = "prod"
-vault_address = "http://127.0.0.1:8200"
+env           = "klsimple"
+vault_address = "https://vn-vault-s.byb6181.com"
 
 application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1"
 

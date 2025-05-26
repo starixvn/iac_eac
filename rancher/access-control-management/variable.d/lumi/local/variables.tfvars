@@ -72,3 +72,12 @@ user_groups = {
   }
 
 }
+
+
+# REQUIRED VARIABLE SET [rancher_cred]
+vault_secrets = {
+  rancher_cred = {
+    mount = "nexops"
+    path  = "automation/Opensearch/datastream-management/starix/creds"
+  }
+}
