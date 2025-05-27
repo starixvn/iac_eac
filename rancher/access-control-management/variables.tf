@@ -22,18 +22,6 @@ variable "rancher-url" {
   }
 }
 
-variable "rancher-token" {
-  description = "Nested map of Rancher Token: org > env > tokne"
-  type        = map(map(string))
-  default = {
-    starix = {
-      kbt = "token-dzqk4:h8mhgdq4vbk9mbh9sxdhdqqgctj4wthfvmqfghqrtbfq4ltxxj55f6"
-    }
-    lumi = {
-      local = "token-vsdbk:jckh5qj8zpvg2cx7tbplpfczx4smxr7trx7fbz8bm78fxxh4d7rxgq"
-    }
-  }
-}
 
 variable "clusters_ac" {
   description = "cluster_ac"

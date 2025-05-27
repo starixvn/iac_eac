@@ -15,4 +15,6 @@ terraform {
 provider "rancher2" {
   api_url   = var.rancher-url[var.cluster_org][var.cluster_env]
   token_key = data.vault_kv_secret_v2.secrets["rancher_cred"].data["token_key"]
+  timeout   = "300s"
+  insecure  = true
 }

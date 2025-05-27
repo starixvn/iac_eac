@@ -1,14 +1,16 @@
 locals {
   clusters = flatten([
-    for cluster in var.clusters_ac : cluster
+    for cluster, cluster_details in var.clusters_ac : {
+      name = "${cluster}"
+    }
   ])
 
   projects = flatten([
     for cluster, cluster_details in var.clusters_ac : [
       for project, project_details in cluster_details.projects : {
-        project_tname = "${cluster_details.name}-${project}"
+        project_tname = "${cluster}-${project}"
         project_name  = "${project}"
-        cluster_name  = "${cluster_details.name}"
+        cluster_name  = "${cluster}"
       }
     ]
   ])
@@ -49,7 +51,7 @@ locals {
           length(role_details.group_members) > 0 ? [
             for group in role_details.group_members : [
               for member in var.user_groups["${group}"].members : {
-                cluster = "${cluster_details.name}"
+                cluster = "${cluster}"
                 name    = "${member}"
               }
             ]
@@ -59,7 +61,7 @@ locals {
           for role, role_details in project_details.roles :
           length(role_details.members) > 0 ? [
             for member in role_details.members : {
-              cluster = "${cluster_details.name}"
+              cluster = "${cluster}"
               name    = "${member}"
             }
           ] : []
@@ -93,8 +95,8 @@ locals {
           length(role_details.group_members) > 0 ? [
             for group in role_details.group_members : [
               for member in var.user_groups["${group}"].members : {
-                cluster = "${cluster_details.name}"
-                project = "${project_details.name}"
+                cluster = "${cluster}"
+                project = "${project}"
                 name    = "${member}"
                 role    = "${role}"
               }
@@ -106,8 +108,8 @@ locals {
           for role, role_details in project_details.roles :
           length(role_details.members) > 0 ? [
             for member in role_details.members : {
-              cluster = "${cluster_details.name}"
-              project = "${project_details.name}"
+              cluster = "${cluster}"
+              project = "${project}"
               name    = "${member}"
               role    = "${role}"
             }

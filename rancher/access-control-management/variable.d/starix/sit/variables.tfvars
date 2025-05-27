@@ -4,11 +4,9 @@ cluster_env = "sit"
 
 # Access Controll Management
 clusters_ac = {
-  "sc-uat" = { # Cluster on Rancher
-    name = "sc-sit"
+  "sc-sit" = { # Cluster on Rancher
     projects = {
       "pentagon" = {
-        name        = "pentagon"
         description = "project for Pentagon Teams"
         roles = {
           "ro" = { # Project ReadOnly Member
