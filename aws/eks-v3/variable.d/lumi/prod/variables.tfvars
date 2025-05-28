@@ -39,11 +39,10 @@ eks_managed_node_groups = {
     max_size     = 1
     desired_size = 1
     instance_types = [
-      "t3a.large",
-      "t3.large",
+      "t3a.xlarge",
+      "t3.xlarge",
       "t3.2xlarge",
       "t3a.2xlarge",
-      "m6i.large",
       "m6i.xlarge",
       "m6i.2xlarge",
     ]
@@ -159,9 +158,9 @@ eks_managed_node_groups = {
     max_size     = 1
     desired_size = 1
     instance_types = [
-      "t3a.large",
-      "t3.large",
-      "m6i.large",
+      "t3a.xlarge",
+      "t3.xlarge",
+      "m6i.xlarge",
     ]
     block_device_mappings = {
       xvda = {
