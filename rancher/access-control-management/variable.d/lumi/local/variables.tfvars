@@ -44,6 +44,7 @@ user_groups = {
       "dennis.le",
       "ken.nguyen",
       "troy.vo",
+      "larry.tran",
     ]
   }
 

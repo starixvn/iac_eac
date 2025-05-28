@@ -38,6 +38,7 @@ user_groups = {
       "josh.tran",
       "dennis.le",
       "troy.vo",
+      "larry.tran",
     ]
   }
 
