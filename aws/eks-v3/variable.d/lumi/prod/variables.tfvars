@@ -39,7 +39,13 @@ eks_managed_node_groups = {
     max_size     = 1
     desired_size = 1
     instance_types = [
-      "t3a.medium"
+      "t3a.large",
+      "t3.large",
+      "t3.2xlarge",
+      "t3a.2xlarge",
+      "m6i.large",
+      "m6i.xlarge",
+      "m6i.2xlarge",
     ]
     block_device_mappings = {
       xvda = {
@@ -65,20 +71,6 @@ eks_managed_node_groups = {
     ]
     ####
     schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = "1" # Retains current max size
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = "1" # Retains current max size
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
       }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
@@ -152,9 +144,8 @@ eks_managed_node_groups = {
         sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
       EOT
   },
-  /*
-  "vn-lumi-prod-eks-mon1" = {
-    name                       = "vn-lumi-prod-eks-mon1"
+  "nx-pentagon-prod-mon1" = {
+    name                       = "nx-pentagon-prod-mon1"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -163,12 +154,14 @@ eks_managed_node_groups = {
     labels = {
       "nexops-mon" = "yes"
     }
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
     instance_types = [
-      "t3a.medium"
+      "t3a.large",
+      "t3.large",
+      "m6i.large",
     ]
     block_device_mappings = {
       xvda = {
@@ -193,7 +186,8 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-
+    schedules = {
+      }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
         LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
@@ -202,11 +196,9 @@ eks_managed_node_groups = {
         sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
       EOT
   },
-  */
-  /*
   ######## HAPROXY Ingress
-  "vn-lumi-prod-eks-ing1" = {
-    name                       = "vn-lumi-prod-eks-ing1"
+  "nx-pentagon-prod-ing1" = {
+    name                       = "nx-pentagon-prod-ing1"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -215,7 +207,7 @@ eks_managed_node_groups = {
     labels = {
       "haproxy" = "yes"
     }
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -245,6 +237,8 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
+    schedules = {
+      }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
         LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
@@ -253,6 +247,7 @@ eks_managed_node_groups = {
         sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
       EOT
   },
+  /*
   "vn-lumi-prod-eks-ing2" = {
     name                       = "vn-lumi-prod-eks-ing2"
     subnet_ids                 = ["subnet-013bce3c7a2d4020c"]
@@ -263,7 +258,7 @@ eks_managed_node_groups = {
     labels = {
       "haproxy" = "yes"
     }
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -335,7 +330,7 @@ eks_managed_node_groups = {
       "nexops"            = "yes"
     }
 
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -406,7 +401,7 @@ eks_managed_node_groups = {
       "nexops"            = "yes"
     }
 
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -477,7 +472,7 @@ eks_managed_node_groups = {
       "nexops"            = "yes"
     }
 
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -548,7 +543,7 @@ eks_managed_node_groups = {
       "nexops"            = "yes"
     }
 
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -606,7 +601,7 @@ eks_managed_node_groups = {
             "nexops" = "yes"
           }
 
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -661,7 +656,7 @@ eks_managed_node_groups = {
             "nexops" = "yes"
           }
 
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
