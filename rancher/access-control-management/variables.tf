@@ -13,8 +13,9 @@ variable "rancher-url" {
   type        = map(map(string))
   default = {
     starix = {
-      kbt = "https://rancher.starixplay.com"
-      sit = "https://rancher.playonesit.com"
+      kbt  = "https://rancher.starixplay.com"
+      sit  = "https://rancher.playonesit.com"
+      prod = "https://vn-rancher.byb6181.com"
     }
     lumi = {
       local = "https://rancher.lumigame.com"
