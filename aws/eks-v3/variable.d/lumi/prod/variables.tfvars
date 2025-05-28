@@ -59,7 +59,7 @@ eks_managed_node_groups = {
         }
       }
     }
-    capacity_type = "ON_DEMAND"
+    capacity_type = "SPOT"
     network_interfaces = [{
       delete_on_termination       = true
       associate_public_ip_address = false
