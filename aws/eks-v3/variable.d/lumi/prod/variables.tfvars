@@ -32,9 +32,9 @@ eks_managed_node_groups = {
       additional = "arn:aws:iam::014999276089:policy/lumi-prod-cloudwatch-policy-v1"
     }
     labels = {
-      "nexops-mon" = "yes"
+      "nexops" = "yes"
     }
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD" #"AL2_x86_64"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -64,7 +64,22 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-
+    schedules = {
+        scale-up = {
+          min_size     = 0
+          max_size     = "1" # Retains current max size
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = "1" # Retains current max size
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
+      }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
         LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
@@ -81,9 +96,9 @@ eks_managed_node_groups = {
       additional = "arn:aws:iam::014999276089:policy/lumi-prod-cloudwatch-policy-v1"
     }
     labels = {
-      "nexops-mon" = "yes"
+      "nexops" = "yes"
     }
-    ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -113,7 +128,22 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-
+    schedules = {
+        scale-up = {
+          min_size     = 0
+          max_size     = "1" # Retains current max size
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = "1" # Retains current max size
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
+      }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
         LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
@@ -672,12 +702,6 @@ eks_managed_node_groups = {
   },
   */
 }
-
-###############
-spot_termination_handler_chart_name      = "aws-node-termination-handler"
-spot_termination_handler_chart_repo      = "https://aws.github.io/eks-charts"
-spot_termination_handler_chart_version   = "0.21.0"
-spot_termination_handler_chart_namespace = "kube-system"
 
 ###############
 namespaces = ["sample", "nexops"]

@@ -54,7 +54,7 @@ module "lambda_f1" {
   tags                                    = local.common_tags
   function_name                           = "${var.team}-StartEC2Instances"
   runtime                                 = "python3.9"
-  handler                                 = "index.lambda_handler" # Sửa handler để trỏ đến đúng file
+  handler                                 = "StartEC2Instances.lambda_handler"
   local_existing_package                  = "${path.module}/fixtures/StartEC2Instances.zip"
   trusted_entities                        = ["scheduler.amazonaws.com"]
   create_package                          = false
@@ -65,6 +65,18 @@ module "lambda_f1" {
       source_arn = module.eventbridge.eventbridge_schedule_arns["lambda-start-ec2"]
     }
   }
+  attach_policy_statements = true
+  policy_statements = {
+    ec2 = {
+      effect = "Allow",
+      actions = [
+        "ec2:DescribeInstances",
+        "ec2:StartInstances",
+        "ec2:StopInstances"
+      ],
+      resources = ["*"]
+    }
+  }
 }
 
 module "lambda_f2" {
@@ -73,7 +85,7 @@ module "lambda_f2" {
   tags                                    = local.common_tags
   function_name                           = "${var.team}-StopEC2Instances"
   runtime                                 = "python3.9"
-  handler                                 = "index.lambda_handler" # Sửa handler để trỏ đến đúng file
+  handler                                 = "StopEC2Instances.lambda_handler"
   local_existing_package                  = "${path.module}/fixtures/StopEC2Instances.zip"
   trusted_entities                        = ["scheduler.amazonaws.com"]
   create_package                          = false
@@ -82,6 +94,18 @@ module "lambda_f2" {
     ScanAmiRule = {
       principal  = "scheduler.amazonaws.com"
       source_arn = module.eventbridge.eventbridge_schedule_arns["lambda-stop-ec2"]
+    }
+  }
+  attach_policy_statements = true
+  policy_statements = {
+    ec2 = {
+      effect = "Allow",
+      actions = [
+        "ec2:DescribeInstances",
+        "ec2:StartInstances",
+        "ec2:StopInstances"
+      ],
+      resources = ["*"]
     }
   }
 }

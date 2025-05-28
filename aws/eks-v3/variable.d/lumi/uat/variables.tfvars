@@ -22,6 +22,7 @@ vpc_private_subnets = [
 autoscaling_average_cpu = 90
 cluster_version = "1.32"
 eks_managed_node_groups = {
+  /*
   ######### HAPROXY Ingress
   "vn-lumi-uat-eks-ing1" = {
     name            = "vn-lumi-uat-eks-ing1"
@@ -64,7 +65,20 @@ eks_managed_node_groups = {
     ]
     #### device_name = "/dev/sdh"
     schedules = {
-
+        scale-up = {
+          min_size     = 0
+          max_size     = "1" # Retains current max size
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = "1" # Retains current max size
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
       }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
@@ -74,9 +88,10 @@ eks_managed_node_groups = {
         sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
       EOT
   },
+  */
 ######## APP SPOT
-  "vn-lumi-uat-eks-sp5" = {
-    name            = "vn-lumi-uat-eks-sp5"
+  "nx-pentagon-uat-sp5" = {
+    name            = "nx-pentagon-uat-sp5"
     subnet_ids = ["subnet-0a4e02d5e2193e3cf"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -108,7 +123,7 @@ eks_managed_node_groups = {
             "nexops" = "yes"
           }
 
-    ami_type     = "AL2_x86_64"
+    #ami_type     = "AL2_x86_64"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -116,7 +131,10 @@ eks_managed_node_groups = {
       "t3a.large",
       "t3.large",
       "t3.2xlarge",
-      "t3a.2xlarge"
+      "t3a.2xlarge",
+      "m6i.large",
+      "m6i.xlarge",
+      "m6i.2xlarge",
     ]
     block_device_mappings = {
         xvda = {
@@ -142,7 +160,20 @@ eks_managed_node_groups = {
     ]
     ####
     schedules = {
-
+        scale-up = {
+          min_size     = 0
+          max_size     = "1" # Retains current max size
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = "1" # Retains current max size
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
       }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
@@ -152,6 +183,7 @@ eks_managed_node_groups = {
         sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
       EOT
   },
+  /*
   "vn-lumi-uat-eks-sp4" = {
     name            = "vn-lumi-uat-eks-sp4"
     subnet_ids = ["subnet-0a4e02d5e2193e3cf"]
@@ -480,12 +512,6 @@ eks_managed_node_groups = {
   },
   */
 }
-
-###############
-spot_termination_handler_chart_name      = "aws-node-termination-handler"
-spot_termination_handler_chart_repo      = "https://aws.github.io/eks-charts"
-spot_termination_handler_chart_version   = "0.21.0"
-spot_termination_handler_chart_namespace = "kube-system"
 
 ###############
 namespaces = ["sample","nexops"]

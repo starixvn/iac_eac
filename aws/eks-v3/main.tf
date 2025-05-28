@@ -13,16 +13,16 @@ module "ebs_csi_irsa_role" {
 }
 # create EKS cluster
 module "cluster" {
-  source  = "gitlab.nexdev.net/iac/aws-eks/aws"
-  version = "19.21.0"
-
-  cluster_name                         = lower("${var.team}-${var.environment}-eks")
-  cluster_version                      = var.cluster_version
-  cluster_endpoint_private_access      = true
-  cluster_endpoint_public_access       = true
-  cluster_endpoint_public_access_cidrs = var.allow_whitelist
-  create_cloudwatch_log_group          = var.create_cloudwatch_log_group
-  cluster_enabled_log_types            = ["scheduler", "controllerManager"]
+  source                                   = "gitlab.nexdev.net/iac/aws-eks/aws"
+  version                                  = "20.35.0"
+  enable_cluster_creator_admin_permissions = true
+  cluster_name                             = lower("${var.team}-${var.environment}-v3")
+  cluster_version                          = var.cluster_version
+  cluster_endpoint_private_access          = true
+  cluster_endpoint_public_access           = true
+  cluster_endpoint_public_access_cidrs     = var.allow_whitelist
+  create_cloudwatch_log_group              = var.create_cloudwatch_log_group
+  cluster_enabled_log_types                = ["scheduler", "controllerManager"]
   #cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"] #default     = ["audit", "api", "authenticator"]
   # Extend node-to-node security group rules 10.77.0.0/16 10.88.0.0/16
   node_security_group_additional_rules = {
@@ -39,17 +39,21 @@ module "cluster" {
   }
   cluster_addons = {
     coredns = {
-      most_recent = true
+      #most_recent = true
       addon_version = "v1.11.4-eksbuild.14"
-      resolve_conflicts = "OVERWRITE"
+      #resolve_conflicts_on_create = "OVERWRITE"
+    }
+    eks-pod-identity-agent = {
+      #most_recent = true
+      addon_version = "v1.3.7-eksbuild.2"
     }
     kube-proxy = {
-      most_recent = true
-      #addon_version = "v1.30.9-eksbuild.3" #"v1.27.6-eksbuild.2"
+      #most_recent = true
+      addon_version = "v1.32.3-eksbuild.7"
     }
     vpc-cni = {
       resolve_conflicts = "OVERWRITE"
-      most_recent       = true
+      #most_recent       = true
       addon_version = "v1.19.5-eksbuild.3"
       before_compute = true
       configuration_values = jsonencode({
@@ -62,7 +66,7 @@ module "cluster" {
     }
     aws-ebs-csi-driver = {
       service_account_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.cluster_name}-ebs-csi"
-      most_recent              = true
+      #most_recent              = true
       addon_version = "v1.44.0-eksbuild.1"
       resolve_conflicts = "PRESERVE"
     }
