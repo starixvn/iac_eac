@@ -4,7 +4,7 @@ cluster_env = "local"
 
 # Access Controll Management
 clusters_ac = {
-  "sc-sit" = { # Cluster on Rancher
+  "st-local" = { # Cluster on Rancher
     projects = {
       "ops" = {
         name        = "ops"
