@@ -25,14 +25,16 @@ web_server_configuration = [
 mon_server_configuration = [
 ]
 ansible_server_configuration = [
+  /*
   {
     "application_name" : "ansible-01",
     "private_ip" : "10.101.55.240",
-  },
+  },*/
 ]
 registry_server_configuration = [
+  /*
   {
     "application_name" : "registry-01",
     "private_ip" : "10.101.55.241",
-  },
+  },*/
 ]

@@ -16,7 +16,7 @@ vpc_private_subnets = [
 proxy_gw_vm = [
   {
     "application_name" : "proxy-gw-01",
-    "private_ip" : "10.100.151.200",
+    "private_ip" : "10.101.15.200",
   },
 ]
 
@@ -25,14 +25,8 @@ web_server_configuration = [
 mon_server_configuration = [
 ]
 ansible_server_configuration = [
-  {
-    "application_name" : "ansible-01",
-    "private_ip" : "10.100.151.207",
-  },
+
 ]
 registry_server_configuration = [
-  {
-    "application_name" : "registry-01",
-    "private_ip" : "10.100.151.209",
-  },
+
 ]

@@ -105,40 +105,5 @@ module "lb_app_sg_v2" {
       description = "Allow Whitelist"
       cidr_blocks = var.allow_whitelist
     },
-    {
-      from_port   = 8081
-      to_port     = 8081
-      protocol    = 6
-      description = "Zabbix"
-      cidr_blocks = var.allow_whitelist
-    },
-    {
-      from_port   = 8882
-      to_port     = 8882
-      protocol    = 6
-      description = "Ansible"
-      cidr_blocks = var.allow_whitelist
-    },
-    {
-      from_port   = 5055
-      to_port     = 5055
-      protocol    = 6
-      description = "Registry"
-      cidr_blocks = var.allow_whitelist
-    },
-    {
-      from_port   = 8885
-      to_port     = 8885
-      protocol    = 6
-      description = "DR Swarm"
-      cidr_blocks = var.allow_whitelist
-    },
-    {
-      from_port   = 22222
-      to_port     = 22222
-      protocol    = 6
-      description = "Allow deployAPI Swarm"
-      cidr_blocks = var.allow_whitelist
-    },
   ]
 }

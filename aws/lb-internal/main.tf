@@ -1,17 +1,17 @@
 # Terraform AWS Application Load Balancer (ALB)
 module "internal_proxy_gw_v1" {
-  source  = "gitlab.nexdev.net/iac/aws-alb/aws"
-  version = "8.6.1"
+  source             = "gitlab.nexdev.net/iac/aws-alb/aws"
+  version            = "8.6.1"
   name               = lower("${var.team}-${var.environment}-nlb-proxy-gw-v1")
   load_balancer_type = "network"
-  vpc_id = var.vpc_id
+  vpc_id             = var.vpc_id
   subnets = [
     var.vpc_private_subnets[0],
     var.vpc_private_subnets[1],
   ]
-  security_groups = [data.terraform_remote_state.sg.outputs.public_app_sg]
+  security_groups                  = [data.terraform_remote_state.sg.outputs.public_app_sg]
   enable_cross_zone_load_balancing = true
-  internal = true
+  internal                         = true
   # Listeners
   http_tcp_listeners = [
     {
@@ -29,16 +29,6 @@ module "internal_proxy_gw_v1" {
       protocol           = "TCP"
       target_group_index = 2
     },
-    {
-      port               = 8882
-      protocol           = "TCP"
-      target_group_index = 3
-    },
-    {
-      port               = 5055
-      protocol           = "TCP"
-      target_group_index = 4
-    },
   ]
 
   # Target Groups
@@ -49,7 +39,6 @@ module "internal_proxy_gw_v1" {
       backend_port         = 80
       target_type          = "ip" #"ip" instance alb
       deregistration_delay = 10
-      protocol_version     = "HTTP1"
       health_check = {
         protocol            = "TCP"
         healthy_threshold   = 2
@@ -73,10 +62,10 @@ module "internal_proxy_gw_v1" {
       tags = local.common_tags # Target Group Tags
     },
     {
-      name                 = lower("${var.team}-${var.environment}-gw8088-v1")
-      backend_protocol     = "TCP"
-      backend_port         = 8088
-      target_type          = "ip"
+      name             = lower("${var.team}-${var.environment}-gw8088-v1")
+      backend_protocol = "TCP"
+      backend_port     = 8088
+      target_type      = "ip"
       health_check = {
         protocol            = "TCP"
         healthy_threshold   = 2
@@ -94,10 +83,10 @@ module "internal_proxy_gw_v1" {
       }
     },
     {
-      name                 = lower("${var.team}-${var.environment}-gw8080-v1")
-      backend_protocol     = "TCP"
-      backend_port         = 8080
-      target_type          = "ip"
+      name             = lower("${var.team}-${var.environment}-gw8080-v1")
+      backend_protocol = "TCP"
+      backend_port     = 8080
+      target_type      = "ip"
       health_check = {
         protocol            = "TCP"
         healthy_threshold   = 2
@@ -114,54 +103,11 @@ module "internal_proxy_gw_v1" {
         }
       }
     },
-    {
-      name                 = lower("${var.team}-${var.environment}-awx8882-v1")
-      backend_protocol     = "TCP"
-      backend_port         = 8882
-      target_type          = "ip"
-      health_check = {
-        protocol            = "TCP"
-        healthy_threshold   = 2
-        unhealthy_threshold = 2
-        interval            = 5
-        timeout             = 3
-      }
-      # Target Group - Targets
-      targets = {
-        for server in local.ansible_instances :
-        server.instance_name => {
-          target_id = server.private_ip
-          port      = 8882
-        }
-      }
-    },
-    {
-      name                 = lower("${var.team}-${var.environment}-hub-5055-v1")
-      backend_protocol     = "TCP"
-      backend_port         = 5055
-      target_type          = "ip"
-      health_check = {
-        protocol            = "TCP"
-        healthy_threshold   = 2
-        unhealthy_threshold = 2
-        interval            = 5
-        timeout             = 3
-      }
-      # Target Group - Targets
-      targets = {
-        for server in local.registry_instances :
-        server.instance_name => {
-          target_id = server.private_ip
-          port      = 5055
-        }
-      }
-    },
-    
   ]
   tags = merge(
-          local.common_tags,
-          {
-            Resource = "LB"
-          },
-        )
+    local.common_tags,
+    {
+      Resource = "LB"
+    },
+  )
 }

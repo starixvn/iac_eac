@@ -54,6 +54,6 @@ locals {
   proxy_gw_instances = flatten(local.proxy_gw_serverconfig)
   mons_instances     = flatten(local.mons_serverconfig)
   apps_instances     = flatten(local.apps_serverconfig)
-  ansible_instances     = flatten(local.ansible_serverconfig)
-  registry_instances     = flatten(local.registry_serverconfig)
+  ansible_instances  = flatten(local.ansible_serverconfig)
+  registry_instances = flatten(local.registry_serverconfig)
 }

@@ -6,9 +6,17 @@ module "eventbridge" {
   tags       = local.common_tags
   #bus_name   = "example" # "default" bus already support schedule_expression in rules
 
-  #attach_lambda_policy = true
-  #lambda_target_arns   = [module.lambda_f1.lambda_function_arn]
-
+  attach_policy_statements = true
+  policy_statements = {
+    lambda = {
+      effect = "Allow",
+      actions = ["lambda:InvokeFunction"],
+      resources = [
+        module.lambda_f1.lambda_function_arn,
+        module.lambda_f2.lambda_function_arn
+      ]
+    }
+  }
   schedule_groups = {
     gr = {
       name = lower("${var.team}-${var.environment}-EC2Instances")
@@ -23,7 +31,7 @@ module "eventbridge" {
     lambda-start-ec2 = {
       group_name          = lower("${var.team}-${var.environment}-EC2Instances")
       description         = "Trigger for Start EC2 instances"
-      schedule_expression = "cron(30 7 ? * Mon-Fri *)"
+      schedule_expression = "cron(35 10 ? * Mon-Fri *)"
       timezone            = "Asia/Bangkok"
       arn                 = module.lambda_f1.lambda_function_arn
       input               = jsonencode({ "job" : "cron-by-rate" })
@@ -59,6 +67,8 @@ module "lambda_f1" {
   trusted_entities                        = ["scheduler.amazonaws.com"]
   create_package                          = false
   create_current_version_allowed_triggers = false
+  attach_cloudwatch_logs_policy = true
+  cloudwatch_logs_retention_in_days = 7
   allowed_triggers = {
     ScanAmiRule = {
       principal  = "scheduler.amazonaws.com"
@@ -75,6 +85,11 @@ module "lambda_f1" {
         "ec2:StopInstances"
       ],
       resources = ["*"]
+    },
+    scheduler = {
+      effect = "Allow",
+      actions = ["scheduler:InvokeSchedule"],
+      resources = ["*"]
     }
   }
 }
@@ -90,6 +105,8 @@ module "lambda_f2" {
   trusted_entities                        = ["scheduler.amazonaws.com"]
   create_package                          = false
   create_current_version_allowed_triggers = false
+  attach_cloudwatch_logs_policy = true
+  cloudwatch_logs_retention_in_days = 7
   allowed_triggers = {
     ScanAmiRule = {
       principal  = "scheduler.amazonaws.com"
@@ -105,6 +122,11 @@ module "lambda_f2" {
         "ec2:StartInstances",
         "ec2:StopInstances"
       ],
+      resources = ["*"]
+    },
+    scheduler = {
+      effect = "Allow",
+      actions = ["scheduler:InvokeSchedule"],
       resources = ["*"]
     }
   }

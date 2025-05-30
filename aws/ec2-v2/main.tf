@@ -4,7 +4,7 @@ module "proxy_gw_v1" {
   version                = "5.2.1"
   for_each               = { for server in local.proxy_gw_instances : server.instance_name => server }
   instance_type          = each.value.instance_type
-  name                   = lower("vn-${var.team}-${var.environment}-${each.key}")
+  name                   = lower("${var.team}-${var.environment}-${each.key}")
   ami                    = data.aws_ami.os[each.value.ami].id
   subnet_id              = each.value.subnet_id
   vpc_security_group_ids = [data.terraform_remote_state.sg.outputs.proxy_gw_sg]
@@ -45,7 +45,7 @@ module "app_v1" {
   version       = "5.2.1"
   for_each      = { for server in local.apps_instances : server.instance_name => server }
   instance_type = each.value.instance_type
-  name          = lower("vn-${var.team}-${var.environment}-${each.key}")
+  name          = lower("${var.team}-${var.environment}-${each.key}")
   ami           = data.aws_ami.os[each.value.ami].id
   subnet_id     = each.value.subnet_id
   vpc_security_group_ids = [
@@ -88,7 +88,7 @@ module "nexops_v1" {
   version       = "5.2.1"
   for_each      = { for server in local.monitor_instances : server.instance_name => server }
   instance_type = each.value.instance_type
-  name          = lower("vn-${var.team}-${var.environment}-${each.key}")
+  name          = lower("${var.team}-${var.environment}-${each.key}")
   ami           = data.aws_ami.os[each.value.ami].id
   subnet_id     = each.value.subnet_id
   vpc_security_group_ids = [

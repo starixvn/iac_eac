@@ -52,11 +52,11 @@ variable "registry_server_configuration" {
 ###VPC
 variable "vpc_id" {
   description = "vpc_id"
-  type = string 
+  type        = string
 }
 
 # VPC Private Subnets
 variable "vpc_private_subnets" {
   description = "SC - VPC Private Subnets"
-  type = list(string)
+  type        = list(string)
 }
