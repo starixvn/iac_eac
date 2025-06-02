@@ -37,9 +37,7 @@ user_groups = {
     rancher_admin = true
     members = [
       "josh.tran",
-      "dennis.le",
-      "troy.vo",
-      "larry.tran"
+      "larry.tran",
     ]
   }
 
