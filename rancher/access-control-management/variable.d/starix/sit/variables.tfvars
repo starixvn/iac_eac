@@ -36,8 +36,6 @@ user_groups = {
     rancher_admin = true
     members = [
       "josh.tran",
-      "dennis.le",
-      "troy.vo",
       "larry.tran",
     ]
   }
@@ -45,35 +43,6 @@ user_groups = {
   "pentagon-sit" = {
     rancher_admin = false
     members = [
-      "alice.le",
-      "billy.bui",
-      "brian.nguyen",
-      "conall.nguyen",
-      "david.tran",
-      "dory.vu",
-      "draco.nguyen",
-      "drake.doi",
-      "dwight.tran",
-      "elias.ngo",
-      "elio.nguyen",
-      "elton.ton",
-      "emi.tu",
-      "eros.pham",
-      "esther.nguyen",
-      "faisall.tran",
-      "jasmine.le",
-      "lucian.vo",
-      "nancy.dao",
-      "quinn.vo",
-      "ricky.nguyen",
-      "rita.bui",
-      "roger.le",
-      "scofield.huynh",
-      "theresa.le",
-      "tracy.hoang",
-      "vivian.nguyen",
-      "cruz.huynh",
-      "wynn.ton",
       "nexops.test",
     ]
   }
