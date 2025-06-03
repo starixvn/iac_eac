@@ -70,8 +70,8 @@ user_groups = {
       "zephyr.nguyen",
       "cruz.huynh",
       "wynn.ton",
-      "james.nguyen"
-      "quinn.vo"
+      "james.nguyen",
+      "quinn.vo",
     ]
   }
 
