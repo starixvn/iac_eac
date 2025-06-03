@@ -8,7 +8,7 @@ bound_gitlab_project_id = "2660,3061,3062"
 bound_gitlab_ref        = "main,dev,kldr,deploy-*-kldr"
 bound_gitlab_ref_type   = "branch,tag"
 
-############
+###########
 ########### mount
 vault_mount = [
   {
