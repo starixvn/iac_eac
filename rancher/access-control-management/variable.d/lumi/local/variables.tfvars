@@ -72,6 +72,7 @@ user_groups = {
       "wynn.ton",
       "james.nguyen",
       "quinn.vo",
+      "tracy.hoang",
     ]
   }
 
