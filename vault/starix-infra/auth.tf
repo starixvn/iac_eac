@@ -32,19 +32,19 @@ resource "vault_generic_endpoint" "userpass_readonly" {
 }
 #"policies": ["${each.value.policy}"],
 ################
-resource "vault_token" "prometheus_token" {
-  #role_name = "prometheus-role"
-  policies  = ["prometheus"]
-  renewable = true
-  ttl       = "24h"
+# resource "vault_token" "prometheus_token" {
+#   #role_name = "prometheus-role"
+#   policies  = ["prometheus"]
+#   renewable = true
+#   ttl       = "24h"
 
-  renew_min_lease = 43200
-  renew_increment = 86400
+#   renew_min_lease = 43200
+#   renew_increment = 86400
 
-  metadata = {
-    "purpose" = "service-account"
-  }
-}
+#   metadata = {
+#     "purpose" = "service-account"
+#   }
+# }
 
 ################## KUBERNETS AUTH ##################
 resource "vault_auth_backend" "kubernetes" {
