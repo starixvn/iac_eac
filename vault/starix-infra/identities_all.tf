@@ -3,12 +3,12 @@
 ##
 ## https://registry.terraform.io/providers/hashicorp/vault/latest/docs/resources/identity_entity
 resource "vault_identity_entity" "vault_entities" {
-  for_each             = { for user in local.vault_users_config : user.username => user }
+  for_each = { for user in local.vault_users_config : user.username => user }
   name     = each.value.username
 }
 
 resource "vault_identity_entity" "vault_entities_readonly" {
-  for_each             = { for user in local.vault_users_readonly_config : user.username => user }
+  for_each = { for user in local.vault_users_readonly_config : user.username => user }
   name     = each.value.username
 }
 

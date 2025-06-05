@@ -54,7 +54,7 @@ module "cluster" {
     vpc-cni = {
       resolve_conflicts = "OVERWRITE"
       #most_recent       = true
-      addon_version = "v1.19.5-eksbuild.3"
+      addon_version  = "v1.19.5-eksbuild.3"
       before_compute = true
       configuration_values = jsonencode({
         env = {
@@ -67,7 +67,7 @@ module "cluster" {
     aws-ebs-csi-driver = {
       service_account_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.cluster_name}-ebs-csi"
       #most_recent              = true
-      addon_version = "v1.44.0-eksbuild.1"
+      addon_version     = "v1.44.0-eksbuild.1"
       resolve_conflicts = "PRESERVE"
     }
   }

@@ -21,8 +21,8 @@ locals {
 
 module "eks_aws_auth" {
 
-  source                    = "gitlab.nexdev.net/iac/aws-eks/aws//modules/aws-auth"
-  version                   = "20.35.0"
+  source  = "gitlab.nexdev.net/iac/aws-eks/aws//modules/aws-auth"
+  version = "20.35.0"
   #create_aws_auth_configmap = true
   manage_aws_auth_configmap = true
 

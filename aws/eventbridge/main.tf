@@ -31,7 +31,7 @@ module "eventbridge" {
     lambda-start-ec2 = {
       group_name          = lower("${var.team}-${var.environment}-EC2Instances")
       description         = "Trigger for Start EC2 instances"
-      schedule_expression = "cron(35 10 ? * Mon-Fri *)"
+      schedule_expression = "cron(30 7 ? * Mon-Fri *)"
       timezone            = "Asia/Bangkok"
       arn                 = module.lambda_f1.lambda_function_arn
       input               = jsonencode({ "job" : "cron-by-rate" })

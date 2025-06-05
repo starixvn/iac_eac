@@ -1,6 +1,6 @@
 resource "vault_auth_backend" "aws" {
-  type        = "aws"
-  path        = "aws_${var.env}"
+  type = "aws"
+  path = "aws_${var.env}"
 }
 
 resource "vault_aws_secret_backend" "aws" {
