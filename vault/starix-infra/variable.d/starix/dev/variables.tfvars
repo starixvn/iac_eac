@@ -11,48 +11,48 @@ bound_gitlab_ref_type   = "branch,tag"
 ########### mount
 vault_mount = [
   {
-    "path" : "nexops",
-    "type" : "kv-v2"
+    path = "nexops",
+    type = "kv-v2"
   },
   {
-    "path" : "pontus",
-    "type" : "kv-v2"
+    path = "pontus",
+    type = "kv-v2"
   },
   {
-    "path" : "rome",
-    "type" : "kv-v2"
+    path = "rome",
+    type = "kv-v2"
   },
   {
-    "path" : "olympus",
-    "type" : "kv-v2"
+    path = "olympus",
+    type = "kv-v2"
   },
   {
-    "path" : "nexus",
-    "type" : "kv-v2"
+    path = "nexus",
+    type = "kv-v2"
   },
 ]
 ########### Policy
 polices = [
   ############## Automation / Tools
   {
-    "policy_name" : "prometheus",
-    "policy_path" : "tools",
-    "policy_template" : "prometheus-policy",
+    policy_name     = "prometheus",
+    policy_path     = "tools",
+    policy_template = "prometheus-policy",
   },
   {
-    "policy_name" : "raft-snapshot",
-    "policy_path" : "tools",
-    "policy_template" : "raft-snapshot",
+    policy_name     = "raft-snapshot",
+    policy_path     = "tools",
+    policy_template = "raft-snapshot",
   },
 
 ]
 ########### ROLE for System/App
 roles = [
   {
-    "role_name" : "dev-admin",
-    "policy_path" : "dba/dev",
-    "policy_template" : "dev-admin",
-    "bound_cidrs" : [
+    role_name       = "dev-admin",
+    policy_path     = "dba/dev",
+    policy_template = "dev-admin",
+    bound_cidrs = [
       "10.18.200.0/24",
       "10.19.10.0/24"
     ]
@@ -63,10 +63,10 @@ roles = [
 ########### AUTH ROLE for Kubernetes auth method ############
 kubernetes_auth_role = [
   {
-    "role_name" : "vault-snapshot",
-    "sa_name" : "vault-snapshot",
-    "sa_namespace" : "vault-dev",
-    "policies" : ["raft-snapshot", ],
+    role_name    = "vault-snapshot",
+    sa_name      = "vault-snapshot",
+    sa_namespace = "vault-dev",
+    policies     = ["raft-snapshot", ],
   },
 ]
 
@@ -106,58 +106,58 @@ vault_admin_users = [
 ## ALL Vault Users
 vault_users = [
   {
-    "name" : "troy.vo",
-    "team" : "nexops",
+    name = "troy.vo",
+    team = "nexops",
   },
   {
-    "name" : "ken.nguyen",
-    "team" : "nexops",
+    name = "ken.nguyen",
+    team = "nexops",
   },
   {
-    "name" : "josh.tran",
-    "team" : "nexops",
+    name = "josh.tran",
+    team = "nexops",
   },
   #### DBA
   {
-    "name" : "lukas.luu",
-    "team" : "pontus",
+    name = "lukas.luu",
+    team = "pontus",
   },
   {
-    "name" : "patrick.pham",
-    "team" : "pontus",
+    name = "patrick.pham",
+    team = "pontus",
   },
   {
-    "name" : "sol.le",
-    "team" : "pontus",
+    name = "sol.le",
+    team = "pontus",
   },
   {
-    "name" : "brice.nguyen",
-    "team" : "pontus",
+    name = "brice.nguyen",
+    team = "pontus",
   },
   {
-    "name" : "evan.trinh",
-    "team" : "pontus",
+    name = "evan.trinh",
+    team = "pontus",
   },
   {
-    "name" : "daniel.truong",
-    "team" : "pontus",
+    name = "daniel.truong",
+    team = "pontus",
   },
   {
-    "name" : "dominic.dao",
-    "team" : "pontus",
+    name = "dominic.dao",
+    team = "pontus",
   },
   #### DEV
   {
-    "name" : "jacob.phan",
-    "team" : "olympus",
+    name = "jacob.phan",
+    team = "olympus",
   },
   {
-    "name" : "ethan.nguyen",
-    "team" : "rome",
+    name = "ethan.nguyen",
+    team = "rome",
   },
   {
-    "name" : "kos.nguyen",
-    "team" : "legion",
+    name = "kos.nguyen",
+    team = "legion",
   },
 ]
 
@@ -167,25 +167,25 @@ vault_users_readonly = [
 ############## Demo 
 vault_generic_secret = [
   {
-    "path" : "rome/alpha/api_1",
-    "username" : "alpha1",
-    "password" : "y7changeme",
+    path     = "rome/alpha/api_1",
+    username = "alpha1",
+    password = "y7changeme",
   },
   {
-    "path" : "olympus/setle/api_1",
-    "username" : "setle1",
-    "password" : "changeme",
+    path     = "olympus/setle/api_1",
+    username = "setle1",
+    password = "changeme",
   },
   ###Automation & tools
   {
-    "path" : "nexops/automation/ansible/apitest",
-    "username" : "ansible",
-    "password" : "changeme",
+    path     = "nexops/automation/ansible/apitest",
+    username = "ansible",
+    password = "changeme",
   },
   {
-    "path" : "nexops/cloud/aws/apitest",
-    "username" : "aws",
-    "password" : "changeme",
+    path     = "nexops/cloud/aws/apitest",
+    username = "aws",
+    password = "changeme",
   },
 
 ]

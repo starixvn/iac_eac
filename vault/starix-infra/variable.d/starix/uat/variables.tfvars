@@ -12,24 +12,24 @@ bound_gitlab_ref_type   = "branch,tag"
 ########### mount
 vault_mount = [
   {
-    "path" : "nexops",
-    "type" : "kv-v2"
+    path = "nexops",
+    type = "kv-v2"
   },
   {
-    "path" : "pontus",
-    "type" : "kv-v2"
+    path = "pontus",
+    type = "kv-v2"
   },
   {
-    "path" : "rome",
-    "type" : "kv-v2"
+    path = "rome",
+    type = "kv-v2"
   },
   {
-    "path" : "olympus",
-    "type" : "kv-v2"
+    path = "olympus",
+    type = "kv-v2"
   },
   {
-    "path" : "nexus",
-    "type" : "kv-v2"
+    path = "nexus",
+    type = "kv-v2"
   },
 
 ]
@@ -40,14 +40,14 @@ polices = [
 
   ############## Automation / Tools
   {
-    "policy_name" : "prometheus",
-    "policy_path" : "tools",
-    "policy_template" : "prometheus-policy",
+    policy_name     = "prometheus",
+    policy_path     = "tools",
+    policy_template = "prometheus-policy",
   },
   {
-    "policy_name" : "raft-snapshot",
-    "policy_path" : "tools",
-    "policy_template" : "raft-snapshot",
+    policy_name     = "raft-snapshot",
+    policy_path     = "tools",
+    policy_template = "raft-snapshot",
   },
 
 ]
@@ -57,10 +57,10 @@ roles = []
 ########### AUTH ROLE for Kubernetes auth method ############
 kubernetes_auth_role = [
   {
-    "role_name" : "vault-snapshot",
-    "sa_name" : "vault-snapshot",
-    "sa_namespace" : "vault",
-    "policies" : ["raft-snapshot", ],
+    role_name    = "vault-snapshot",
+    sa_name      = "vault-snapshot",
+    sa_namespace = "vault",
+    policies     = ["raft-snapshot", ],
   },
 ]
 
@@ -99,62 +99,62 @@ vault_admin_users = [
 ## ALL Vault Users
 vault_users = [
   {
-    "name" : "troy.vo",
-    "team" : "nexops",
+    name = "troy.vo",
+    team = "nexops",
   },
   {
-    "name" : "ken.nguyen",
-    "team" : "nexops",
+    name = "ken.nguyen",
+    team = "nexops",
   },
   {
-    "name" : "dennis.le",
-    "team" : "nexops",
+    name = "dennis.le",
+    team = "nexops",
   },
   {
-    "name" : "josh.tran",
-    "team" : "nexops",
+    name = "josh.tran",
+    team = "nexops",
   },
   #### DBA
   {
-    "name" : "lukas.luu",
-    "team" : "pontus",
+    name = "lukas.luu",
+    team = "pontus",
   },
   {
-    "name" : "patrick.pham",
-    "team" : "pontus",
+    name = "patrick.pham",
+    team = "pontus",
   },
   {
-    "name" : "sol.le",
-    "team" : "pontus",
+    name = "sol.le",
+    team = "pontus",
   },
   {
-    "name" : "brice.nguyen",
-    "team" : "pontus",
+    name = "brice.nguyen",
+    team = "pontus",
   },
   {
-    "name" : "evan.trinh",
-    "team" : "pontus",
+    name = "evan.trinh",
+    team = "pontus",
   },
   {
-    "name" : "daniel.truong",
-    "team" : "pontus",
+    name = "daniel.truong",
+    team = "pontus",
   },
   {
-    "name" : "dominic.dao",
-    "team" : "pontus",
+    name = "dominic.dao",
+    team = "pontus",
   },
   #### DEV
   {
-    "name" : "jacob.phan",
-    "team" : "olympus",
+    name = "jacob.phan",
+    team = "olympus",
   },
   {
-    "name" : "ethan.nguyen",
-    "team" : "rome",
+    name = "ethan.nguyen",
+    team = "rome",
   },
   {
-    "name" : "kos.nguyen",
-    "team" : "legion",
+    name = "kos.nguyen",
+    team = "legion",
   },
 ]
 
