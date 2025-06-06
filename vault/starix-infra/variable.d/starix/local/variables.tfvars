@@ -11,7 +11,8 @@ application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-local-vault-r
 # 3083: https://gitlab.nexdev.net/iac/kubernetes
 # 3096: https://gitlab.nexdev.net/iac/opensearch
 # 3110: https://gitlab.nexdev.net/iac/rancher
-bound_gitlab_project_id = "2660,3061,3083,3096,3110"
+# 3114: https://gitlab.nexdev.net/iac/vault
+bound_gitlab_project_id = "2660,3061,3083,3096,3110,3114"
 # bound_gitlab_ref        = "main,dev,local,deploy-*-local"
 bound_gitlab_ref      = "*"
 bound_gitlab_ref_type = "branch,tag"
