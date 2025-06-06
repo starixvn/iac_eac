@@ -20,7 +20,7 @@ vpc_private_subnets = [
 #   "subnet-0108d53b24f4083e4", 10.101.16.0/20 (4k): 10.101.16.1->10.101.31.254 
 #   "subnet-0b6ab739f6da6a762" 10.101.32.0/20 (4k): 10.101.32.1->10.101.47.254
 autoscaling_average_cpu = 90
-cluster_version = "1.32"
+cluster_version = "1.33"
 eks_managed_node_groups = {
   /*
   ######### HAPROXY Ingress

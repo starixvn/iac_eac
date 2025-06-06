@@ -21,7 +21,7 @@ vpc_private_subnets = [
 #   "subnet-0475b4fa8ffc80ab7" 10.101.64.0/21(2046): 10.101.64.1->10.101.71.254
 
 autoscaling_average_cpu = 90
-cluster_version         = "1.32"
+cluster_version         = "1.33"
 eks_managed_node_groups = {
   ######## NexOps tools
   "nx-pentagon-prod-eks-awx" = {
