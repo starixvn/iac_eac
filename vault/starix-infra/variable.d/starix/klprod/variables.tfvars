@@ -3,7 +3,8 @@ vault_address = "https://vn-st-klp-vault.byb6181.com"
 
 application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1"
 
-bound_gitlab_project_id = "2660,3061,3062"
+# 3114: https://gitlab.nexdev.net/iac/vault
+bound_gitlab_project_id = "2660,3061,3062,3114"
 bound_gitlab_ref        = "main,klprod,deploy-*-klprod"
 bound_gitlab_ref_type   = "branch,tag"
 

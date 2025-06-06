@@ -4,7 +4,8 @@ vault_address = "https://vn-st-vault.byb6181.com"
 CIDR_OFFICE                 = ["10.0.0.0/8"]
 application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-role-v1" #required
 
-bound_gitlab_project_id = "2660,3061,3062"
+# 3114: https://gitlab.nexdev.net/iac/vault
+bound_gitlab_project_id = "2660,3061,3062,3114"
 bound_gitlab_ref        = "main,dev,kldr,deploy-*-kldr"
 bound_gitlab_ref_type   = "branch,tag"
 
