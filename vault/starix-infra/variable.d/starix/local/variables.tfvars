@@ -16,7 +16,7 @@ application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-local-vault-r
 bound_gitlab_project_id = "2660,3061,3083,3096,3110,3114,3117"
 bound_gitlab_ref        = "*"
 bound_gitlab_ref_type   = "branch,tag"
-# bound_gitlab_ref        = "main,dev,local,deploy-*-local"
+# bound_gitlab_ref        = "main,dev,local,deploy_*_local"
 
 ##########
 ########### mount

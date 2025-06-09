@@ -6,7 +6,7 @@ application_aws_assume_role = "arn:aws:iam::584102114761:role/lumi-prod-vault-ro
 # 3114: https://gitlab.nexdev.net/iac/vault/vault
 # 3117: https://gitlab.nexdev.net/iac/vault/dba-policy-mgmt
 bound_gitlab_project_id = "2660,3061,3062,3114,3117"
-bound_gitlab_ref        = "main,klprod,deploy-*-klprod"
+bound_gitlab_ref        = "main,klprod,deploy_*_klprod"
 bound_gitlab_ref_type   = "branch,tag"
 
 ############
