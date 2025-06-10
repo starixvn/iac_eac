@@ -181,6 +181,36 @@ eks_managed_node_groups = {
         REPLACEMENT="\ \ \ \ \ \ KUBELET_EXTRA_ARGS=\$(echo \$2 | sed -s -E 's/--max-pods=[0-9]+/--max-pods=200/g')"
         sed -i '/KUBELET_EXTRA_ARGS=\$2/d' /etc/eks/bootstrap.sh
         sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
+        PROXY=infra-proxy.vpcbukittimah.com:8801
+        TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+        MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
+        VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
+        mkdir -p /etc/systemd/system/containerd.service.d
+        mkdir -p /etc/systemd/system/sandbox-image.service.d
+        cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
+        proxy=http://$PROXY
+        EOF
+        cloud-init-per instance proxy_config cat << EOF >> /etc/environment
+        http_proxy=http://$PROXY
+        https_proxy=http://$PROXY
+        HTTP_PROXY=http://$PROXY
+        HTTPS_PROXY=http://$PROXY
+        no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com
+        NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com
+        EOF
+        cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
+        [Service]    
+        EnvironmentFile=/etc/environment
+        EOF
+        cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
+        [Service]    
+        EnvironmentFile=/etc/environment
+        EOF
+        cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
+        [Service]
+        EnvironmentFile=/etc/environment
+        EOF
+        cloud-init-per instance reload_daemon systemctl daemon-reload 
       EOT
   },
   /*

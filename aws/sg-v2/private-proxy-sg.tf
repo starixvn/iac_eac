@@ -18,20 +18,6 @@ module "proxy_gw_sg_v2" {
       description = "Allow Port 8088"
       cidr_blocks = var.allow_cidr_block_internal
     },
-    {
-      from_port   = 9100
-      to_port     = 9100
-      protocol    = 6
-      description = "node exporter"
-      cidr_blocks = var.allow_cidr_block_internal
-    },
-    {
-      from_port   = 9101
-      to_port     = 9101
-      protocol    = 6
-      description = "HAProxy Stat"
-      cidr_blocks = var.allow_cidr_block_internal
-    },
   ]
   tags = merge(
     local.common_tags,
