@@ -4,6 +4,7 @@ team = "NX-Pentagon"
 aws_region  = "ap-southeast-1"
 aws_region_bucket_remote_state = "vn-lumi-starix-tf-state"
 aws_region_key_sg_remote_state = "env:/uat/lumi-sg-tf.tfstate"
+aws_region_key_iam_remote_state = "env:/uat/lumi-iam-tf.tfstate"
 vpc_id                            = "vpc-0080458809d79b6f8"
 # vpc_private_subnets = [
 #   "subnet-0a4e02d5e2193e3cf", 10.101.0.0/20 (4k): 10.101.0.1->10.101.15.254
@@ -25,17 +26,6 @@ proxy_gw_vm = [
     "private_ip" : "10.101.15.200",
     "tag" : "EC2"
   },
-  /*  {
-    "application_name" : "proxy-gw-02",
-    "instance_type" : "t3.small",
-    "ami" : "ubuntu22",
-    "volume_type" : "gp3",
-    "volume_size" : "40",
-    "subnet_id" : "subnet-0ba2a5f74ec351acc",
-    "private_ip" : "10.88.143.100",
-    "tag" : "stopoutofworking"
-  },
-*/
 ]
 
 monitor_vm = [

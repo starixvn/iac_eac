@@ -21,6 +21,10 @@ variable "aws_region_key_sg_remote_state" {
   description = "sg_remote_state"
   type        = string
 }
+variable "aws_region_key_iam_remote_state" {
+  description = "iam_remote_state"
+  type        = string
+}
 
 variable "team" {
   type = string

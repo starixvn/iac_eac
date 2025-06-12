@@ -31,7 +31,8 @@ module "proxy_gw_v1" {
   instance_tags = {
     OS = each.value.ami,
   }
-  #iam_instance_profile = data.terraform_remote_state.iam.outputs.ec2_iam_name
+  iam_instance_profile = data.terraform_remote_state.iam.outputs.ec2_iam_name_v2
+  key_name = "vnteam"
   tags = merge(
     local.common_tags,
     {
@@ -49,7 +50,7 @@ module "app_v1" {
   ami           = data.aws_ami.os[each.value.ami].id
   subnet_id     = each.value.subnet_id
   vpc_security_group_ids = [
-    data.terraform_remote_state.sg.outputs.private_web_sg,
+    data.terraform_remote_state.sg.outputs.proxy_gw_sg,
   ]
   private_ip         = each.value.private_ip
   hibernation        = false

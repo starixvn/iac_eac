@@ -5,7 +5,7 @@ aws_region  = "ap-southeast-1"
 aws_region_bucket_remote_state = "vn-lumi-starix-tf-state"
 aws_region_key_iam_remote_state = "env:/uat/lumi-iam-tf.tfstate"
 allow_whitelist = ["202.78.231.32/27","120.72.109.32/29","120.72.83.128/29","43.198.255.129/32"]
-allow_cidr_block_internal = ["10.100.253.0/25","10.100.253.128/26","10.100.253.192/26"]
+allow_cidr_block_internal = ["10.100.252.0/25","10.100.253.0/25","10.100.253.128/26","10.100.253.192/26","10.101.0.0/20","10.101.16.0/20","10.101.32.0/20","10.101.48.0/21","10.101.56.0/21","10.101.64.0/21"]
 vpc_id = "vpc-0080458809d79b6f8"
 lb_subnets = "subnet-0a4e02d5e2193e3cf\\,subnet-0108d53b24f4083e4\\,subnet-0b6ab739f6da6a762"
 lb_az_cross = "true"
@@ -92,6 +92,7 @@ eks_managed_node_groups = {
 ######## APP SPOT
   "nx-pentagon-uat-sp5" = {
     name            = "nx-pentagon-uat-sp5"
+    key_name        = "vnteam"
     subnet_ids = ["subnet-0a4e02d5e2193e3cf"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -195,8 +196,8 @@ eks_managed_node_groups = {
         https_proxy=http://$PROXY
         HTTP_PROXY=http://$PROXY
         HTTPS_PROXY=http://$PROXY
-        no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com
-        NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com
+        no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+        NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
         EOF
         cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
         [Service]    
@@ -210,7 +211,8 @@ eks_managed_node_groups = {
         [Service]
         EnvironmentFile=/etc/environment
         EOF
-        cloud-init-per instance reload_daemon systemctl daemon-reload 
+        cloud-init-per instance reload_daemon systemctl daemon-reload
+        curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
       EOT
   },
   /*

@@ -6,7 +6,7 @@
     key    = "${var.aws_region_key_remote_state}"
     region = "${var.aws_region}"
   }
-}
+}*/
 data "terraform_remote_state" "iam" {
   backend = "s3"
   config = {
@@ -16,7 +16,7 @@ data "terraform_remote_state" "iam" {
   }
 }
 
-*/
+
 data "terraform_remote_state" "sg" {
   backend = "s3"
   config = {
