@@ -80,44 +80,62 @@ eks_managed_node_groups = {
           recurrence   = "00 20 * * MON-FRI"
         }
       }
-    pre_bootstrap_user_data = <<-EOT
-        #!/bin/bash
-        PROXY=infra-proxy.vpcbukittimah.com:8801
-        TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
-        MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
-        VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
-        mkdir -p /etc/systemd/system/containerd.service.d
-        mkdir -p /etc/systemd/system/sandbox-image.service.d
-        cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
-        proxy=http://$PROXY
-        EOF
-        cloud-init-per instance proxy_config cat << EOF >> /etc/environment
-        http_proxy=http://$PROXY
-        https_proxy=http://$PROXY
-        HTTP_PROXY=http://$PROXY
-        HTTPS_PROXY=http://$PROXY
-        no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-        NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-        EOF
-        cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
-        [Service]    
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
-        [Service]    
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
-        [Service]
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance reload_daemon systemctl daemon-reload
-        curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
-        LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
-        REPLACEMENT="\ \ \ \ \ \ KUBELET_EXTRA_ARGS=\$(echo \$2 | sed -s -E 's/--max-pods=[0-9]+/--max-pods=200/g')"
-        sed -i '/KUBELET_EXTRA_ARGS=\$2/d' /etc/eks/bootstrap.sh
-        sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
-      EOT
+    cloudinit_pre_nodeadm = [
+          {
+            content_type = "text/x-shellscript"
+            content      = <<-EOT
+            #!/bin/bash
+            PROXY=infra-proxy.vpcbukittimah.com:8801
+            TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+            MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
+            VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
+            mkdir -p /etc/systemd/system/containerd.service.d
+            mkdir -p /etc/systemd/system/sandbox-image.service.d
+            cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
+            proxy=http://$PROXY
+            EOF
+            cloud-init-per instance proxy_config cat << EOF >> /etc/environment
+            http_proxy=http://$PROXY
+            https_proxy=http://$PROXY
+            HTTP_PROXY=http://$PROXY
+            HTTPS_PROXY=http://$PROXY
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            EOF
+            cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
+            [Service]
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance reload_daemon systemctl daemon-reload
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+          EOT
+          },
+          {
+            content_type = "application/node.eks.aws"
+            content      = <<-EOT
+            ---
+            apiVersion: node.eks.aws/v1alpha1
+            kind: NodeConfig
+            spec:
+              cluster:
+                apiServerEndpoint: https://E6191EEBBB4840436E79DD857495912F.yl4.ap-southeast-1.eks.amazonaws.com
+                certificateAuthority: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJUWFnQ0JTWDN2Vnd3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBMk1Ea3dPRFV5TUROYUZ3MHpOVEEyTURjd09EVTNNRE5hTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURuQnVYUUpVd3VpdTZrUHloYUVnYkJVTTdUZFdleEE1cVp4SCswL3A5QWpsTUlNYk4wMDRaSEtWRisKM20vZUwyUFFMdHVqMFl2dXM3YjVyUG5QWHZDNWN1dnRXRXQ0OWpkRWh5Q3FxQ0J2TE1lVUN1SkxhMjNOWmd4Zgpyam1uTWQ4UWJUSEdGa3QxTEtNcXB3LzBxb0VFOE1SNFBMNWdJRHJOZGV5OWw3TTROVHJwL2lqUW82SVErSmcrCkhJUTdNZEpYYUhsVW5LTE1YWlVIT2pUSUJNRE8zeWVNSEk4RFNpUlpFem1VVmRLOTYzVXpoREJRZ2Nkd3M3RkUKMHQ3Tzl5bTArekxtVVAzenQ1YnR0UGcxQ3lGYUx6dEpXTzd5Uy9NZnFrWE5Yc1RxRjZwWWNqZzVSU2d6S0JLLwpTSUpnNG9LNGRhanlKaFdtVkQzem9UOVlSem1sQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJTbXMzSDZtcHo2SC85b0pTQkd5RHdjZ2srOFBUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQzlnYXhxR1l5SgovSDhIOGUxYUtLZ2RKMVpySU5kUUtzTzdKN3piTVdYcjdwaXNCWDdTZHZXQllkSzc4M25VWUZQWlltUklCbkFaCndvL1lkeTVjZ1NNOHFCNVBUNzR1TW04MHFWdVQ2dnNlVHczbS9iVHhVQ0ZiWmluTFNMZXBiZHJIZ2t4TUxibHQKa2FFZEF3cXdWQ0dwdUtlbTkvNlRMQWFHNnVzK0p6UWVsdkw0dno5R1M2ancrOW1MUUVrWEJrTU9PNE5KdUZYaApMTzh0RVl2d04wZ1BRNVUxK2I2MTcza2VDakd5YktVbVIycG1hYldhME5KNkVROFdQcnJTdzMrWUswRmRlelhGClpHUWtCbFBhY2VybzhQNS90VVBsSkZyeXFDbmk0RUVoQXVJUDEzamNEcU5IRVJPbFhsYVVkMnhKRHpYMlZLZHoKMGJDeVpQRk10LzZiCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+                cidr: 10.100.0.0/16
+                name: nx-pentagon-t1uat-v1
+              kubelet:
+                config:
+                    maxPods: 200
+          EOT
+          }
+      ]
   },
 ######## APP SPOT
   "nx-pentagon-uat-sp1" = {
@@ -205,44 +223,62 @@ eks_managed_node_groups = {
           recurrence   = "00 20 * * MON-FRI"
         }
       }
-    pre_bootstrap_user_data = <<-EOT
-        #!/bin/bash
-        PROXY=infra-proxy.vpcbukittimah.com:8801
-        TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
-        MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
-        VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
-        mkdir -p /etc/systemd/system/containerd.service.d
-        mkdir -p /etc/systemd/system/sandbox-image.service.d
-        cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
-        proxy=http://$PROXY
-        EOF
-        cloud-init-per instance proxy_config cat << EOF >> /etc/environment
-        http_proxy=http://$PROXY
-        https_proxy=http://$PROXY
-        HTTP_PROXY=http://$PROXY
-        HTTPS_PROXY=http://$PROXY
-        no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-        NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-        EOF
-        cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
-        [Service]    
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
-        [Service]    
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
-        [Service]
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance reload_daemon systemctl daemon-reload
-        curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
-        LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
-        REPLACEMENT="\ \ \ \ \ \ KUBELET_EXTRA_ARGS=\$(echo \$2 | sed -s -E 's/--max-pods=[0-9]+/--max-pods=200/g')"
-        sed -i '/KUBELET_EXTRA_ARGS=\$2/d' /etc/eks/bootstrap.sh
-        sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
-      EOT
+    cloudinit_pre_nodeadm = [
+          {
+            content_type = "text/x-shellscript"
+            content      = <<-EOT
+            #!/bin/bash
+            PROXY=infra-proxy.vpcbukittimah.com:8801
+            TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+            MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
+            VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
+            mkdir -p /etc/systemd/system/containerd.service.d
+            mkdir -p /etc/systemd/system/sandbox-image.service.d
+            cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
+            proxy=http://$PROXY
+            EOF
+            cloud-init-per instance proxy_config cat << EOF >> /etc/environment
+            http_proxy=http://$PROXY
+            https_proxy=http://$PROXY
+            HTTP_PROXY=http://$PROXY
+            HTTPS_PROXY=http://$PROXY
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            EOF
+            cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
+            [Service]
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance reload_daemon systemctl daemon-reload
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+          EOT
+          },
+          {
+            content_type = "application/node.eks.aws"
+            content      = <<-EOT
+            ---
+            apiVersion: node.eks.aws/v1alpha1
+            kind: NodeConfig
+            spec:
+              cluster:
+                apiServerEndpoint: https://E6191EEBBB4840436E79DD857495912F.yl4.ap-southeast-1.eks.amazonaws.com
+                certificateAuthority: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJUWFnQ0JTWDN2Vnd3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBMk1Ea3dPRFV5TUROYUZ3MHpOVEEyTURjd09EVTNNRE5hTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURuQnVYUUpVd3VpdTZrUHloYUVnYkJVTTdUZFdleEE1cVp4SCswL3A5QWpsTUlNYk4wMDRaSEtWRisKM20vZUwyUFFMdHVqMFl2dXM3YjVyUG5QWHZDNWN1dnRXRXQ0OWpkRWh5Q3FxQ0J2TE1lVUN1SkxhMjNOWmd4Zgpyam1uTWQ4UWJUSEdGa3QxTEtNcXB3LzBxb0VFOE1SNFBMNWdJRHJOZGV5OWw3TTROVHJwL2lqUW82SVErSmcrCkhJUTdNZEpYYUhsVW5LTE1YWlVIT2pUSUJNRE8zeWVNSEk4RFNpUlpFem1VVmRLOTYzVXpoREJRZ2Nkd3M3RkUKMHQ3Tzl5bTArekxtVVAzenQ1YnR0UGcxQ3lGYUx6dEpXTzd5Uy9NZnFrWE5Yc1RxRjZwWWNqZzVSU2d6S0JLLwpTSUpnNG9LNGRhanlKaFdtVkQzem9UOVlSem1sQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJTbXMzSDZtcHo2SC85b0pTQkd5RHdjZ2srOFBUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQzlnYXhxR1l5SgovSDhIOGUxYUtLZ2RKMVpySU5kUUtzTzdKN3piTVdYcjdwaXNCWDdTZHZXQllkSzc4M25VWUZQWlltUklCbkFaCndvL1lkeTVjZ1NNOHFCNVBUNzR1TW04MHFWdVQ2dnNlVHczbS9iVHhVQ0ZiWmluTFNMZXBiZHJIZ2t4TUxibHQKa2FFZEF3cXdWQ0dwdUtlbTkvNlRMQWFHNnVzK0p6UWVsdkw0dno5R1M2ancrOW1MUUVrWEJrTU9PNE5KdUZYaApMTzh0RVl2d04wZ1BRNVUxK2I2MTcza2VDakd5YktVbVIycG1hYldhME5KNkVROFdQcnJTdzMrWUswRmRlelhGClpHUWtCbFBhY2VybzhQNS90VVBsSkZyeXFDbmk0RUVoQXVJUDEzamNEcU5IRVJPbFhsYVVkMnhKRHpYMlZLZHoKMGJDeVpQRk10LzZiCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+                cidr: 10.100.0.0/16
+                name: nx-pentagon-t1uat-v1
+              kubelet:
+                config:
+                    maxPods: 200
+          EOT
+          }
+      ]
   },
   "nx-pentagon-uat-sp2" = {
     name            = "nx-pentagon-uat-sp2"
@@ -329,44 +365,62 @@ eks_managed_node_groups = {
           recurrence   = "00 20 * * MON-FRI"
         }
       }
-    pre_bootstrap_user_data = <<-EOT
-        #!/bin/bash
-        PROXY=infra-proxy.vpcbukittimah.com:8801
-        TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
-        MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
-        VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
-        mkdir -p /etc/systemd/system/containerd.service.d
-        mkdir -p /etc/systemd/system/sandbox-image.service.d
-        cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
-        proxy=http://$PROXY
-        EOF
-        cloud-init-per instance proxy_config cat << EOF >> /etc/environment
-        http_proxy=http://$PROXY
-        https_proxy=http://$PROXY
-        HTTP_PROXY=http://$PROXY
-        HTTPS_PROXY=http://$PROXY
-        no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-        NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-        EOF
-        cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
-        [Service]    
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
-        [Service]    
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
-        [Service]
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance reload_daemon systemctl daemon-reload
-        curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
-        LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
-        REPLACEMENT="\ \ \ \ \ \ KUBELET_EXTRA_ARGS=\$(echo \$2 | sed -s -E 's/--max-pods=[0-9]+/--max-pods=200/g')"
-        sed -i '/KUBELET_EXTRA_ARGS=\$2/d' /etc/eks/bootstrap.sh
-        sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
-      EOT
+    cloudinit_pre_nodeadm = [
+          {
+            content_type = "text/x-shellscript"
+            content      = <<-EOT
+            #!/bin/bash
+            PROXY=infra-proxy.vpcbukittimah.com:8801
+            TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+            MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
+            VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
+            mkdir -p /etc/systemd/system/containerd.service.d
+            mkdir -p /etc/systemd/system/sandbox-image.service.d
+            cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
+            proxy=http://$PROXY
+            EOF
+            cloud-init-per instance proxy_config cat << EOF >> /etc/environment
+            http_proxy=http://$PROXY
+            https_proxy=http://$PROXY
+            HTTP_PROXY=http://$PROXY
+            HTTPS_PROXY=http://$PROXY
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            EOF
+            cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
+            [Service]
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance reload_daemon systemctl daemon-reload
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+          EOT
+          },
+          {
+            content_type = "application/node.eks.aws"
+            content      = <<-EOT
+            ---
+            apiVersion: node.eks.aws/v1alpha1
+            kind: NodeConfig
+            spec:
+              cluster:
+                apiServerEndpoint: https://E6191EEBBB4840436E79DD857495912F.yl4.ap-southeast-1.eks.amazonaws.com
+                certificateAuthority: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJUWFnQ0JTWDN2Vnd3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBMk1Ea3dPRFV5TUROYUZ3MHpOVEEyTURjd09EVTNNRE5hTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURuQnVYUUpVd3VpdTZrUHloYUVnYkJVTTdUZFdleEE1cVp4SCswL3A5QWpsTUlNYk4wMDRaSEtWRisKM20vZUwyUFFMdHVqMFl2dXM3YjVyUG5QWHZDNWN1dnRXRXQ0OWpkRWh5Q3FxQ0J2TE1lVUN1SkxhMjNOWmd4Zgpyam1uTWQ4UWJUSEdGa3QxTEtNcXB3LzBxb0VFOE1SNFBMNWdJRHJOZGV5OWw3TTROVHJwL2lqUW82SVErSmcrCkhJUTdNZEpYYUhsVW5LTE1YWlVIT2pUSUJNRE8zeWVNSEk4RFNpUlpFem1VVmRLOTYzVXpoREJRZ2Nkd3M3RkUKMHQ3Tzl5bTArekxtVVAzenQ1YnR0UGcxQ3lGYUx6dEpXTzd5Uy9NZnFrWE5Yc1RxRjZwWWNqZzVSU2d6S0JLLwpTSUpnNG9LNGRhanlKaFdtVkQzem9UOVlSem1sQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJTbXMzSDZtcHo2SC85b0pTQkd5RHdjZ2srOFBUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQzlnYXhxR1l5SgovSDhIOGUxYUtLZ2RKMVpySU5kUUtzTzdKN3piTVdYcjdwaXNCWDdTZHZXQllkSzc4M25VWUZQWlltUklCbkFaCndvL1lkeTVjZ1NNOHFCNVBUNzR1TW04MHFWdVQ2dnNlVHczbS9iVHhVQ0ZiWmluTFNMZXBiZHJIZ2t4TUxibHQKa2FFZEF3cXdWQ0dwdUtlbTkvNlRMQWFHNnVzK0p6UWVsdkw0dno5R1M2ancrOW1MUUVrWEJrTU9PNE5KdUZYaApMTzh0RVl2d04wZ1BRNVUxK2I2MTcza2VDakd5YktVbVIycG1hYldhME5KNkVROFdQcnJTdzMrWUswRmRlelhGClpHUWtCbFBhY2VybzhQNS90VVBsSkZyeXFDbmk0RUVoQXVJUDEzamNEcU5IRVJPbFhsYVVkMnhKRHpYMlZLZHoKMGJDeVpQRk10LzZiCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+                cidr: 10.100.0.0/16
+                name: nx-pentagon-t1uat-v1
+              kubelet:
+                config:
+                    maxPods: 200
+          EOT
+          }
+      ]
   },
   "nx-pentagon-uat-sp3" = {
     name            = "nx-pentagon-uat-sp3"
@@ -453,44 +507,62 @@ eks_managed_node_groups = {
           recurrence   = "00 20 * * MON-FRI"
         }
       }
-    pre_bootstrap_user_data = <<-EOT
-        #!/bin/bash
-        PROXY=infra-proxy.vpcbukittimah.com:8801
-        TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
-        MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
-        VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
-        mkdir -p /etc/systemd/system/containerd.service.d
-        mkdir -p /etc/systemd/system/sandbox-image.service.d
-        cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
-        proxy=http://$PROXY
-        EOF
-        cloud-init-per instance proxy_config cat << EOF >> /etc/environment
-        http_proxy=http://$PROXY
-        https_proxy=http://$PROXY
-        HTTP_PROXY=http://$PROXY
-        HTTPS_PROXY=http://$PROXY
-        no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-        NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-        EOF
-        cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
-        [Service]    
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
-        [Service]    
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
-        [Service]
-        EnvironmentFile=/etc/environment
-        EOF
-        cloud-init-per instance reload_daemon systemctl daemon-reload
-        curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
-        LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
-        REPLACEMENT="\ \ \ \ \ \ KUBELET_EXTRA_ARGS=\$(echo \$2 | sed -s -E 's/--max-pods=[0-9]+/--max-pods=200/g')"
-        sed -i '/KUBELET_EXTRA_ARGS=\$2/d' /etc/eks/bootstrap.sh
-        sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
-      EOT
+    cloudinit_pre_nodeadm = [
+          {
+            content_type = "text/x-shellscript"
+            content      = <<-EOT
+            #!/bin/bash
+            PROXY=infra-proxy.vpcbukittimah.com:8801
+            TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+            MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
+            VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
+            mkdir -p /etc/systemd/system/containerd.service.d
+            mkdir -p /etc/systemd/system/sandbox-image.service.d
+            cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
+            proxy=http://$PROXY
+            EOF
+            cloud-init-per instance proxy_config cat << EOF >> /etc/environment
+            http_proxy=http://$PROXY
+            https_proxy=http://$PROXY
+            HTTP_PROXY=http://$PROXY
+            HTTPS_PROXY=http://$PROXY
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            EOF
+            cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
+            [Service]
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance reload_daemon systemctl daemon-reload
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+          EOT
+          },
+          {
+            content_type = "application/node.eks.aws"
+            content      = <<-EOT
+            ---
+            apiVersion: node.eks.aws/v1alpha1
+            kind: NodeConfig
+            spec:
+              cluster:
+                apiServerEndpoint: https://E6191EEBBB4840436E79DD857495912F.yl4.ap-southeast-1.eks.amazonaws.com
+                certificateAuthority: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJUWFnQ0JTWDN2Vnd3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBMk1Ea3dPRFV5TUROYUZ3MHpOVEEyTURjd09EVTNNRE5hTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURuQnVYUUpVd3VpdTZrUHloYUVnYkJVTTdUZFdleEE1cVp4SCswL3A5QWpsTUlNYk4wMDRaSEtWRisKM20vZUwyUFFMdHVqMFl2dXM3YjVyUG5QWHZDNWN1dnRXRXQ0OWpkRWh5Q3FxQ0J2TE1lVUN1SkxhMjNOWmd4Zgpyam1uTWQ4UWJUSEdGa3QxTEtNcXB3LzBxb0VFOE1SNFBMNWdJRHJOZGV5OWw3TTROVHJwL2lqUW82SVErSmcrCkhJUTdNZEpYYUhsVW5LTE1YWlVIT2pUSUJNRE8zeWVNSEk4RFNpUlpFem1VVmRLOTYzVXpoREJRZ2Nkd3M3RkUKMHQ3Tzl5bTArekxtVVAzenQ1YnR0UGcxQ3lGYUx6dEpXTzd5Uy9NZnFrWE5Yc1RxRjZwWWNqZzVSU2d6S0JLLwpTSUpnNG9LNGRhanlKaFdtVkQzem9UOVlSem1sQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJTbXMzSDZtcHo2SC85b0pTQkd5RHdjZ2srOFBUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQzlnYXhxR1l5SgovSDhIOGUxYUtLZ2RKMVpySU5kUUtzTzdKN3piTVdYcjdwaXNCWDdTZHZXQllkSzc4M25VWUZQWlltUklCbkFaCndvL1lkeTVjZ1NNOHFCNVBUNzR1TW04MHFWdVQ2dnNlVHczbS9iVHhVQ0ZiWmluTFNMZXBiZHJIZ2t4TUxibHQKa2FFZEF3cXdWQ0dwdUtlbTkvNlRMQWFHNnVzK0p6UWVsdkw0dno5R1M2ancrOW1MUUVrWEJrTU9PNE5KdUZYaApMTzh0RVl2d04wZ1BRNVUxK2I2MTcza2VDakd5YktVbVIycG1hYldhME5KNkVROFdQcnJTdzMrWUswRmRlelhGClpHUWtCbFBhY2VybzhQNS90VVBsSkZyeXFDbmk0RUVoQXVJUDEzamNEcU5IRVJPbFhsYVVkMnhKRHpYMlZLZHoKMGJDeVpQRk10LzZiCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+                cidr: 10.100.0.0/16
+                name: nx-pentagon-t1uat-v1
+              kubelet:
+                config:
+                    maxPods: 200
+          EOT
+          }
+      ]
   },
 }
 
