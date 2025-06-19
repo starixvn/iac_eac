@@ -22,10 +22,10 @@ vpc_private_subnets = [
 autoscaling_average_cpu = 90
 cluster_version = "1.33"
 eks_managed_node_groups = {
-  /*
   ######### HAPROXY Ingress
-  "vn-lumi-uat-eks-ing1" = {
-    name            = "vn-lumi-uat-eks-ing1"
+  "nx-pentagon-uat-ing1" = {
+    name            = "nx-pentagon-uat-ing1"
+    key_name        = "vnteam"
     subnet_ids = ["subnet-0a4e02d5e2193e3cf"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -34,7 +34,7 @@ eks_managed_node_groups = {
     labels = {
             "haproxy" = "yes"
           }
-    ami_type     = "AL2_x86_64"
+    #ami_type     = "AL2_x86_64"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -64,102 +64,6 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     #### device_name = "/dev/sdh"
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
-    pre_bootstrap_user_data = <<-EOT
-        #!/bin/bash
-        LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
-        REPLACEMENT="\ \ \ \ \ \ KUBELET_EXTRA_ARGS=\$(echo \$2 | sed -s -E 's/--max-pods=[0-9]+/--max-pods=110/g')"
-        sed -i '/KUBELET_EXTRA_ARGS=\$2/d' /etc/eks/bootstrap.sh
-        sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
-      EOT
-  },
-  */
-######## APP SPOT
-  "nx-pentagon-uat-sp1" = {
-    name            = "nx-pentagon-uat-sp1"
-    key_name        = "vnteam"
-    subnet_ids = ["subnet-0a4e02d5e2193e3cf"]
-    use_custom_launch_template = true
-    iam_role_additional_policies = {
-      additional = "arn:aws:iam::014999276089:policy/lumi-uat-cloudwatch-policy-v1"
-    }
-    labels = {
-            "luminet-app" = "yes",
-            "sc1-games" = "yes"
-            "sc2-games" = "yes"
-            "gn-games" = "yes"
-            "sc1-api" = "yes"
-            "sc2-api" = "yes"
-            "gn-api" = "yes"
-            "sc1-games-backend" = "yes"
-            "sc2-games-backend" = "yes"
-            "gn-games-backend" = "yes"
-            "sp-api" = "yes"
-            "sp-games" = "yes"
-            "sp-games-backend" = "yes"
-            "sk-api" = "yes"
-            "sk-games" = "yes"
-            "sk-games-backend" = "yes"
-            "tg-api" = "yes"
-            "tg-games" = "yes"
-            "tg-games-backend" = "yes"
-            "hd-api" = "yes"
-            "hd-games" = "yes"
-            "hd-games-backend" = "yes"
-            "nexops" = "yes"
-          }
-
-    #ami_type     = "AL2_x86_64"
-    min_size     = 0
-    max_size     = 1
-    desired_size = 1
-    instance_types = [
-      "t3a.large",
-      "t3.large",
-      "t3.2xlarge",
-      "t3a.2xlarge",
-      "m6i.large",
-      "m6i.xlarge",
-      "m6i.2xlarge",
-    ]
-    block_device_mappings = {
-        xvda = {
-          device_name = "/dev/xvda"
-          ebs = {
-            volume_size           = 60
-            volume_type           = "gp3"
-            iops                  = 3000
-            throughput            = 150
-            delete_on_termination = true
-          }
-        }
-      }
-    capacity_type = "SPOT"
-    network_interfaces = [{
-      delete_on_termination       = true
-      associate_public_ip_address = false
-    }]
-    tag_specifications = [
-      "instance",
-      "volume",
-      "network-interface"
-    ]
-    ####
     schedules = {
         scale-up = {
           min_size     = 0
@@ -215,8 +119,9 @@ eks_managed_node_groups = {
         sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
       EOT
   },
-  "nx-pentagon-uat-sp5" = {
-    name            = "nx-pentagon-uat-sp5"
+######## APP SPOT
+  "nx-pentagon-uat-sp1" = {
+    name            = "nx-pentagon-uat-sp1"
     key_name        = "vnteam"
     subnet_ids = ["subnet-0a4e02d5e2193e3cf"]
     use_custom_launch_template = true
@@ -251,16 +156,15 @@ eks_managed_node_groups = {
 
     #ami_type     = "AL2_x86_64"
     min_size     = 0
-    max_size     = 1
-    desired_size = 1
+    max_size     = 2
+    desired_size = 2
     instance_types = [
-      "t3a.large",
-      "t3.large",
-      "t3.2xlarge",
-      "t3a.2xlarge",
       "m6i.large",
       "m6i.xlarge",
-      "m6i.2xlarge",
+      "t3a.large",
+      "t3a.xlarge",
+      "t3.large",
+      "t3.xlarge",
     ]
     block_device_mappings = {
         xvda = {
@@ -288,14 +192,14 @@ eks_managed_node_groups = {
     schedules = {
         scale-up = {
           min_size     = 0
-          max_size     = 1
-          desired_size = 1
+          max_size     = 2
+          desired_size = 2
           time_zone    = "Asia/Bangkok"
           recurrence   = "30 07 * * MON-FRI"
         },
         scale-down = {
           min_size     = 0
-          max_size     = 1
+          max_size     = 2
           desired_size = 0
           time_zone    = "Asia/Bangkok"
           recurrence   = "00 20 * * MON-FRI"
@@ -376,16 +280,15 @@ eks_managed_node_groups = {
 
     #ami_type     = "AL2_x86_64"
     min_size     = 0
-    max_size     = 1
-    desired_size = 1
+    max_size     = 2
+    desired_size = 2
     instance_types = [
-      "t3a.large",
-      "t3.large",
-      "t3.2xlarge",
-      "t3a.2xlarge",
       "m6i.large",
       "m6i.xlarge",
-      "m6i.2xlarge",
+      "t3a.large",
+      "t3a.xlarge",
+      "t3.large",
+      "t3.xlarge",
     ]
     block_device_mappings = {
         xvda = {
@@ -413,8 +316,132 @@ eks_managed_node_groups = {
     schedules = {
         scale-up = {
           min_size     = 0
-          max_size     = 1
-          desired_size = 1
+          max_size     = 2
+          desired_size = 2
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = 2
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
+      }
+    pre_bootstrap_user_data = <<-EOT
+        #!/bin/bash
+        PROXY=infra-proxy.vpcbukittimah.com:8801
+        TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+        MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
+        VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
+        mkdir -p /etc/systemd/system/containerd.service.d
+        mkdir -p /etc/systemd/system/sandbox-image.service.d
+        cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
+        proxy=http://$PROXY
+        EOF
+        cloud-init-per instance proxy_config cat << EOF >> /etc/environment
+        http_proxy=http://$PROXY
+        https_proxy=http://$PROXY
+        HTTP_PROXY=http://$PROXY
+        HTTPS_PROXY=http://$PROXY
+        no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+        NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+        EOF
+        cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
+        [Service]    
+        EnvironmentFile=/etc/environment
+        EOF
+        cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
+        [Service]    
+        EnvironmentFile=/etc/environment
+        EOF
+        cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
+        [Service]
+        EnvironmentFile=/etc/environment
+        EOF
+        cloud-init-per instance reload_daemon systemctl daemon-reload
+        curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+        LINE_NUMBER=$(grep -n "KUBELET_EXTRA_ARGS=\$2" /etc/eks/bootstrap.sh | cut -f1 -d:)
+        REPLACEMENT="\ \ \ \ \ \ KUBELET_EXTRA_ARGS=\$(echo \$2 | sed -s -E 's/--max-pods=[0-9]+/--max-pods=200/g')"
+        sed -i '/KUBELET_EXTRA_ARGS=\$2/d' /etc/eks/bootstrap.sh
+        sed -i "$${LINE_NUMBER}i $${REPLACEMENT}" /etc/eks/bootstrap.sh
+      EOT
+  },
+  "nx-pentagon-uat-sp3" = {
+    name            = "nx-pentagon-uat-sp3"
+    key_name        = "vnteam"
+    subnet_ids = ["subnet-0a4e02d5e2193e3cf"]
+    use_custom_launch_template = true
+    iam_role_additional_policies = {
+      additional = "arn:aws:iam::014999276089:policy/lumi-uat-cloudwatch-policy-v1"
+    }
+    labels = {
+            "luminet-app" = "yes",
+            "sc1-games" = "yes"
+            "sc2-games" = "yes"
+            "gn-games" = "yes"
+            "sc1-api" = "yes"
+            "sc2-api" = "yes"
+            "gn-api" = "yes"
+            "sc1-games-backend" = "yes"
+            "sc2-games-backend" = "yes"
+            "gn-games-backend" = "yes"
+            "sp-api" = "yes"
+            "sp-games" = "yes"
+            "sp-games-backend" = "yes"
+            "sk-api" = "yes"
+            "sk-games" = "yes"
+            "sk-games-backend" = "yes"
+            "tg-api" = "yes"
+            "tg-games" = "yes"
+            "tg-games-backend" = "yes"
+            "hd-api" = "yes"
+            "hd-games" = "yes"
+            "hd-games-backend" = "yes"
+            "nexops" = "yes"
+          }
+
+    #ami_type     = "AL2_x86_64"
+    min_size     = 0
+    max_size     = 2
+    desired_size = 2
+    instance_types = [
+      "m6i.large",
+      "m6i.xlarge",
+      "t3a.large",
+      "t3a.xlarge",
+      "t3.large",
+      "t3.xlarge",
+    ]
+    block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size           = 60
+            volume_type           = "gp3"
+            iops                  = 3000
+            throughput            = 150
+            delete_on_termination = true
+          }
+        }
+      }
+    capacity_type = "SPOT"
+    network_interfaces = [{
+      delete_on_termination       = true
+      associate_public_ip_address = false
+    }]
+    tag_specifications = [
+      "instance",
+      "volume",
+      "network-interface"
+    ]
+    ####
+    schedules = {
+        scale-up = {
+          min_size     = 0
+          max_size     = 2
+          desired_size = 2
           time_zone    = "Asia/Bangkok"
           recurrence   = "30 07 * * MON-FRI"
         },
