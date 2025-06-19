@@ -128,6 +128,7 @@ eks_managed_node_groups = {
   },
   "nx-pentagon-prod-eks-hub" = {
     name                       = "nx-pentagon-prod-hub"
+    key_name        = "vnteam"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -458,6 +459,22 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
+    schedules = {
+        scale-up = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
+      }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
         PROXY="infra-proxy.bukittimah.com:8801"
@@ -564,6 +581,22 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
+    schedules = {
+        scale-up = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
+      }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
         PROXY="infra-proxy.bukittimah.com:8801"
@@ -669,6 +702,22 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
+    schedules = {
+        scale-up = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
+      }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
         PROXY="infra-proxy.bukittimah.com:8801"
@@ -774,6 +823,22 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
+    schedules = {
+        scale-up = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
+      }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
         PROXY="infra-proxy.bukittimah.com:8801"
@@ -879,6 +944,22 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
+    schedules = {
+        scale-up = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
+      }
     pre_bootstrap_user_data = <<-EOT
         #!/bin/bash
         PROXY="infra-proxy.bukittimah.com:8801"
