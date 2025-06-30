@@ -113,6 +113,7 @@ cluster_cname_records = {
         "vault",
         "hub-k3s",
         "logs",
+        "opsi",
         "trivy",
         "portainer",
         "longhorn",
