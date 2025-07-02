@@ -70,22 +70,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -168,22 +153,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -236,7 +206,7 @@ eks_managed_node_groups = {
                 name: nx-pentagon-t1prod-v1
               kubelet:
                 config:
-                    maxPods: 150
+                    maxPods: 200
           EOT
           }
       ]
@@ -352,7 +322,7 @@ eks_managed_node_groups = {
                 name: nx-pentagon-t1prod-v1
               kubelet:
                 config:
-                    maxPods: 150
+                    maxPods: 200
           EOT
           }
       ]
@@ -399,22 +369,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -467,7 +422,7 @@ eks_managed_node_groups = {
                 name: nx-pentagon-t1prod-v1
               kubelet:
                 config:
-                    maxPods: 150
+                    maxPods: 200
           EOT
           }
       ]
@@ -513,22 +468,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -581,7 +521,7 @@ eks_managed_node_groups = {
                 name: nx-pentagon-t1prod-v1
               kubelet:
                 config:
-                    maxPods: 150
+                    maxPods: 200
           EOT
           }
       ]
@@ -623,7 +563,7 @@ eks_managed_node_groups = {
 
     ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
-    max_size     = 1
+    max_size     = 2
     desired_size = 1
     instance_types = [
       "t3a.medium",
@@ -652,22 +592,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -720,7 +645,7 @@ eks_managed_node_groups = {
                 name: nx-pentagon-t1prod-v1
               kubelet:
                 config:
-                    maxPods: 150
+                    maxPods: 200
           EOT
           }
       ]
@@ -762,7 +687,7 @@ eks_managed_node_groups = {
 
     ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
-    max_size     = 1
+    max_size     = 2
     desired_size = 1
     instance_types = [
       "t3a.medium",
@@ -780,7 +705,7 @@ eks_managed_node_groups = {
         }
       }
     }
-    capacity_type = "SPOT"
+    capacity_type = "ON_DEMAND"
     network_interfaces = [{
       delete_on_termination       = true
       associate_public_ip_address = false
@@ -791,22 +716,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -859,7 +769,7 @@ eks_managed_node_groups = {
                 name: nx-pentagon-t1prod-v1
               kubelet:
                 config:
-                    maxPods: 150
+                    maxPods: 200
           EOT
           }
       ]
@@ -900,7 +810,7 @@ eks_managed_node_groups = {
 
     ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
-    max_size     = 1
+    max_size     = 2
     desired_size = 1
     instance_types = [
       "t3a.medium",
@@ -918,7 +828,7 @@ eks_managed_node_groups = {
         }
       }
     }
-    capacity_type = "SPOT"
+    capacity_type = "ON_DEMAND"
     network_interfaces = [{
       delete_on_termination       = true
       associate_public_ip_address = false
@@ -929,22 +839,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -997,7 +892,7 @@ eks_managed_node_groups = {
                 name: nx-pentagon-t1prod-v1
               kubelet:
                 config:
-                    maxPods: 150
+                    maxPods: 200
           EOT
           }
       ]
@@ -1038,7 +933,7 @@ eks_managed_node_groups = {
 
     ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
-    max_size     = 1
+    max_size     = 2
     desired_size = 1
     instance_types = [
       "t3a.medium",
@@ -1056,7 +951,7 @@ eks_managed_node_groups = {
         }
       }
     }
-    capacity_type = "SPOT"
+    capacity_type = "ON_DEMAND"
     network_interfaces = [{
       delete_on_termination       = true
       associate_public_ip_address = false
@@ -1067,22 +962,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -1135,7 +1015,7 @@ eks_managed_node_groups = {
                 name: nx-pentagon-t1prod-v1
               kubelet:
                 config:
-                    maxPods: 150
+                    maxPods: 200
           EOT
           }
       ]

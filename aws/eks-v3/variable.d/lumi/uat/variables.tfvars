@@ -34,7 +34,7 @@ eks_managed_node_groups = {
     labels = {
             "haproxy" = "yes"
           }
-    #ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 1
     desired_size = 1
@@ -64,22 +64,114 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     #### device_name = "/dev/sdh"
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
+    schedules = {}
+    cloudinit_pre_nodeadm = [
+          {
+            content_type = "text/x-shellscript"
+            content      = <<-EOT
+            #!/bin/bash
+            PROXY=infra-proxy.vpcbukittimah.com:8801
+            TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+            MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
+            VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
+            mkdir -p /etc/systemd/system/containerd.service.d
+            mkdir -p /etc/systemd/system/sandbox-image.service.d
+            cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
+            proxy=http://$PROXY
+            EOF
+            cloud-init-per instance proxy_config cat << EOF >> /etc/environment
+            http_proxy=http://$PROXY
+            https_proxy=http://$PROXY
+            HTTP_PROXY=http://$PROXY
+            HTTPS_PROXY=http://$PROXY
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            EOF
+            cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
+            [Service]
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance reload_daemon systemctl daemon-reload
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+          EOT
+          },
+          {
+            content_type = "application/node.eks.aws"
+            content      = <<-EOT
+            ---
+            apiVersion: node.eks.aws/v1alpha1
+            kind: NodeConfig
+            spec:
+              cluster:
+                apiServerEndpoint: https://E6191EEBBB4840436E79DD857495912F.yl4.ap-southeast-1.eks.amazonaws.com
+                certificateAuthority: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJUWFnQ0JTWDN2Vnd3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBMk1Ea3dPRFV5TUROYUZ3MHpOVEEyTURjd09EVTNNRE5hTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURuQnVYUUpVd3VpdTZrUHloYUVnYkJVTTdUZFdleEE1cVp4SCswL3A5QWpsTUlNYk4wMDRaSEtWRisKM20vZUwyUFFMdHVqMFl2dXM3YjVyUG5QWHZDNWN1dnRXRXQ0OWpkRWh5Q3FxQ0J2TE1lVUN1SkxhMjNOWmd4Zgpyam1uTWQ4UWJUSEdGa3QxTEtNcXB3LzBxb0VFOE1SNFBMNWdJRHJOZGV5OWw3TTROVHJwL2lqUW82SVErSmcrCkhJUTdNZEpYYUhsVW5LTE1YWlVIT2pUSUJNRE8zeWVNSEk4RFNpUlpFem1VVmRLOTYzVXpoREJRZ2Nkd3M3RkUKMHQ3Tzl5bTArekxtVVAzenQ1YnR0UGcxQ3lGYUx6dEpXTzd5Uy9NZnFrWE5Yc1RxRjZwWWNqZzVSU2d6S0JLLwpTSUpnNG9LNGRhanlKaFdtVkQzem9UOVlSem1sQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJTbXMzSDZtcHo2SC85b0pTQkd5RHdjZ2srOFBUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQzlnYXhxR1l5SgovSDhIOGUxYUtLZ2RKMVpySU5kUUtzTzdKN3piTVdYcjdwaXNCWDdTZHZXQllkSzc4M25VWUZQWlltUklCbkFaCndvL1lkeTVjZ1NNOHFCNVBUNzR1TW04MHFWdVQ2dnNlVHczbS9iVHhVQ0ZiWmluTFNMZXBiZHJIZ2t4TUxibHQKa2FFZEF3cXdWQ0dwdUtlbTkvNlRMQWFHNnVzK0p6UWVsdkw0dno5R1M2ancrOW1MUUVrWEJrTU9PNE5KdUZYaApMTzh0RVl2d04wZ1BRNVUxK2I2MTcza2VDakd5YktVbVIycG1hYldhME5KNkVROFdQcnJTdzMrWUswRmRlelhGClpHUWtCbFBhY2VybzhQNS90VVBsSkZyeXFDbmk0RUVoQXVJUDEzamNEcU5IRVJPbFhsYVVkMnhKRHpYMlZLZHoKMGJDeVpQRk10LzZiCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+                cidr: 10.100.0.0/16
+                name: nx-pentagon-t1uat-v1
+              kubelet:
+                config:
+                    maxPods: 200
+          EOT
+          }
+      ]
+  },
+####NexOps Monitor
+  "nx-pentagon-uat-mon1" = {
+    name            = "nx-pentagon-uat-mon1"
+    key_name        = "vnteam"
+    subnet_ids = ["subnet-0a4e02d5e2193e3cf"]
+    use_custom_launch_template = true
+    iam_role_additional_policies = {
+      additional = "arn:aws:iam::014999276089:policy/lumi-uat-cloudwatch-policy-v1"
+    }
+    labels = {
+            "nexops-mon" = "yes"
+            "nexops" = "yes"
+          }
+
+    ami_type     = "AL2023_x86_64_STANDARD"
+    min_size     = 0
+    max_size     = 2
+    desired_size = 1
+    instance_types = [
+      "m6i.large",
+      "m6i.xlarge",
+      "t3a.large",
+      "t3a.xlarge",
+      "t3.large",
+      "t3.xlarge",
+    ]
+    block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size           = 60
+            volume_type           = "gp3"
+            iops                  = 3000
+            throughput            = 150
+            delete_on_termination = true
+          }
         }
       }
+    capacity_type = "SPOT"
+    network_interfaces = [{
+      delete_on_termination       = true
+      associate_public_ip_address = false
+    }]
+    tag_specifications = [
+      "instance",
+      "volume",
+      "network-interface"
+    ]
+    ####
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -172,10 +264,10 @@ eks_managed_node_groups = {
             "nexops" = "yes"
           }
 
-    #ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 2
-    desired_size = 2
+    desired_size = 1
     instance_types = [
       "m6i.large",
       "m6i.xlarge",
@@ -207,22 +299,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 2
-          desired_size = 2
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 2
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -314,10 +391,10 @@ eks_managed_node_groups = {
             "nexops" = "yes"
           }
 
-    #ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
     max_size     = 2
-    desired_size = 2
+    desired_size = 1
     instance_types = [
       "m6i.large",
       "m6i.xlarge",
@@ -349,22 +426,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 2
-          desired_size = 2
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 2
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
@@ -456,10 +518,10 @@ eks_managed_node_groups = {
             "nexops" = "yes"
           }
 
-    #ami_type     = "AL2_x86_64"
+    ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
-    max_size     = 2
-    desired_size = 2
+    max_size     = 1
+    desired_size = 1
     instance_types = [
       "m6i.large",
       "m6i.xlarge",
@@ -494,8 +556,8 @@ eks_managed_node_groups = {
     schedules = {
         scale-up = {
           min_size     = 0
-          max_size     = 2
-          desired_size = 2
+          max_size     = 1
+          desired_size = 1
           time_zone    = "Asia/Bangkok"
           recurrence   = "30 07 * * MON-FRI"
         },
@@ -564,6 +626,149 @@ eks_managed_node_groups = {
           }
       ]
   },
+  "nx-pentagon-uat-sp4" = {
+    name            = "nx-pentagon-uat-sp4"
+    key_name        = "vnteam"
+    subnet_ids = ["subnet-0a4e02d5e2193e3cf"]
+    use_custom_launch_template = true
+    iam_role_additional_policies = {
+      additional = "arn:aws:iam::014999276089:policy/lumi-uat-cloudwatch-policy-v1"
+    }
+    labels = {
+            "luminet-app" = "yes",
+            "sc1-games" = "yes"
+            "sc2-games" = "yes"
+            "gn-games" = "yes"
+            "sc1-api" = "yes"
+            "sc2-api" = "yes"
+            "gn-api" = "yes"
+            "sc1-games-backend" = "yes"
+            "sc2-games-backend" = "yes"
+            "gn-games-backend" = "yes"
+            "sp-api" = "yes"
+            "sp-games" = "yes"
+            "sp-games-backend" = "yes"
+            "sk-api" = "yes"
+            "sk-games" = "yes"
+            "sk-games-backend" = "yes"
+            "tg-api" = "yes"
+            "tg-games" = "yes"
+            "tg-games-backend" = "yes"
+            "hd-api" = "yes"
+            "hd-games" = "yes"
+            "hd-games-backend" = "yes"
+            "nexops" = "yes"
+          }
+
+    ami_type     = "AL2023_x86_64_STANDARD"
+    min_size     = 0
+    max_size     = 1
+    desired_size = 1
+    instance_types = [
+      "m6i.large",
+      "m6i.xlarge",
+      "t3a.large",
+      "t3a.xlarge",
+      "t3.large",
+      "t3.xlarge",
+    ]
+    block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size           = 60
+            volume_type           = "gp3"
+            iops                  = 3000
+            throughput            = 150
+            delete_on_termination = true
+          }
+        }
+      }
+    capacity_type = "SPOT"
+    network_interfaces = [{
+      delete_on_termination       = true
+      associate_public_ip_address = false
+    }]
+    tag_specifications = [
+      "instance",
+      "volume",
+      "network-interface"
+    ]
+    ####
+    schedules = {
+        scale-up = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 1
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "30 07 * * MON-FRI"
+        },
+        scale-down = {
+          min_size     = 0
+          max_size     = 1
+          desired_size = 0
+          time_zone    = "Asia/Bangkok"
+          recurrence   = "00 20 * * MON-FRI"
+        }
+      }
+    cloudinit_pre_nodeadm = [
+          {
+            content_type = "text/x-shellscript"
+            content      = <<-EOT
+            #!/bin/bash
+            PROXY=infra-proxy.vpcbukittimah.com:8801
+            TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+            MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
+            VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
+            mkdir -p /etc/systemd/system/containerd.service.d
+            mkdir -p /etc/systemd/system/sandbox-image.service.d
+            cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
+            proxy=http://$PROXY
+            EOF
+            cloud-init-per instance proxy_config cat << EOF >> /etc/environment
+            http_proxy=http://$PROXY
+            https_proxy=http://$PROXY
+            HTTP_PROXY=http://$PROXY
+            HTTPS_PROXY=http://$PROXY
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            EOF
+            cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
+            [Service]
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance reload_daemon systemctl daemon-reload
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+          EOT
+          },
+          {
+            content_type = "application/node.eks.aws"
+            content      = <<-EOT
+            ---
+            apiVersion: node.eks.aws/v1alpha1
+            kind: NodeConfig
+            spec:
+              cluster:
+                apiServerEndpoint: https://E6191EEBBB4840436E79DD857495912F.yl4.ap-southeast-1.eks.amazonaws.com
+                certificateAuthority: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJUWFnQ0JTWDN2Vnd3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBMk1Ea3dPRFV5TUROYUZ3MHpOVEEyTURjd09EVTNNRE5hTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURuQnVYUUpVd3VpdTZrUHloYUVnYkJVTTdUZFdleEE1cVp4SCswL3A5QWpsTUlNYk4wMDRaSEtWRisKM20vZUwyUFFMdHVqMFl2dXM3YjVyUG5QWHZDNWN1dnRXRXQ0OWpkRWh5Q3FxQ0J2TE1lVUN1SkxhMjNOWmd4Zgpyam1uTWQ4UWJUSEdGa3QxTEtNcXB3LzBxb0VFOE1SNFBMNWdJRHJOZGV5OWw3TTROVHJwL2lqUW82SVErSmcrCkhJUTdNZEpYYUhsVW5LTE1YWlVIT2pUSUJNRE8zeWVNSEk4RFNpUlpFem1VVmRLOTYzVXpoREJRZ2Nkd3M3RkUKMHQ3Tzl5bTArekxtVVAzenQ1YnR0UGcxQ3lGYUx6dEpXTzd5Uy9NZnFrWE5Yc1RxRjZwWWNqZzVSU2d6S0JLLwpTSUpnNG9LNGRhanlKaFdtVkQzem9UOVlSem1sQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJTbXMzSDZtcHo2SC85b0pTQkd5RHdjZ2srOFBUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQzlnYXhxR1l5SgovSDhIOGUxYUtLZ2RKMVpySU5kUUtzTzdKN3piTVdYcjdwaXNCWDdTZHZXQllkSzc4M25VWUZQWlltUklCbkFaCndvL1lkeTVjZ1NNOHFCNVBUNzR1TW04MHFWdVQ2dnNlVHczbS9iVHhVQ0ZiWmluTFNMZXBiZHJIZ2t4TUxibHQKa2FFZEF3cXdWQ0dwdUtlbTkvNlRMQWFHNnVzK0p6UWVsdkw0dno5R1M2ancrOW1MUUVrWEJrTU9PNE5KdUZYaApMTzh0RVl2d04wZ1BRNVUxK2I2MTcza2VDakd5YktVbVIycG1hYldhME5KNkVROFdQcnJTdzMrWUswRmRlelhGClpHUWtCbFBhY2VybzhQNS90VVBsSkZyeXFDbmk0RUVoQXVJUDEzamNEcU5IRVJPbFhsYVVkMnhKRHpYMlZLZHoKMGJDeVpQRk10LzZiCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+                cidr: 10.100.0.0/16
+                name: nx-pentagon-t1uat-v1
+              kubelet:
+                config:
+                    maxPods: 200
+          EOT
+          }
+      ]
+  },
+  
 }
 
 ###############
