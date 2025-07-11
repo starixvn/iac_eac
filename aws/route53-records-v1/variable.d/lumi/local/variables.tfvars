@@ -72,21 +72,26 @@ main_records = {
       type   = "CNAME"
       values = ["d1aof1lwumql9k.cloudfront.net", ]
     },
-    {
-      # Collect Autotest Report
+    { # Collect Autotest Report
       name   = "test-reports",
       values = ["10.10.50.160", ]
     },
-    {
-      # NATS on LUMPROD
+    { # NATS on LUMPROD
       name   = "nats",
       values = ["10.10.50.122", ]
     },
-    {
-      # Public ALL
+    { # Public ALL
       name   = "vn-sc-all-lumprod",
       values = ["202.78.231.48", ]
-    }
+    },
+    { # NexPE test deploy
+      name   = "deploy-test",
+      values = ["10.17.200.91", ]
+    },
+    { # NexPE test deploy
+      name   = "deploy-test1",
+      values = ["10.17.200.91", ]
+    },
   ]
 
   #
@@ -130,7 +135,6 @@ cluster_cname_records = {
         "nui",
         "sentry-k8s",
         "deployapi-k3s",
-        "deploy-test",
         "n8n-test",
       ]
     },
