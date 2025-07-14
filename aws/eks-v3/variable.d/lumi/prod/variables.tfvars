@@ -254,22 +254,7 @@ eks_managed_node_groups = {
       "network-interface"
     ]
     ####
-    schedules = {
-        scale-up = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 1
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "30 07 * * MON-FRI"
-        },
-        scale-down = {
-          min_size     = 0
-          max_size     = 1
-          desired_size = 0
-          time_zone    = "Asia/Bangkok"
-          recurrence   = "00 20 * * MON-FRI"
-        }
-      }
+    schedules = {}
     cloudinit_pre_nodeadm = [
           {
             content_type = "text/x-shellscript"
