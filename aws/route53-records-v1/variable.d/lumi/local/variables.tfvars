@@ -8,7 +8,7 @@ aws_region_key_remote_state      = "env:/local/vpc-terraform.tfstate"
 aws_region_key_remote_state_zone = "env:/local/route53-tf.tfstate"
 aws_region_key_remote_state_lb   = "env:/local/lumi-lb-external-tf.tfstate"
 
-############## Route53
+############# Route53
 domain_ns_records = [
   /*{
     "zone_id" : "lumigame.com",

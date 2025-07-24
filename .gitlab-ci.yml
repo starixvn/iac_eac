@@ -7,3 +7,9 @@ include:
   - project: 'iac/core-ci'
     file: '/templates/workflows/tag-deploy.yml'
     ref: main
+
+variables:
+  VAULT_JWT_BACKEND: "jwt-gitlab"
+  TF_VAR_vault_role: "aws-general"
+  AUTO_APPPROVE: false
+  DEBUG: 0
