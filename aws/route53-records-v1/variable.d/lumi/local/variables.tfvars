@@ -125,6 +125,7 @@ cluster_cname_records = {
         "hub-main",
         "hub-bk",
         "jaeger-elasticsearch",
+        "jaeger-collector",
         "jaeger",
         "grafana",
         "rocketchat",
