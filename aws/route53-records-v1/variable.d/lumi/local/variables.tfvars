@@ -137,6 +137,7 @@ cluster_cname_records = {
         "deployapi-k3s",
         "n8n-test",
         "sonarqube",
+        "sentry",
       ]
     },
     {
