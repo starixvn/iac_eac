@@ -161,7 +161,6 @@ cluster_cname_records = {
         "haproxy",
         "rocketor-api",
         "plane",
-        "sentry",
       ]
     },
 
