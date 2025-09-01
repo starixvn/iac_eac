@@ -92,6 +92,11 @@ main_records = {
       name   = "deploy-test1",
       values = ["10.17.200.91", ]
     },
+    {
+      # Ingress NginX K3S-LUMPROD
+      name   = "vn-sc-ing-ngx",
+      values = ["10.10.50.149", ]
+    },
   ]
 
   #
@@ -278,6 +283,13 @@ cluster_cname_records = {
       canonical_name = "vn-sc-all-lumprod.lumigame.com"
       cname_records = [
         "n8n",
+      ]
+    },
+    {
+      # 10.10.50.149 - Ingress NginX Lumprod
+      canonical_name = "vn-sc-ing-ngx.lumigame.com"
+      cname_records = [
+        "replay",
       ]
     },
   ],
