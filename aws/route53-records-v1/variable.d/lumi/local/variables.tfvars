@@ -147,6 +147,7 @@ cluster_cname_records = {
         "n8n-test",
         "sonarqube",
         "sentry",
+        "backstage",
       ]
     },
     {
