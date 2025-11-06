@@ -23,6 +23,7 @@ vpc_private_subnets = [
 autoscaling_average_cpu = 90
 cluster_version         = "1.33"
 eks_managed_node_groups = {
+/*
 ######## HAPROXY Ingress
   "nx-pentagon-dr-ing1" = {
     name                       = "nx-pentagon-dr-ing1"
@@ -164,8 +165,8 @@ eks_managed_node_groups = {
     max_size     = 2
     desired_size = 1
     instance_types = [
-      "t3a.medium",
-      "t3.medium"
+      "t3a.large",
+      "t3.large"
     ]
     block_device_mappings = {
       xvda = {
@@ -741,6 +742,7 @@ eks_managed_node_groups = {
           }
       ]
   },
+*/
 }
 
 ###############
