@@ -1128,6 +1128,129 @@ eks_managed_node_groups = {
           }
       ]
   },
+  "nx-pentagon-prod-dm6" = {
+    name                       = "nx-pentagon-prod-dm6"
+    key_name        = "vnteam"
+    subnet_ids                 = ["subnet-013bce3c7a2d4020c"]
+    use_custom_launch_template = true
+    iam_role_additional_policies = {
+      additional = "arn:aws:iam::014999276089:policy/lumi-prod-cloudwatch-policy-v1"
+    }
+    labels = {
+      "luminet-app"       = "yes",
+      "sc1-games"         = "yes"
+      "sc2-games"         = "yes"
+      "gn-games"          = "yes"
+      "sc1-api"           = "yes"
+      "sc2-api"           = "yes"
+      "gn-api"            = "yes"
+      "sc1-games-backend" = "yes"
+      "sc2-games-backend" = "yes"
+      "gn-games-backend"  = "yes"
+      "sp-api"            = "yes"
+      "sp-games"          = "yes"
+      "sp-games-backend"  = "yes"
+      "sk-api"            = "yes"
+      "sk-games"          = "yes"
+      "sk-games-backend"  = "yes"
+      "tg-api"            = "yes"
+      "tg-games"          = "yes"
+      "tg-games-backend"  = "yes"
+      "hd-api"            = "yes"
+      "hd-games"          = "yes"
+      "hd-games-backend"  = "yes"
+      "nexops"            = "yes"
+    }
+
+    ami_type     = "AL2023_x86_64_STANDARD"
+    min_size     = 0
+    max_size     = 2
+    desired_size = 1
+    instance_types = [
+      "t3a.large",
+      "t3.large"
+    ]
+    block_device_mappings = {
+      xvda = {
+        device_name = "/dev/xvda"
+        ebs = {
+          volume_size           = 80
+          volume_type           = "gp3"
+          iops                  = 3000
+          throughput            = 150
+          delete_on_termination = true
+        }
+      }
+    }
+    capacity_type = "ON_DEMAND"
+    network_interfaces = [{
+      delete_on_termination       = true
+      associate_public_ip_address = false
+    }]
+    tag_specifications = [
+      "instance",
+      "volume",
+      "network-interface"
+    ]
+    ####
+    schedules = {}
+    cloudinit_pre_nodeadm = [
+          {
+            content_type = "text/x-shellscript"
+            content      = <<-EOT
+            #!/bin/bash
+            PROXY=infra-proxy.vpcbukittimah.com:8801
+            TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+            MAC=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/mac/)
+            VPC_CIDR=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -v -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-ipv4-cidr-blocks | xargs | tr ' ' ',')
+            mkdir -p /etc/systemd/system/containerd.service.d
+            mkdir -p /etc/systemd/system/sandbox-image.service.d
+            cloud-init-per instance yum_proxy_config cat << EOF >> /etc/yum.conf
+            proxy=http://$PROXY
+            EOF
+            cloud-init-per instance proxy_config cat << EOF >> /etc/environment
+            http_proxy=http://$PROXY
+            https_proxy=http://$PROXY
+            HTTP_PROXY=http://$PROXY
+            HTTPS_PROXY=http://$PROXY
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            EOF
+            cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance sandbox-image_proxy_config tee <<EOF /etc/systemd/system/sandbox-image.service.d/http-proxy.conf >/dev/null
+            [Service]    
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance kubelet_proxy_config tee <<EOF /etc/systemd/system/kubelet.service.d/proxy.conf >/dev/null
+            [Service]
+            EnvironmentFile=/etc/environment
+            EOF
+            cloud-init-per instance reload_daemon systemctl daemon-reload
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+          EOT
+          },
+          {
+            content_type = "application/node.eks.aws"
+            content      = <<-EOT
+            ---
+            apiVersion: node.eks.aws/v1alpha1
+            kind: NodeConfig
+            spec:
+              cluster:
+                apiServerEndpoint: https://F74006CA89D990C1B0BAF42607B51B47.gr7.ap-southeast-1.eks.amazonaws.com
+                certificateAuthority: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJT3hRTXFKbzFRV0l3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBMk1EWXdOekExTURKYUZ3MHpOVEEyTURRd056RXdNREphTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURXdmNpeWdTcVEwMnQxbGlkaUVoOFNsb3dJaVJVb3pGSGxJaHg1YVRxZE9wR25FTWZVZVpxOWdja0cKMkdSQ0ZLc3RXSFpxbDcwMWZvUUJZS2tVbDlUWEd2TlU4bEVRbEU0S0xGOXBveWkwa3ZTNTJ3TkZvSGp1WmtJVgp0MGdYS1FUZ0MvY05STThLTHJhV2J6RXpJRW4zUDJiMG04Ym50TXNNTWtQTHNhUmhEZlV5WGRyNXpkMmFPRFFPCm5zKzVqM0NjdzNrMUNDQTh2U3lIZXg5cUdDQUJnOWtPMDRwYWtNOFlWaWZlNEZrT1I2N1E0K1l0d0ExTm0vc2oKSlE4K2NNSGNhcWxWVmovZ1Nsc1Ixa3h0TkVYdWN4YXNKRWJzOFgwZnY2eWVkWlREclJMODM3bEFRTklRUjNVMQpCOSsxRUY1cFFtNXQ4K0VMb2RJS3c5cFVPTW9qQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJSVUtlVkN3TkhhVnFVcndpSmljaEtLR0IwQmNUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQ1hEWVdoTm1TMgpMWEtDVFMyMnpUQXA4Vk1XOWM2aDk5U1M2dE9KeW0zMkorc2o2SCtOQm04aUREU0pZMEFzcmV6ekNCb3d3TDgrClJQNUJ1YkMwL1ZqTk40WEZuc3Mvdk95ejM5NzdGRXJ2cWw3NGJ6aEM5Mk5LOFRMTFJjbG1VSk1CKzhFbXQwZFcKalIvdVVhOUNzaVhjdERQMlBIeGE3aURaenBRaDhuQ2VUUFd1MG1ydm9yZlVNOTQ3c1lqMTMvbWw4UW1nNi85Sgo3NHN5c0tnK2JaaEIzMVpQM01JejhxaC9KUlN6L3A5ckdTN3hxUHZHQ1lrT0VJTzZEMHJvY0pzeXFVL25sNUViCnhtMkF5U0o1N3ZPcXpSMHlNWlN5bThRU0tNbEwrNVU5Ykovb3RWUGdZZlhxazVleFVqa0sxa2gzR0RTUzFXangKekx0Sk9vSXRyVjRkCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+                cidr: 10.100.0.0/16
+                name: nx-pentagon-t1prod-v1
+              kubelet:
+                config:
+                    maxPods: 200
+          EOT
+          }
+      ]
+  },
 }
 
 ###############
