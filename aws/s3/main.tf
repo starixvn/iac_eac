@@ -16,15 +16,6 @@ module "s3_bucket" {
     enabled = false
   }
 
-  website = {
-    # conflicts with "error_document"
-    #        redirect_all_requests_to = {
-    #          host_name = "https://modules.tf"
-    #        }
-
-    index_document = "index.html"
-    error_document = "error.html"
-  }
   tags = merge(
     local.common_tags,
     {
