@@ -3,11 +3,6 @@ variable "aws_region" {
   type        = string
 }
 
-variable "aws_profile" {
-  description = "aws profile"
-  type        = string
-}
-
 # Environment Variable
 variable "environment" {
   description = "Environment Variable used as a prefix"
