@@ -15,6 +15,16 @@ module "s3_bucket" {
   versioning = {
     enabled = false
   }
+
+  website = {
+    # conflicts with "error_document"
+    #        redirect_all_requests_to = {
+    #          host_name = "https://modules.tf"
+    #        }
+
+    index_document = "index.html"
+    error_document = "error.html"
+  }
   tags = merge(
     local.common_tags,
     {
@@ -69,15 +79,10 @@ data "aws_iam_policy_document" "bucket_policy" {
       type        = "AWS"
       identifiers = [var.access_key_arn] # You should pass the ARN of the IAM user/role with AccessKey/SecretKey
     }
-    actions = [
-      "s3:PutObject",
-      "s3:DeleteObject",
-      "s3:PutObjectAcl",
-      "s3:DeleteObjectVersion",
-      "s3:RestoreObject"
-    ]
+    actions = ["s3:*"]
     resources = [
       "arn:aws:s3:::${var.team}-${var.project}-${var.environment}/*"
     ]
   }
 }
+
