@@ -22,8 +22,8 @@ variable "access_key_arn" {
   type = string
 }
 
-variable "ingress_cidr_blocks" {
-  description = "allow ingress_cidr_blocks"
-  type        = list(string)
-  default     = []
-}
+# variable "ingress_cidr_blocks" {
+#   description = "allow ingress_cidr_blocks"
+#   type        = list(string)
+#   default     = []
+# }
