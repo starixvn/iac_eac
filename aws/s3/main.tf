@@ -2,6 +2,7 @@ module "s3_bucket" {
   source                   = "gitlab.nexdev.net/iac/aws-s3/aws"
   version                  = "5.8.1" #"3.15.2"
   bucket                   = "${var.team}-${var.project}-${var.environment}"
+  region                   = var.aws_region
   attach_policy            = true
   policy                   = data.aws_iam_policy_document.bucket_policy.json
   control_object_ownership = true
