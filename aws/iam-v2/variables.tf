@@ -14,6 +14,11 @@ variable "team" {
   type        = string
 }
 
+variable "dept" {
+  description = "Dept name"
+  type        = string
+}
+
 variable "project" {
   type = string
 }

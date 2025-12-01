@@ -2,8 +2,9 @@ locals {
   project     = var.project
   environment = var.environment
   team        = var.team
+  dept        = var.dept
   common_tags = {
-    Dept         = "VNTeam"
+    Dept         = local.dept
     Team         = local.team
     ManageBy     = "vnTerraform"
     Environment  = upper(local.environment)

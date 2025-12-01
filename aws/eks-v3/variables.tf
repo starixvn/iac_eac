@@ -5,6 +5,16 @@ variable "team" {
   type = string
 }
 
+variable "dept" {
+  description = "Dept name"
+  type        = string
+}
+
+variable "function" {
+  description = "function"
+  type        = string
+}
+
 variable "environment" {
   description = "Environment Variable used as a prefix"
   type        = string

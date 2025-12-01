@@ -1,0 +1,5 @@
+environment = "prod"
+project = "AT"
+dept = "VNTeam"
+team = "12B"
+aws_region  = "ap-southeast-1"

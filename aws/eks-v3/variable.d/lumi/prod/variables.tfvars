@@ -1,15 +1,17 @@
-environment = "prod"
-project = "vn"
-team = "NX-Pentagon"
-aws_region  = "ap-southeast-1"
-aws_region_bucket_remote_state = "vn-lumi-starix-tf-state"
+environment                     = "prod"
+project                         = "vn"
+dept                            = "VNTeam"
+team                            = "NX-Pentagon"
+function                        = "v1"
+aws_region                      = "ap-southeast-1"
+aws_region_bucket_remote_state  = "vn-lumi-starix-tf-state"
 aws_region_key_iam_remote_state = "env:/prod/lumi-iam-tf.tfstate"
-allow_whitelist = ["202.78.231.32/27","120.72.109.32/29","120.72.83.128/29","43.198.255.129/32"]
-allow_cidr_block_internal = ["10.100.252.0/25","10.100.253.0/25","10.100.253.128/26","10.100.253.192/26","10.101.0.0/20","10.101.16.0/20","10.101.32.0/20","10.101.48.0/21","10.101.56.0/21","10.101.64.0/21"]
-vpc_id = "vpc-0080458809d79b6f8"
-lb_subnets = "subnet-0613fbd221a805b5b\\,subnet-013bce3c7a2d4020c\\,subnet-0475b4fa8ffc80ab7"
-lb_az_cross = "true"
-create_cloudwatch_log_group = "false"
+allow_whitelist                 = ["202.78.231.32/27", "120.72.109.32/29", "120.72.83.128/29", "43.198.255.129/32"]
+allow_cidr_block_internal       = ["10.100.252.0/25", "10.100.253.0/25", "10.100.253.128/26", "10.100.253.192/26", "10.101.0.0/20", "10.101.16.0/20", "10.101.32.0/20", "10.101.48.0/21", "10.101.56.0/21", "10.101.64.0/21"]
+vpc_id                          = "vpc-0080458809d79b6f8"
+lb_subnets                      = "subnet-0613fbd221a805b5b\\,subnet-013bce3c7a2d4020c\\,subnet-0475b4fa8ffc80ab7"
+lb_az_cross                     = "true"
+create_cloudwatch_log_group     = "false"
 #lb_private_ips = "10.88.112.250\\,10.88.143.250\\,10.88.159.250"
 vpc_private_subnets = [
   "subnet-0613fbd221a805b5b",
@@ -26,7 +28,7 @@ eks_managed_node_groups = {
   ######## NexOps tools
   "nx-pentagon-prod-eks-awx" = {
     name                       = "nx-pentagon-prod-awx"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -72,9 +74,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -108,12 +110,12 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          }
-      ]
+      }
+    ]
   },
   "nx-pentagon-prod-eks-hub" = {
     name                       = "nx-pentagon-prod-hub"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -155,9 +157,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -191,10 +193,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -208,12 +210,12 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
   "nx-pentagon-prod-mon1" = {
     name                       = "nx-pentagon-prod-mon1"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -256,9 +258,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -292,10 +294,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -309,13 +311,13 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
   ######## HAPROXY Ingress
   "nx-pentagon-prod-ing1" = {
     name                       = "nx-pentagon-prod-ing1"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -356,9 +358,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -392,10 +394,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -409,12 +411,12 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
   "nx-pentagon-prod-ing2" = {
     name                       = "nx-pentagon-prod-ing2"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-013bce3c7a2d4020c"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -455,9 +457,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -491,10 +493,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -508,13 +510,13 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
   ######## APP ON DEMAND
   "nx-pentagon-prod-dm1" = {
     name                       = "nx-pentagon-prod-dm1"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -579,9 +581,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -615,10 +617,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -632,13 +634,13 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
-  
+
   "nx-pentagon-prod-dm2" = {
     name                       = "nx-pentagon-prod-dm2"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -703,9 +705,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -739,10 +741,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -756,12 +758,12 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
   "nx-pentagon-prod-dm3" = {
     name                       = "nx-pentagon-prod-dm3"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-0613fbd221a805b5b"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -826,9 +828,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -862,10 +864,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -879,12 +881,12 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
   "nx-pentagon-prod-dm4" = {
     name                       = "nx-pentagon-prod-dm4"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-013bce3c7a2d4020c"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -949,9 +951,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -985,10 +987,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -1002,12 +1004,12 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
   "nx-pentagon-prod-dm5" = {
     name                       = "nx-pentagon-prod-dm5"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-013bce3c7a2d4020c"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -1072,9 +1074,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -1108,10 +1110,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -1125,12 +1127,12 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
   "nx-pentagon-prod-dm6" = {
     name                       = "nx-pentagon-prod-dm6"
-    key_name        = "vnteam"
+    key_name                   = "vnteam"
     subnet_ids                 = ["subnet-013bce3c7a2d4020c"]
     use_custom_launch_template = true
     iam_role_additional_policies = {
@@ -1195,9 +1197,9 @@ eks_managed_node_groups = {
     ####
     schedules = {}
     cloudinit_pre_nodeadm = [
-          {
-            content_type = "text/x-shellscript"
-            content      = <<-EOT
+      {
+        content_type = "text/x-shellscript"
+        content      = <<-EOT
             #!/bin/bash
             PROXY=infra-proxy.vpcbukittimah.com:8801
             TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
@@ -1231,10 +1233,10 @@ eks_managed_node_groups = {
             cloud-init-per instance reload_daemon systemctl daemon-reload
             curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
           EOT
-          },
-          {
-            content_type = "application/node.eks.aws"
-            content      = <<-EOT
+      },
+      {
+        content_type = "application/node.eks.aws"
+        content      = <<-EOT
             ---
             apiVersion: node.eks.aws/v1alpha1
             kind: NodeConfig
@@ -1248,8 +1250,8 @@ eks_managed_node_groups = {
                 config:
                     maxPods: 200
           EOT
-          }
-      ]
+      }
+    ]
   },
 }
 

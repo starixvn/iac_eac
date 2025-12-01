@@ -1,6 +1,8 @@
 environment                     = "uat"
 project                         = "vn"
+dept  = "VNTeam"
 team                            = "NX-Pentagon"
+function = "v1"
 aws_region                      = "ap-southeast-1"
 aws_region_bucket_remote_state  = "vn-lumi-starix-tf-state"
 aws_region_key_iam_remote_state = "env:/uat/lumi-iam-tf.tfstate"

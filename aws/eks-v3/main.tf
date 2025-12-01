@@ -16,7 +16,7 @@ module "cluster" {
   source                                   = "gitlab.nexdev.net/iac/aws-eks/aws"
   version                                  = "20.35.2"
   enable_cluster_creator_admin_permissions = true
-  cluster_name                             = lower("${var.team}-t1${var.environment}-v1")
+  cluster_name                             = lower("${var.team}-t1${var.environment}-${var.function}")
   cluster_version                          = var.cluster_version
   cluster_endpoint_private_access          = true
   cluster_endpoint_public_access           = true
