@@ -536,7 +536,7 @@ eks_managed_node_groups = {
       additional = "arn:aws:iam::484907507662:policy/12b-prod-cloudwatch-policy-v1"
     }
     labels = {
-      "nexops-mon" = "yes"
+      "gosql-tools" = "yes"
     }
     ami_type     = "AL2023_x86_64_STANDARD"
     min_size     = 0
