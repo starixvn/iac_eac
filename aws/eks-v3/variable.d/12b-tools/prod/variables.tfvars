@@ -85,8 +85,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -101,7 +101,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -186,8 +186,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -202,7 +202,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -287,8 +287,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -303,7 +303,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -388,8 +388,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -404,7 +404,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -489,8 +489,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -505,7 +505,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -589,8 +589,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -605,7 +605,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgamora.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgamora.crt && update-ca-trust
+            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
