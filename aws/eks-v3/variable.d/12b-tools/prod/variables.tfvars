@@ -35,7 +35,7 @@ eks_managed_node_groups = {
       "haproxy"  = "yes"
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
+    min_size     = 1
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -101,7 +101,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -136,7 +136,7 @@ eks_managed_node_groups = {
       "haproxy"  = "yes",
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
+    min_size     = 1
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -202,7 +202,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -237,7 +237,7 @@ eks_managed_node_groups = {
       "haproxy"  = "yes",
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
+    min_size     = 1
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -303,7 +303,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -338,7 +338,7 @@ eks_managed_node_groups = {
       "nexops-mon" = "yes"
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
+    min_size     = 1
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -404,7 +404,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -439,7 +439,7 @@ eks_managed_node_groups = {
       "gosql-tools" = "yes"
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
+    min_size     = 1
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -505,7 +505,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
@@ -539,7 +539,7 @@ eks_managed_node_groups = {
       "gosql-tools" = "yes"
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
+    min_size     = 1
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -605,7 +605,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
           EOT
       },
       {
