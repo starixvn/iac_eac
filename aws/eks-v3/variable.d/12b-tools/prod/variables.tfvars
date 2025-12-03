@@ -21,7 +21,7 @@ vpc_private_subnets = [
 autoscaling_average_cpu = 90
 cluster_version         = "1.34"
 eks_managed_node_groups = {
-  ###### Ingress
+  ####### Ingress
   "12b-prod-rabbitmq-az1" = {
     name                       = "12b-prod-rabbitmq-az1"
     key_name                   = "strawberry-vnteam-key"
