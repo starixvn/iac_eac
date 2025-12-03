@@ -35,7 +35,7 @@ eks_managed_node_groups = {
       "haproxy"  = "yes"
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 1
+    min_size     = 0
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -136,7 +136,7 @@ eks_managed_node_groups = {
       "haproxy"  = "yes",
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 1
+    min_size     = 0
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -237,7 +237,7 @@ eks_managed_node_groups = {
       "haproxy"  = "yes",
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 1
+    min_size     = 0
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -338,7 +338,7 @@ eks_managed_node_groups = {
       "nexops-mon" = "yes"
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 1
+    min_size     = 0
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -439,7 +439,7 @@ eks_managed_node_groups = {
       "gosql-tools" = "yes"
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 1
+    min_size     = 0
     max_size     = 1
     desired_size = 1
     instance_types = [
@@ -539,7 +539,7 @@ eks_managed_node_groups = {
       "gosql-tools" = "yes"
     }
     ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 1
+    min_size     = 0
     max_size     = 1
     desired_size = 1
     instance_types = [
