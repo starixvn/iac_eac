@@ -34,10 +34,10 @@ eks_managed_node_groups = {
       "rabbitmq" = "yes",
       "haproxy"  = "yes"
     }
-    ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
-    max_size     = 1
-    desired_size = 1
+    ami_type = "AL2023_x86_64_STANDARD"
+    min_size = 0
+    max_size = 1
+    # desired_size = 1
     instance_types = [
       "m6a.xlarge",
       "t3a.xlarge",
@@ -135,10 +135,10 @@ eks_managed_node_groups = {
       "rabbitmq" = "yes",
       "haproxy"  = "yes",
     }
-    ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
-    max_size     = 1
-    desired_size = 1
+    ami_type = "AL2023_x86_64_STANDARD"
+    min_size = 0
+    max_size = 1
+    # desired_size = 1
     instance_types = [
       "m6a.xlarge",
       "t3a.xlarge",
@@ -236,10 +236,10 @@ eks_managed_node_groups = {
       "rabbitmq" = "yes",
       "haproxy"  = "yes",
     }
-    ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
-    max_size     = 1
-    desired_size = 1
+    ami_type = "AL2023_x86_64_STANDARD"
+    min_size = 0
+    max_size = 1
+    # desired_size = 1
     instance_types = [
       "m6a.xlarge",
       "t3a.xlarge",
@@ -337,10 +337,10 @@ eks_managed_node_groups = {
     labels = {
       "nexops-mon" = "yes"
     }
-    ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
-    max_size     = 1
-    desired_size = 1
+    ami_type = "AL2023_x86_64_STANDARD"
+    min_size = 0
+    max_size = 1
+    # desired_size = 1
     instance_types = [
       "m6a.xlarge",
       "t3a.xlarge",
@@ -438,10 +438,10 @@ eks_managed_node_groups = {
     labels = {
       "gosql-tools" = "yes"
     }
-    ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
-    max_size     = 1
-    desired_size = 1
+    ami_type = "AL2023_x86_64_STANDARD"
+    min_size = 0
+    max_size = 1
+    # desired_size = 1
     instance_types = [
       "m6a.xlarge",
       "t3a.xlarge",
@@ -538,10 +538,10 @@ eks_managed_node_groups = {
     labels = {
       "gosql-tools" = "yes"
     }
-    ami_type     = "AL2023_x86_64_STANDARD"
-    min_size     = 0
-    max_size     = 1
-    desired_size = 1
+    ami_type = "AL2023_x86_64_STANDARD"
+    min_size = 0
+    max_size = 1
+    # desired_size = 1
     instance_types = [
       "m6a.xlarge",
       "t3a.xlarge",
