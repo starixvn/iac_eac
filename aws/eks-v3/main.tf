@@ -23,12 +23,7 @@ module "cluster" {
   cluster_endpoint_public_access_cidrs     = var.allow_whitelist
   create_cloudwatch_log_group              = var.create_cloudwatch_log_group
   cluster_enabled_log_types                = ["scheduler", "controllerManager"]
-  kms_key_administrators = [
-    "arn:aws:iam::484907507662:user/tf.troy.vo",
-    "arn:aws:iam::484907507662:user/tf.josh.tran",
-    "arn:aws:iam::484907507662:user/tf.dennis.le",
-    "arn:aws:iam::484907507662:user/tf.ken.nguyen",
-  ]
+  kms_key_administrators                   = local.kms_key_administrators
   #cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"] #default     = ["audit", "api", "authenticator"]
   # Extend node-to-node security group rules 10.77.0.0/16 10.88.0.0/16
   node_security_group_additional_rules = {

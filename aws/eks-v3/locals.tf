@@ -17,6 +17,8 @@ locals {
 
 locals {
   cluster_name = lower("${var.team}-${var.environment}-eks") #-${random_string.suffix.result}
+
+  kms_key_administrators = [for user in var.admin_users : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${user}"]
 }
 
 resource "random_string" "suffix" {
