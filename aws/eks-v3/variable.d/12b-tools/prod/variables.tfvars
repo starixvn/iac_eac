@@ -629,7 +629,7 @@ eks_managed_node_groups = {
   },
 }
 
-##################
+###################
 namespaces = ["sample", "nexops"]
 ###############
 admin_users     = ["tf.josh.tran", "tf.ken.nguyen", "tf.dennis.le", "tf.troy.vo"]
