@@ -101,7 +101,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x "$PROXY" --connect-timeout 5 --max-time 20 --retry 5 --retry-delay 2 --retry-max-time 60 -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem "https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt" && update-ca-trust
           EOT
       },
       {
@@ -202,7 +202,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x "$PROXY" --connect-timeout 5 --max-time 20 --retry 5 --retry-delay 2 --retry-max-time 60 -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem "https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt" && update-ca-trust
           EOT
       },
       {
@@ -303,7 +303,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x "$PROXY" --connect-timeout 5 --max-time 20 --retry 5 --retry-delay 2 --retry-max-time 60 -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem "https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt" && update-ca-trust
           EOT
       },
       {
@@ -404,7 +404,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x "$PROXY" --connect-timeout 5 --max-time 20 --retry 5 --retry-delay 2 --retry-max-time 60 -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem "https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt" && update-ca-trust
           EOT
       },
       {
@@ -505,7 +505,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x "$PROXY" --connect-timeout 5 --max-time 20 --retry 5 --retry-delay 2 --retry-max-time 60 -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem "https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt" && update-ca-trust
           EOT
       },
       {
@@ -605,7 +605,7 @@ eks_managed_node_groups = {
             EnvironmentFile=/etc/environment
             EOF
             cloud-init-per instance reload_daemon systemctl daemon-reload
-            curl -x $PROXY -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem  https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt && update-ca-trust
+            curl -x "$PROXY" --connect-timeout 5 --max-time 20 --retry 5 --retry-delay 2 --retry-max-time 60 -o /etc/pki/ca-trust/source/anchors/rootCAgeneral.pem "https://gitlab.starixsoft.com/nexops/ca-repo/-/raw/master/rootCAgeneral.crt" && update-ca-trust
           EOT
       },
       {
