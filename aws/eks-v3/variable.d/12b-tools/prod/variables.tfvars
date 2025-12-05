@@ -21,7 +21,7 @@ vpc_private_subnets = [
 autoscaling_average_cpu = 90
 cluster_version         = "1.34"
 eks_managed_node_groups = {
-  ####### Ingress
+  ######## Ingress
   "12b-prod-rabbitmq-az1" = {
     name                       = "12b-prod-rabbitmq-az1"
     key_name                   = "strawberry-vnteam-key"
@@ -85,8 +85,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -186,8 +186,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -287,8 +287,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -388,8 +388,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -489,8 +489,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -589,8 +589,8 @@ eks_managed_node_groups = {
             https_proxy=http://$PROXY
             HTTP_PROXY=http://$PROXY
             HTTPS_PROXY=http://$PROXY
-            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
-            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.starwberry.com
+            no_proxy=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
+            NO_PROXY=$VPC_CIDR,localhost,127.0.0.1,169.254.169.254,.internal,.eks.amazonaws.com,.gamora.prod,.strawberry.com
             EOF
             cloud-init-per instance containerd_proxy_config tee <<EOF /etc/systemd/system/containerd.service.d/http-proxy.conf >/dev/null
             [Service]    
@@ -629,7 +629,7 @@ eks_managed_node_groups = {
   },
 }
 
-################
+###############
 namespaces = ["sample", "nexops"]
 ###############
 admin_users     = ["tf.josh.tran", "tf.ken.nguyen", "tf.dennis.le", "tf.troy.vo"]
